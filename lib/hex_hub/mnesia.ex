@@ -17,7 +17,8 @@ defmodule HexHub.Mnesia do
     :publish_configs,
     :blocked_addresses,
     :retired_releases,
-    :system_metadata
+    :system_metadata,
+    :backups
   ]
 
   @doc """
@@ -263,6 +264,26 @@ defmodule HexHub.Mnesia do
        [
          attributes: [:key, :value],
          type: :set
+       ] ++ storage_opt(storage_type)},
+      {:backups,
+       [
+         attributes: [
+           :id,
+           :filename,
+           :file_path,
+           :size_bytes,
+           :user_count,
+           :package_count,
+           :release_count,
+           :created_by,
+           :status,
+           :error_message,
+           :created_at,
+           :completed_at,
+           :expires_at
+         ],
+         type: :set,
+         index: [:created_at, :expires_at]
        ] ++ storage_opt(storage_type)}
     ]
 
@@ -456,7 +477,8 @@ defmodule HexHub.Mnesia do
       :publish_configs,
       :blocked_addresses,
       :retired_releases,
-      :system_metadata
+      :system_metadata,
+      :backups
     ]
 
     Enum.each(persistent_tables, fn table ->

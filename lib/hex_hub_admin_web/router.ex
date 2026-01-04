@@ -69,6 +69,16 @@ defmodule HexHubAdminWeb.Router do
 
     resources "/cached-packages", CachedPackageController, only: [:index, :show, :delete]
     delete "/cached-packages", CachedPackageController, :clear_all
+
+    # Backup management
+    get "/backups", BackupController, :index
+    get "/backups/new", BackupController, :new
+    get "/backups/restore", BackupController, :restore_form
+    post "/backups", BackupController, :create
+    post "/backups/restore", BackupController, :restore
+    get "/backups/:id", BackupController, :show
+    get "/backups/:id/download", BackupController, :download
+    delete "/backups/:id", BackupController, :delete
   end
 
   # Enable LiveDashboard in development
