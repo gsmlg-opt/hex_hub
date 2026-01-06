@@ -31,7 +31,7 @@ defmodule HexHubAdminWeb.BackupController do
   Creates a new backup.
   """
   def create(conn, _params) do
-    # TODO: Get actual admin username from session
+    # Use "admin" as default creator - session-based user tracking not yet implemented
     created_by = "admin"
 
     case Backup.create_backup(created_by) do
@@ -180,7 +180,7 @@ defmodule HexHubAdminWeb.BackupController do
     case :mnesia.transaction(fn ->
            :mnesia.foldl(
              fn pkg, acc ->
-               # Package tuple: {:packages, name, repo_name, meta, private, downloads, inserted_at, updated_at, html_url, docs_html_url, source}
+               # source is at index 10 in the packages tuple
                source = elem(pkg, 10)
                if source == :local, do: acc + 1, else: acc
              end,

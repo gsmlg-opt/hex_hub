@@ -30,11 +30,11 @@ defmodule HexHub.Backup.Exporter do
       {:ok, users} = export_users(tmp_dir)
       {:ok, packages} = export_packages(tmp_dir)
       {:ok, releases} = export_releases(tmp_dir)
-      {:ok, owners} = export_owners(tmp_dir)
+      {:ok, _owners} = export_owners(tmp_dir)
 
       # Copy package and doc tarballs
-      {:ok, package_files_count} = copy_package_tarballs(tmp_dir, packages)
-      {:ok, doc_files_count} = copy_doc_tarballs(tmp_dir, releases)
+      {:ok, _package_files_count} = copy_package_tarballs(tmp_dir, packages)
+      {:ok, _doc_files_count} = copy_doc_tarballs(tmp_dir, releases)
 
       # Generate manifest
       manifest =

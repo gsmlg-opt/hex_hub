@@ -6,8 +6,8 @@ defmodule HexHub.Backup do
   of users and locally-published packages.
   """
 
-  alias HexHub.Backup.{Exporter, Importer}
   alias HexHub.Audit
+  alias HexHub.Backup.{Exporter, Importer}
 
   @type backup :: %{
           id: String.t(),
@@ -247,34 +247,36 @@ defmodule HexHub.Backup do
     path = backup_path()
     File.mkdir_p!(path)
 
-    case :disksup.get_disk_data() do
-      data when is_list(data) ->
-        # Find the disk that contains our backup path
-        abs_path = Path.expand(path)
+    # Use df command to check available disk space
+    case System.cmd("df", ["-k", path], stderr_to_stdout: true) do
+      {output, 0} -> parse_df_output(output)
+      _ -> {:ok, :unknown}
+    end
+  end
 
-        disk_info =
-          Enum.find(data, fn {mount_point, _total, _percent} ->
-            String.starts_with?(abs_path, to_string(mount_point))
-          end)
+  defp parse_df_output(output) do
+    lines = String.split(output, "\n", trim: true)
 
-        case disk_info do
-          {_mount, total_kb, used_percent} ->
-            available_kb = trunc(total_kb * (100 - used_percent) / 100)
-            # Require at least 100MB free
-            if available_kb > 100_000 do
-              {:ok, available_kb * 1024}
-            else
-              {:error, :insufficient_space}
-            end
+    case lines do
+      [_header | [data_line | _]] -> parse_df_data_line(data_line)
+      _ -> {:ok, :unknown}
+    end
+  end
 
-          nil ->
-            # Disk info not found, assume OK
-            {:ok, :unknown}
-        end
+  defp parse_df_data_line(data_line) do
+    parts = String.split(data_line, ~r/\s+/, trim: true)
 
-      _ ->
-        # disksup not available, assume OK
-        {:ok, :unknown}
+    case Enum.at(parts, 3) do
+      nil -> {:ok, :unknown}
+      available_str -> check_available_space(available_str)
+    end
+  end
+
+  defp check_available_space(available_str) do
+    case Integer.parse(available_str) do
+      {available_kb, _} when available_kb > 100_000 -> {:ok, available_kb * 1024}
+      {_available_kb, _} -> {:error, :insufficient_space}
+      :error -> {:ok, :unknown}
     end
   end
 
