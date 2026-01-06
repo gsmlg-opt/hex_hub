@@ -1,0 +1,75 @@
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Backup History</h1>
+    <div class="flex gap-2">
+      <.link navigate={~p"/backups/new"} class="btn btn-primary">
+        Create Backup
+      </.link>
+      <.link navigate={~p"/backups/restore"} class="btn btn-secondary">
+        Restore from File
+      </.link>
+    </div>
+  </div>
+
+  <%= if Enum.empty?(@backups) do %>
+    <div class="alert alert-info">
+      <span>No backups have been created yet.</span>
+    </div>
+  <% else %>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Size</th>
+            <th>Users</th>
+            <th>Packages</th>
+            <th>Created By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for backup <- @backups do %>
+            <tr>
+              <td>
+                <div class="tooltip" data-tip={format_datetime(backup.created_at)}>
+                  {format_relative(backup.created_at)}
+                </div>
+              </td>
+              <td>
+                <% {label, badge_class} = format_status(backup.status) %>
+                <span class={"badge #{badge_class}"}>{label}</span>
+              </td>
+              <td>{format_size(backup.size_bytes)}</td>
+              <td>{backup.user_count}</td>
+              <td>{backup.package_count}</td>
+              <td>{backup.created_by}</td>
+              <td class="flex gap-2">
+                <.link navigate={~p"/backups/#{backup.id}"} class="btn btn-sm btn-ghost">
+                  View
+                </.link>
+                <%= if backup.status == :completed do %>
+                  <.link
+                    navigate={~p"/backups/#{backup.id}/download"}
+                    class="btn btn-sm btn-ghost"
+                  >
+                    Download
+                  </.link>
+                <% end %>
+                <.link
+                  href={~p"/backups/#{backup.id}"}
+                  method="delete"
+                  data-confirm="Are you sure you want to delete this backup?"
+                  class="btn btn-sm btn-error btn-ghost"
+                >
+                  Delete
+                </.link>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

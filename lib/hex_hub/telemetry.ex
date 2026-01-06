@@ -32,6 +32,7 @@ defmodule HexHub.Telemetry do
           | :cluster
           | :config
           | :user
+          | :backup
           | :general
 
   @doc """
@@ -198,6 +199,26 @@ defmodule HexHub.Telemetry do
       counter("hex_hub.upstream.errors.total",
         tags: [:operation, :status],
         description: "Total upstream errors"
+      ),
+
+      # Backup Metrics
+      counter("hex_hub.backup.created.total",
+        description: "Total backups created"
+      ),
+      counter("hex_hub.backup.restored.total",
+        description: "Total backups restored"
+      ),
+      counter("hex_hub.backup.deleted.total",
+        tags: [:reason],
+        description: "Total backups deleted"
+      ),
+      summary("hex_hub.backup.size_bytes",
+        unit: :byte,
+        description: "Backup archive size"
+      ),
+      summary("hex_hub.backup.duration",
+        unit: :millisecond,
+        description: "Backup operation duration"
       )
     ]
   end
@@ -333,5 +354,17 @@ defmodule HexHub.Telemetry do
         error_type: error_type
       })
     end
+  end
+
+  def track_backup_created(size_bytes) do
+    :telemetry.execute([:hex_hub, :backup, :created], %{count: 1, size_bytes: size_bytes})
+  end
+
+  def track_backup_restored do
+    :telemetry.execute([:hex_hub, :backup, :restored], %{count: 1})
+  end
+
+  def track_backup_deleted(reason) do
+    :telemetry.execute([:hex_hub, :backup, :deleted], %{count: 1}, %{reason: reason})
   end
 end

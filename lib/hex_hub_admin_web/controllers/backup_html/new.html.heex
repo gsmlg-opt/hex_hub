@@ -1,0 +1,65 @@
+<div class="container mx-auto p-6 max-w-2xl">
+  <div class="mb-6">
+    <.link navigate={~p"/backups"} class="btn btn-ghost btn-sm">
+      &larr; Back to Backups
+    </.link>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">Create System Backup</h2>
+
+      <div class="alert alert-info mb-6">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          class="stroke-current shrink-0 w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          >
+          </path>
+        </svg>
+        <div>
+          <p>This will create a backup of all users and locally-published packages.</p>
+          <p class="text-sm">Cached upstream packages are not included in backups.</p>
+        </div>
+      </div>
+
+      <div class="stats shadow mb-6">
+        <div class="stat">
+          <div class="stat-title">Users</div>
+          <div class="stat-value text-primary">{@stats.user_count}</div>
+          <div class="stat-desc">to be backed up</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">Packages</div>
+          <div class="stat-value text-secondary">{@stats.package_count}</div>
+          <div class="stat-desc">locally published</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">Releases</div>
+          <div class="stat-value">{@stats.release_count}</div>
+          <div class="stat-desc">total versions</div>
+        </div>
+      </div>
+
+      <.form for={%{}} action={~p"/backups"} method="post">
+        <div class="card-actions justify-end">
+          <.link navigate={~p"/backups"} class="btn btn-ghost">
+            Cancel
+          </.link>
+          <button type="submit" class="btn btn-primary">
+            Create Backup
+          </button>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

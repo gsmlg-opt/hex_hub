@@ -462,6 +462,8 @@ Logger.info("Package #{name} published")
 - N/A (static documentation content rendered from templates and hex-api.yaml) (004-api-docs)
 - Mnesia (`:packages`, `:package_releases` tables) + HexHub.Storage abstraction for tarballs (005-admin-package-management)
 - Mnesia (`:system_settings` or `:publish_configs` table for setting, existing `:users` table for anonymous user) (006-anonymous-publish-config)
+- Elixir 1.15+ / OTP 26+ + Phoenix 1.8+, Mnesia (built-in), :erl_tar (Erlang stdlib) (007-admin-backup)
+- Mnesia for metadata, HexHub.Storage for package tarballs, local filesystem for backup archives (007-admin-backup)
 
 ## Recent Changes
 - 001-telemetry-logging: Added Elixir 1.15+ / OTP 26+ + `:telemetry` (already in project), `Logger` (Elixir stdlib)

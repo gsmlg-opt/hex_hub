@@ -50,7 +50,9 @@ defmodule HexHub.Application do
       # Start the Endpoint (http/https)
       HexHubWeb.Endpoint,
       # Start the Admin Endpoint (http/https)
-      HexHubAdminWeb.Endpoint
+      HexHubAdminWeb.Endpoint,
+      # Start the backup cleanup GenServer
+      HexHub.Backup.Cleanup
     ]
 
     # Add MCP server only if enabled

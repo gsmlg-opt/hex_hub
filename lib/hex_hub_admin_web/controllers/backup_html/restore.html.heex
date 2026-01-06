@@ -1,0 +1,102 @@
+<div class="container mx-auto p-6 max-w-2xl">
+  <div class="mb-6">
+    <.link navigate={~p"/backups"} class="btn btn-ghost btn-sm">
+      &larr; Back to Backups
+    </.link>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">Restore from Backup</h2>
+
+      <div class="alert alert-warning mb-6">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="stroke-current shrink-0 h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+        <div>
+          <p class="font-bold">Caution</p>
+          <p>
+            Restoring a backup will import users and packages. Existing data may be affected based on your conflict strategy.
+          </p>
+        </div>
+      </div>
+
+      <.form
+        for={%{}}
+        action={~p"/backups/restore"}
+        method="post"
+        multipart={true}
+        class="space-y-6"
+      >
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Backup File</span>
+          </label>
+          <input
+            type="file"
+            name="backup[file]"
+            accept=".tar"
+            class="file-input file-input-bordered w-full"
+            required
+          />
+          <label class="label">
+            <span class="label-text-alt">Select a .tar backup file to restore</span>
+          </label>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Conflict Resolution Strategy</span>
+          </label>
+          <select name="backup[conflict_strategy]" class="select select-bordered w-full">
+            <%= for {label, value} <- @conflict_strategies do %>
+              <option value={value}>{label}</option>
+            <% end %>
+          </select>
+          <label class="label">
+            <span class="label-text-alt">How to handle users/packages that already exist</span>
+          </label>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="collapse collapse-arrow bg-base-200">
+          <input type="checkbox" />
+          <div class="collapse-title font-medium">
+            What gets restored?
+          </div>
+          <div class="collapse-content">
+            <ul class="list-disc list-inside space-y-1 text-sm">
+              <li>User accounts with credentials (password hashes preserved)</li>
+              <li>Package metadata and ownership</li>
+              <li>Package releases with requirements</li>
+              <li>Package tarballs and documentation</li>
+            </ul>
+            <p class="mt-2 text-sm text-base-content/60">
+              Note: API keys are not restored for security reasons. Users will need to generate new keys.
+            </p>
+          </div>
+        </div>
+
+        <div class="card-actions justify-end">
+          <.link navigate={~p"/backups"} class="btn btn-ghost">
+            Cancel
+          </.link>
+          <button type="submit" class="btn btn-primary">
+            Start Restore
+          </button>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

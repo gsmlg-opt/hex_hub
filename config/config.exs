@@ -6,7 +6,9 @@ config :mime, :types, %{
 }
 
 config :hex_hub,
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  backup_path: "priv/backups",
+  backup_retention_days: 30
 
 config :hex_hub, HexHubWeb.Endpoint,
   url: [host: "localhost"],
