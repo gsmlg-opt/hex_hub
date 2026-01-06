@@ -1,4 +1,6 @@
 [
+  # Ignore opaque type warnings in backup exporter (MapSet used in Mnesia transactions)
+  ~r/lib\/hex_hub\/backup\/exporter\.ex.*call_without_opaque/,
   # Ignore pattern match warning in repositories.ex
   ~r/lib\/hex_hub\/mcp\/tools\/repositories\.ex.*pattern_match/,
   # Ignore pattern match warning in release_controller.ex (defensive clause for non-list terms)
