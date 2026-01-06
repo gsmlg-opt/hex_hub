@@ -337,7 +337,10 @@ defmodule HexHub.Backup.Importer do
 
   defp check_release_exists(package_name, version) do
     case :mnesia.transaction(fn ->
-           :mnesia.match_object({:package_releases, package_name, version, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_})
+           :mnesia.match_object(
+             {:package_releases, package_name, version, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_,
+              :_}
+           )
          end) do
       {:atomic, [_ | _]} -> true
       _ -> false
@@ -391,8 +394,8 @@ defmodule HexHub.Backup.Importer do
     record =
       {:package_releases, Map.get(data, "package_name"), Map.get(data, "version"),
        Map.get(data, "has_docs", false), Map.get(data, "meta", %{}),
-       Map.get(data, "requirements", %{}), Map.get(data, "retired"), Map.get(data, "downloads", 0),
-       parse_datetime(Map.get(data, "inserted_at")) || now,
+       Map.get(data, "requirements", %{}), Map.get(data, "retired"),
+       Map.get(data, "downloads", 0), parse_datetime(Map.get(data, "inserted_at")) || now,
        parse_datetime(Map.get(data, "updated_at")) || now, Map.get(data, "url"),
        Map.get(data, "package_url"), Map.get(data, "html_url"), Map.get(data, "docs_html_url")}
 
@@ -407,8 +410,7 @@ defmodule HexHub.Backup.Importer do
 
     record =
       {:package_owners, Map.get(data, "package_name"), Map.get(data, "username"),
-       Map.get(data, "level", "maintainer"),
-       parse_datetime(Map.get(data, "inserted_at")) || now}
+       Map.get(data, "level", "maintainer"), parse_datetime(Map.get(data, "inserted_at")) || now}
 
     case :mnesia.transaction(fn -> :mnesia.write(record) end) do
       {:atomic, :ok} -> 1

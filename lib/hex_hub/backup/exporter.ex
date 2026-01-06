@@ -357,7 +357,9 @@ defmodule HexHub.Backup.Exporter do
 
   defp get_package_releases(package_name) do
     case :mnesia.transaction(fn ->
-           :mnesia.match_object({:package_releases, package_name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_})
+           :mnesia.match_object(
+             {:package_releases, package_name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_}
+           )
          end) do
       {:atomic, records} ->
         Enum.map(records, &release_to_map/1)

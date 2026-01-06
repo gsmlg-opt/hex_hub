@@ -106,6 +106,7 @@ defmodule HexHub.Backup do
       {:error, reason} = error ->
         # Try to mark backup as failed if we have an id
         HexHub.Telemetry.log(:error, :backup, "Backup creation failed", %{reason: inspect(reason)})
+
         error
     end
   end
