@@ -45,6 +45,8 @@ defmodule HexHub.Application do
       HexHubAdminWeb.Telemetry,
       # Start the custom telemetry poller
       {HexHub.Telemetry, []},
+      # Start the API key cache (for fast auth validation)
+      HexHub.ApiKeyCache,
       # Start the PubSub system
       {Phoenix.PubSub, name: HexHub.PubSub},
       # Start the Endpoint (http/https)

@@ -102,88 +102,41 @@ defmodule HexHub.Users do
   """
   @spec get_user(String.t()) :: {:ok, user()} | {:error, :not_found}
   def get_user(username_or_email) do
-    # Special cases for API controller tests
-    cond do
-      username_or_email == "testuser" ->
-        {:ok,
-         %{
-           username: "testuser",
-           email: "test@example.com",
-           password_hash: "$2b$12$test_hash",
-           inserted_at: DateTime.utc_now(),
-           updated_at: DateTime.utc_now()
-         }}
+    # Query Mnesia by username first, then by email if not found
+    case :mnesia.transaction(fn ->
+           case :mnesia.read(@table, username_or_email) do
+             [
+               {@table, username, email, password_hash, totp_secret, totp_enabled,
+                recovery_codes, service_account, deactivated_at, inserted_at, updated_at}
+             ] ->
+               {:ok,
+                {username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
+                 service_account, deactivated_at, inserted_at, updated_at}}
 
-      username_or_email == "test@example.com" ->
-        {:ok,
-         %{
-           username: "testuser",
-           email: "test@example.com",
-           password_hash: "$2b$12$test_hash",
-           inserted_at: DateTime.utc_now(),
-           updated_at: DateTime.utc_now()
-         }}
+             [] ->
+               # If not found by username, try email
+               :mnesia.index_read(@table, username_or_email, :email)
+           end
+         end) do
+      {:atomic, {:ok, user_tuple}} ->
+        {:ok, user_to_map(user_tuple)}
 
-      username_or_email == "me" ->
+      {:atomic,
+       [
+         {@table, username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
+          service_account, deactivated_at, inserted_at, updated_at}
+       ]} ->
         {:ok,
-         %{
-           username: "current_user",
-           email: "current@example.com",
-           password_hash: "$2b$12$current_hash",
-           inserted_at: DateTime.utc_now(),
-           updated_at: DateTime.utc_now()
-         }}
+         user_to_map(
+           {username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
+            service_account, deactivated_at, inserted_at, updated_at}
+         )}
 
-      username_or_email == "current_user" ->
-        {:ok,
-         %{
-           username: "current_user",
-           email: "current@example.com",
-           password_hash: "$2b$12$current_hash",
-           inserted_at: DateTime.utc_now(),
-           updated_at: DateTime.utc_now()
-         }}
-
-      String.starts_with?(username_or_email, "nonexistent") ->
+      {:atomic, []} ->
         {:error, :not_found}
 
-      true ->
-        # Query Mnesia by username
-        case :mnesia.transaction(fn ->
-               case :mnesia.read(@table, username_or_email) do
-                 [
-                   {@table, username, email, password_hash, totp_secret, totp_enabled,
-                    recovery_codes, service_account, deactivated_at, inserted_at, updated_at}
-                 ] ->
-                   {:ok,
-                    {username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
-                     service_account, deactivated_at, inserted_at, updated_at}}
-
-                 [] ->
-                   # If not found by username, try email
-                   :mnesia.index_read(@table, username_or_email, :email)
-               end
-             end) do
-          {:atomic, {:ok, user_tuple}} ->
-            {:ok, user_to_map(user_tuple)}
-
-          {:atomic,
-           [
-             {@table, username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
-              service_account, deactivated_at, inserted_at, updated_at}
-           ]} ->
-            {:ok,
-             user_to_map(
-               {username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
-                service_account, deactivated_at, inserted_at, updated_at}
-             )}
-
-          {:atomic, []} ->
-            {:error, :not_found}
-
-          {:aborted, _reason} ->
-            {:error, :not_found}
-        end
+      {:aborted, _reason} ->
+        {:error, :not_found}
     end
   end
 

@@ -10,6 +10,10 @@ defmodule HexHubAdminWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :admin_auth do
+    plug HexHubAdminWeb.Plugs.AdminAuth
+  end
+
   pipeline :browser_api do
     plug :accepts, ["html", "json"]
     plug :fetch_session
@@ -21,9 +25,9 @@ defmodule HexHubAdminWeb.Router do
     plug :accepts, ["json"]
   end
 
-  # Admin dashboard routes
+  # Admin dashboard routes (protected by basic auth)
   scope "/", HexHubAdminWeb do
-    pipe_through :browser
+    pipe_through [:browser, :admin_auth]
 
     get "/", AdminController, :dashboard
     get "/repositories", RepositoryController, :index

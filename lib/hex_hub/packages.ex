@@ -113,33 +113,26 @@ defmodule HexHub.Packages do
   """
   @spec get_package(String.t()) :: {:ok, package()} | {:error, :not_found}
   def get_package(name) do
-    case :mnesia.transaction(fn ->
-           # Use dirty_read for better performance when we know the exact key
-           case :mnesia.dirty_read(@packages_table, name) do
-             [
-               {@packages_table, name, repository_name, meta, private, downloads, inserted_at,
-                updated_at, html_url, docs_html_url, source}
-             ] ->
-               {:ok,
-                package_to_map(
-                  {@packages_table, name, repository_name, meta, private, downloads, inserted_at,
-                   updated_at, html_url, docs_html_url, source}
-                )}
+    # Use dirty_read for read-only single-key lookup (no transaction needed)
+    case :mnesia.dirty_read(@packages_table, name) do
+      [
+        {@packages_table, name, repository_name, meta, private, downloads, inserted_at,
+         updated_at, html_url, docs_html_url, source}
+      ] ->
+        {:ok,
+         package_to_map(
+           {@packages_table, name, repository_name, meta, private, downloads, inserted_at,
+            updated_at, html_url, docs_html_url, source}
+         )}
 
-             [] ->
-               {:error, :not_found}
-           end
-         end) do
-      {:atomic, {:ok, package}} ->
-        {:ok, package}
-
-      {:atomic, {:error, :not_found}} ->
+      [] ->
         # Try upstream fetching
         fetch_package_from_upstream(name)
-
-      {:aborted, _reason} ->
-        {:error, :not_found}
     end
+  rescue
+    # Handle Mnesia errors gracefully
+    _error ->
+      {:error, :not_found}
   end
 
   @doc """

@@ -6,7 +6,7 @@ defmodule HexHubWeb.CachingBodyReader do
   after Plug.Parsers has processed it (e.g., hex publish endpoint).
   """
 
-  require Logger
+  alias HexHub.Telemetry
 
   @doc """
   Read the body and cache it in the connection's private storage.
@@ -15,19 +15,29 @@ defmodule HexHubWeb.CachingBodyReader do
     case Plug.Conn.read_body(conn, opts) do
       {:ok, body, conn} ->
         # Cache the raw body
-        Logger.debug("CachingBodyReader: read #{byte_size(body)} bytes (complete)")
+        Telemetry.log(:debug, :api, "CachingBodyReader: read body (complete)", %{
+          bytes: byte_size(body)
+        })
+
         conn = Plug.Conn.put_private(conn, :raw_body, body)
         {:ok, body, conn}
 
       {:more, body, conn} ->
         # For chunked bodies, accumulate
         existing = conn.private[:raw_body] || ""
-        Logger.debug("CachingBodyReader: read #{byte_size(body)} bytes (more)")
+
+        Telemetry.log(:debug, :api, "CachingBodyReader: read body (more)", %{
+          bytes: byte_size(body)
+        })
+
         conn = Plug.Conn.put_private(conn, :raw_body, existing <> body)
         {:more, body, conn}
 
       {:error, reason} ->
-        Logger.debug("CachingBodyReader: error #{inspect(reason)}")
+        Telemetry.log(:debug, :api, "CachingBodyReader: error reading body", %{
+          error: inspect(reason)
+        })
+
         {:error, reason}
     end
   end
@@ -39,9 +49,11 @@ defmodule HexHubWeb.CachingBodyReader do
     body = conn.private[:raw_body]
 
     if body do
-      Logger.debug("CachingBodyReader: returning cached body of #{byte_size(body)} bytes")
+      Telemetry.log(:debug, :api, "CachingBodyReader: returning cached body", %{
+        bytes: byte_size(body)
+      })
     else
-      Logger.debug("CachingBodyReader: no cached body found")
+      Telemetry.log(:debug, :api, "CachingBodyReader: no cached body found", %{})
     end
 
     body

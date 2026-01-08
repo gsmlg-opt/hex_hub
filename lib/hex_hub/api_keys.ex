@@ -59,15 +59,32 @@ defmodule HexHub.ApiKeys do
 
   @doc """
   Validate an API key and return user info.
+
+  Uses ETS cache for performance - avoids O(n) bcrypt comparisons on every request.
   """
   @spec validate_key(String.t()) ::
           {:ok, %{username: String.t(), permissions: [String.t()]}}
           | {:error, :invalid_key | :revoked_key}
   def validate_key(key) do
+    # Check cache first for fast path
+    case HexHub.ApiKeyCache.get(key) do
+      {:ok, cached_result} ->
+        {:ok, cached_result}
+
+      :not_found ->
+        # Cache miss - do full validation
+        validate_key_uncached(key)
+    end
+  end
+
+  # Full validation without cache
+  defp validate_key_uncached(key) do
     case :mnesia.transaction(fn ->
            :mnesia.foldl(&check_key_match(key, &1, &2), nil, @table)
          end) do
       {:atomic, {:ok, %{username: username, permissions: permissions, revoked_at: nil}}} ->
+        # Cache the successful validation
+        HexHub.ApiKeyCache.put(key, username, permissions)
         {:ok, %{username: username, permissions: permissions}}
 
       {:atomic, {:ok, %{revoked_at: revoked_at}}} when not is_nil(revoked_at) ->
@@ -135,9 +152,16 @@ defmodule HexHub.ApiKeys do
                {:error, "Key does not belong to user"}
            end
          end) do
-      {:atomic, :ok} -> :ok
-      {:atomic, {:error, reason}} -> {:error, reason}
-      {:aborted, reason} -> {:error, "Failed to revoke key: #{inspect(reason)}"}
+      {:atomic, :ok} ->
+        # Invalidate cache for this user (their key is now revoked)
+        HexHub.ApiKeyCache.invalidate_user(username)
+        :ok
+
+      {:atomic, {:error, reason}} ->
+        {:error, reason}
+
+      {:aborted, reason} ->
+        {:error, "Failed to revoke key: #{inspect(reason)}"}
     end
   end
 

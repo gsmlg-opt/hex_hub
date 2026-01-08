@@ -43,8 +43,45 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # Storage configuration
+  storage_type =
+    case System.get_env("STORAGE_TYPE", "local") do
+      "s3" -> :s3
+      _ -> :local
+    end
+
   config :hex_hub,
-    storage_type: :local,
+    env: :prod,
+    storage_type: storage_type,
     storage_path: System.get_env("STORAGE_PATH", "priv/storage"),
-    mnesia_dir: System.get_env("MNESIA_DIR", "mnesia")
+    mnesia_dir: System.get_env("MNESIA_DIR", "mnesia"),
+    s3_bucket: System.get_env("S3_BUCKET"),
+    # Admin dashboard authentication (required in production)
+    admin_username: System.get_env("ADMIN_USERNAME", "admin"),
+    admin_password: System.get_env("ADMIN_PASSWORD")
+
+  # S3 configuration (when STORAGE_TYPE=s3)
+  if storage_type == :s3 do
+    s3_config = [
+      scheme:
+        if(System.get_env("AWS_S3_SCHEME") == "http", do: "http://", else: "https://"),
+      host: System.get_env("AWS_S3_HOST"),
+      port: String.to_integer(System.get_env("AWS_S3_PORT", "443"))
+    ]
+
+    # Add path_style option for MinIO/LocalStack compatibility
+    s3_config =
+      if System.get_env("AWS_S3_PATH_STYLE", "false") == "true" do
+        Keyword.put(s3_config, :path_style, true)
+      else
+        s3_config
+      end
+
+    config :ex_aws,
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+      region: System.get_env("AWS_REGION", "us-east-1")
+
+    config :ex_aws, :s3, s3_config
+  end
 end
