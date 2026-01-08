@@ -40,9 +40,8 @@ defmodule HexHubAdminWeb do
     quote do
       use Phoenix.Controller, formats: [:html, :json]
 
-      use Gettext, backend: HexHubAdminWeb.Gettext
-
       import Plug.Conn
+      use Gettext, backend: HexHubAdminWeb.Gettext
 
       unquote(verified_routes())
     end
