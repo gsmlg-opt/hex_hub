@@ -55,10 +55,7 @@ if config_env() == :prod do
     storage_type: storage_type,
     storage_path: System.get_env("STORAGE_PATH", "priv/storage"),
     mnesia_dir: System.get_env("MNESIA_DIR", "mnesia"),
-    s3_bucket: System.get_env("S3_BUCKET"),
-    # Admin dashboard authentication (required in production)
-    admin_username: System.get_env("ADMIN_USERNAME", "admin"),
-    admin_password: System.get_env("ADMIN_PASSWORD")
+    s3_bucket: System.get_env("S3_BUCKET")
 
   # S3 configuration (when STORAGE_TYPE=s3)
   if storage_type == :s3 do

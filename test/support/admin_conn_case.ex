@@ -36,17 +36,11 @@ defmodule HexHubAdminWeb.ConnCase do
       File.mkdir_p!(test_storage_path)
     end
 
-    # Build connection with admin authentication
-    # Admin credentials are configured in config/test.exs
-    username = Application.get_env(:hex_hub, :admin_username, "admin")
-    password = Application.get_env(:hex_hub, :admin_password, "test_admin_password")
-    credentials = Base.encode64("#{username}:#{password}")
-
+    # Build connection for admin routes
     conn =
       Phoenix.ConnTest.build_conn()
       |> Plug.Conn.put_private(:plug_skip_csrf_protection, true)
-      |> Plug.Test.init_test_session(%{admin_authenticated: true, admin_username: username})
-      |> Plug.Conn.put_req_header("authorization", "Basic #{credentials}")
+      |> Plug.Test.init_test_session(%{})
 
     {:ok, conn: conn}
   end

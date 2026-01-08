@@ -33,10 +33,7 @@ config :phoenix_live_view,
 config :hex_hub,
   storage_type: :local,
   storage_path: "priv/test_storage",
-  mnesia_dir: "priv/mnesia/test",
-  # Admin auth for testing
-  admin_username: "admin",
-  admin_password: "test_admin_password"
+  mnesia_dir: "priv/mnesia/test"
 
 # Mnesia directory for test
 config :mnesia, dir: ~c"priv/mnesia/test"
