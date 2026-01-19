@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HexHub MCP Public Tools",
+  "description": "MCP tool definitions for public package information access",
+  "version": "1.0.0",
+  "tools": {
+    "search_packages": {
+      "name": "search_packages",
+      "description": "Search for packages by name, description, or metadata",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query"
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20,
+            "maximum": 100,
+            "description": "Maximum number of results"
+          },
+          "filters": {
+            "type": "object",
+            "properties": {
+              "repository": { "type": "string" },
+              "license": { "type": "string" },
+              "elixir_version": { "type": "string" },
+              "downloads_min": { "type": "integer" },
+              "private": { "type": "boolean" }
+            },
+            "description": "Additional filters"
+          }
+        },
+        "required": ["query"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "packages": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/PackageSummary" }
+          },
+          "total": { "type": "integer" },
+          "query": { "type": "string" },
+          "filters": { "type": "object" }
+        }
+      }
+    },
+    "get_package": {
+      "name": "get_package",
+      "description": "Get detailed information about a specific package",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name"
+          },
+          "repository": {
+            "type": "string",
+            "description": "Repository name (optional)"
+          }
+        },
+        "required": ["name"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "package": { "$ref": "#/definitions/PackageDetail" },
+          "releases": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/ReleaseSummary" }
+          },
+          "total_releases": { "type": "integer" },
+          "latest_version": { "type": "string" },
+          "repository": { "$ref": "#/definitions/Repository" }
+        }
+      }
+    },
+    "list_packages": {
+      "name": "list_packages",
+      "description": "List packages with pagination and optional filtering",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "default": 1,
+            "minimum": 1
+          },
+          "per_page": {
+            "type": "integer",
+            "default": 20,
+            "maximum": 100
+          },
+          "sort": {
+            "type": "string",
+            "enum": ["name", "downloads", "updated_at", "inserted_at"],
+            "default": "name"
+          },
+          "order": {
+            "type": "string",
+            "enum": ["asc", "desc"],
+            "default": "asc"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "packages": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/PackageSummary" }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": { "type": "integer" },
+              "per_page": { "type": "integer" },
+              "total_packages": { "type": "integer" }
+            }
+          },
+          "sort": { "type": "string" },
+          "order": { "type": "string" }
+        }
+      }
+    },
+    "get_package_metadata": {
+      "name": "get_package_metadata",
+      "description": "Get package metadata including requirements and dependencies",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name"
+          },
+          "version": {
+            "type": "string",
+            "description": "Specific version (defaults to latest)"
+          }
+        },
+        "required": ["name"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "metadata": { "type": "object" },
+          "requirements": { "type": "object" },
+          "has_docs": { "type": "boolean" },
+          "retirement_info": { "$ref": "#/definitions/RetirementInfo" }
+        }
+      }
+    },
+    "list_releases": {
+      "name": "list_releases",
+      "description": "List all releases/versions for a package",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name"
+          },
+          "include_retired": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include retired versions"
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    "get_release": {
+      "name": "get_release",
+      "description": "Get detailed information about a specific package release",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name"
+          },
+          "version": {
+            "type": "string",
+            "description": "Package version"
+          }
+        },
+        "required": ["name", "version"]
+      }
+    },
+    "get_dependency_tree": {
+      "name": "get_dependency_tree",
+      "description": "Build dependency tree for a package",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name"
+          },
+          "version": {
+            "type": "string",
+            "description": "Package version"
+          },
+          "depth": {
+            "type": "integer",
+            "default": 3,
+            "maximum": 10,
+            "description": "Maximum tree depth"
+          }
+        },
+        "required": ["name", "version"]
+      }
+    },
+    "check_compatibility": {
+      "name": "check_compatibility",
+      "description": "Check version compatibility between packages",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "packages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "version": { "type": "string" }
+              },
+              "required": ["name", "version"]
+            },
+            "description": "List of packages with versions"
+          },
+          "elixir_version": {
+            "type": "string",
+            "description": "Target Elixir version"
+          }
+        },
+        "required": ["packages"]
+      }
+    }
+  },
+  "definitions": {
+    "PackageSummary": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "repository": { "type": "string" },
+        "description": { "type": "string" },
+        "licenses": { "type": "array", "items": { "type": "string" } },
+        "links": { "type": "object" },
+        "downloads": { "type": "integer" },
+        "url": { "type": "string" },
+        "html_url": { "type": "string" }
+      }
+    },
+    "PackageDetail": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "repository": { "type": "string" },
+        "description": { "type": "string" },
+        "licenses": { "type": "array", "items": { "type": "string" } },
+        "links": { "type": "object" },
+        "downloads": { "type": "integer" },
+        "inserted_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "url": { "type": "string" },
+        "html_url": { "type": "string" }
+      }
+    },
+    "ReleaseSummary": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "has_docs": { "type": "boolean" },
+        "inserted_at": { "type": "string", "format": "date-time" },
+        "retirement_info": { "$ref": "#/definitions/RetirementInfo" },
+        "url": { "type": "string" },
+        "html_url": { "type": "string" }
+      }
+    },
+    "Repository": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "url": { "type": "string" },
+        "public": { "type": "boolean" }
+      }
+    },
+    "RetirementInfo": {
+      "type": ["object", "null"],
+      "properties": {
+        "reason": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    }
+  },
+  "errors": {
+    "-32700": "Parse error - Invalid JSON",
+    "-32600": "Invalid Request - Missing required fields",
+    "-32601": "Method not found - Unknown tool",
+    "-32602": "Invalid params - Bad tool arguments",
+    "-32000": "Server error - Internal failure",
+    "-32001": "MCP disabled - MCP server not enabled",
+    "-32002": "Rate limited - Too many requests"
+  }
+}

@@ -402,6 +402,25 @@ The MCP (Model Context Protocol) server provides AI clients with comprehensive p
 - `lib/hex_hub/mcp/transport.ex` - HTTP/WebSocket transport layer
 - `lib/hex_hub/mcp/tools/` - MCP tool implementations
 
+**Public MCP API**:
+The MCP API can be configured for public (unauthenticated) access to allow AI clients to query package information:
+
+```bash
+# Enable public access (no authentication required for read-only operations)
+export MCP_REQUIRE_AUTH=false
+export MCP_RATE_LIMIT=100  # requests per hour per IP
+```
+
+Public endpoints:
+- `GET /mcp/health` - Health check
+- `GET /mcp/tools` - List available tools
+- `GET /mcp/server-info` - Server capabilities
+- `POST /mcp` - JSON-RPC requests for package queries
+
+Rate limiting: IP-based rate limiting protects against abuse. Returns HTTP 429 with `retry-after` header when exceeded.
+
+See `specs/008-mcp-public-api/quickstart.md` for detailed usage examples.
+
 ### Development Patterns
 
 **Always Use Storage Abstraction**: Never access storage directly, use `HexHub.Storage`
@@ -464,6 +483,8 @@ Logger.info("Package #{name} published")
 - Mnesia (`:system_settings` or `:publish_configs` table for setting, existing `:users` table for anonymous user) (006-anonymous-publish-config)
 - Elixir 1.15+ / OTP 26+ + Phoenix 1.8+, Mnesia (built-in), :erl_tar (Erlang stdlib) (007-admin-backup)
 - Mnesia for metadata, HexHub.Storage for package tarballs, local filesystem for backup archives (007-admin-backup)
+- Elixir 1.15+ / OTP 26+ + Phoenix 1.8+, Mnesia, `:telemetry` (008-mcp-public-api)
+- Mnesia (existing `:packages`, `:package_releases` tables) (008-mcp-public-api)
 
 ## Recent Changes
 - 001-telemetry-logging: Added Elixir 1.15+ / OTP 26+ + `:telemetry` (already in project), `Logger` (Elixir stdlib)

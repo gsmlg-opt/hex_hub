@@ -33,6 +33,27 @@ config :hex_hub, HexHubAdminWeb.Endpoint,
 config :hex_hub, HexHub.Mailer, adapter: Swoosh.Adapters.Local
 
 # MCP (Model Context Protocol) configuration
+#
+# MCP provides a JSON-RPC 2.0 interface for AI clients to interact with HexHub.
+#
+# Environment variables:
+#   MCP_ENABLED       - Enable/disable MCP server (default: "false")
+#   MCP_REQUIRE_AUTH  - Require API key authentication (default: "true")
+#                       Set to "false" for public read-only access to package info
+#   MCP_RATE_LIMIT    - Requests per hour per IP (default: "1000")
+#                       Rate limiting protects against abuse when auth is disabled
+#   MCP_DEBUG         - Enable debug logging (default: "false")
+#
+# Public deployment example:
+#   MCP_ENABLED=true MCP_REQUIRE_AUTH=false MCP_RATE_LIMIT=100 ./bin/hex_hub start
+#
+# Endpoints (when enabled):
+#   GET  /mcp/health      - Health check
+#   GET  /mcp/tools       - List available tools
+#   GET  /mcp/server-info - Server capabilities
+#   POST /mcp             - JSON-RPC requests
+#   WS   /mcp/ws          - WebSocket transport
+#
 config :hex_hub, :mcp,
   enabled: System.get_env("MCP_ENABLED", "false") == "true",
   websocket_path: System.get_env("MCP_WEBSOCKET_PATH", "/mcp/ws"),
