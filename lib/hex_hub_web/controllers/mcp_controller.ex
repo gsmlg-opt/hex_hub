@@ -165,9 +165,25 @@ defmodule HexHubWeb.MCPController do
   end
 
   defp rate_limit_mcp_request(conn, _opts) do
-    # Implement rate limiting based on client IP or API key
-    # For now, just pass through
-    conn
+    case HexHub.MCP.Transport.check_rate_limit(conn, []) do
+      :ok ->
+        conn
+
+      {:error, :rate_limited, remaining} ->
+        conn
+        |> put_status(:too_many_requests)
+        |> put_resp_header("retry-after", to_string(remaining))
+        |> put_resp_header("x-ratelimit-remaining", "0")
+        |> json(%{
+          jsonrpc: "2.0",
+          id: nil,
+          error: %{
+            code: -32002,
+            message: "Rate limit exceeded"
+          }
+        })
+        |> halt()
+    end
   end
 
   # Private helper functions

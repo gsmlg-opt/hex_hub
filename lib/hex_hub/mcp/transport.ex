@@ -91,12 +91,123 @@ defmodule HexHub.MCP.Transport do
   end
 
   @doc """
-  Apply rate limiting to requests.
+  Apply rate limiting to MCP requests based on client IP.
+
+  Uses Mnesia rate limit tables with key prefix "mcp:ip:" for MCP-specific tracking.
+  Returns :ok if within limits, {:error, :rate_limited, remaining_seconds} if exceeded.
   """
-  def check_rate_limit(_conn, _opts) do
-    # Implement rate limiting based on client IP or API key
-    # For now, just return :ok
-    :ok
+  def check_rate_limit(conn, _opts) do
+    ip = get_client_ip(conn)
+    key = "mcp:ip:#{ip}"
+    # MCP rate limit: requests per minute (from config, default 100)
+    {limit, window} = get_mcp_rate_limit()
+
+    case do_check_rate_limit(key, limit, window) do
+      :ok ->
+        increment_rate_limit_counter(key)
+        :ok
+
+      {:error, remaining} ->
+        # Emit telemetry event for rate limiting
+        :telemetry.execute(
+          [:hex_hub, :mcp, :rate_limited],
+          %{count: 1},
+          %{ip: ip, remaining_seconds: remaining}
+        )
+
+        Telemetry.log(:warning, :mcp, "MCP rate limit exceeded", %{
+          ip: ip,
+          key: key,
+          retry_after: remaining
+        })
+
+        {:error, :rate_limited, remaining}
+    end
+  end
+
+  defp get_client_ip(conn) do
+    # Try to get real IP from headers first (for proxied requests)
+    forwarded_for = Plug.Conn.get_req_header(conn, "x-forwarded-for")
+
+    case forwarded_for do
+      [ips | _] ->
+        ips
+        |> String.split(",")
+        |> List.first()
+        |> String.trim()
+
+      [] ->
+        conn.remote_ip
+        |> Tuple.to_list()
+        |> Enum.join(".")
+    end
+  end
+
+  defp get_mcp_rate_limit do
+    # Get rate limit from config, default to 100 requests per minute
+    rate_per_hour = HexHub.MCP.rate_limit()
+    # Convert to per-minute for more granular control
+    rate_per_minute = max(div(rate_per_hour, 60), 1)
+    # limit, window_in_seconds
+    {rate_per_minute, 60}
+  end
+
+  defp do_check_rate_limit(key, limit, window) do
+    now = System.system_time(:second)
+    window_start = now - window
+
+    case :mnesia.transaction(fn ->
+           case :mnesia.read({:rate_limit, key}) do
+             [{:rate_limit, ^key, _type, _id, count, start, _updated}]
+             when start > window_start ->
+               if count >= limit do
+                 # Calculate remaining time until window resets
+                 remaining = start + window - now
+                 {:error, remaining}
+               else
+                 :ok
+               end
+
+             _ ->
+               # No recent activity or window expired
+               :ok
+           end
+         end) do
+      {:atomic, result} -> result
+      # Allow request on Mnesia error (fail-open)
+      {:aborted, _reason} -> :ok
+    end
+  end
+
+  defp increment_rate_limit_counter(key) do
+    now = System.system_time(:second)
+
+    :mnesia.transaction(fn ->
+      case :mnesia.read({:rate_limit, key}) do
+        [{:rate_limit, ^key, type, id, count, start, _updated}] ->
+          :mnesia.write({
+            :rate_limit,
+            key,
+            type,
+            id,
+            count + 1,
+            start,
+            DateTime.utc_now()
+          })
+
+        [] ->
+          # Create new counter with MCP type
+          :mnesia.write({
+            :rate_limit,
+            key,
+            :mcp,
+            key,
+            1,
+            now,
+            DateTime.utc_now()
+          })
+      end
+    end)
   end
 
   # Private functions
