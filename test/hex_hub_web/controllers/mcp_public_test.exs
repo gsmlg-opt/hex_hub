@@ -212,7 +212,8 @@ defmodule HexHubWeb.MCPPublicTest do
       tarball = create_test_tarball("phoenix_live_view", "1.0.0")
       meta = %{"app" => "phoenix_live_view", "description" => "LiveView"}
       requirements = %{"phoenix" => %{"requirement" => "~> 1.7"}}
-      {:ok, _release} = HexHub.Packages.create_release("phoenix_live_view", "1.0.0", meta, requirements, tarball)
+      {:ok, _release} =
+        HexHub.Packages.create_release("phoenix_live_view", "1.0.0", meta, requirements, tarball)
 
       # Create phoenix package with release for compatibility tests
       _phoenix = create_package(%{name: "phoenix", meta: %{description: "Web framework"}})
@@ -315,13 +316,14 @@ defmodule HexHubWeb.MCPPublicTest do
 
   describe "User Story 4: AI Client Accesses Package Documentation Links" do
     setup do
-      package = create_package(%{
-        name: "ex_doc",
-        meta: %{
-          description: "Documentation generator",
-          links: %{"GitHub" => "https://github.com/elixir-lang/ex_doc"}
-        }
-      })
+      package =
+        create_package(%{
+          name: "ex_doc",
+          meta: %{
+            description: "Documentation generator",
+            links: %{"GitHub" => "https://github.com/elixir-lang/ex_doc"}
+          }
+        })
 
       %{package: package}
     end

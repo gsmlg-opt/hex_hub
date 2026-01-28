@@ -106,8 +106,8 @@ defmodule HexHub.Users do
     case :mnesia.transaction(fn ->
            case :mnesia.read(@table, username_or_email) do
              [
-               {@table, username, email, password_hash, totp_secret, totp_enabled,
-                recovery_codes, service_account, deactivated_at, inserted_at, updated_at}
+               {@table, username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
+                service_account, deactivated_at, inserted_at, updated_at}
              ] ->
                {:ok,
                 {username, email, password_hash, totp_secret, totp_enabled, recovery_codes,

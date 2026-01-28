@@ -121,10 +121,19 @@ jobs:
 
       - name: Restore Dialyzer PLT cache
         uses: actions/cache@v4
+        id: dialyzer-cache
         with:
           path: priv/plts
-          key: ${{ runner.os }}-dialyzer-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-dialyzer-
+          key: ${{ runner.os }}-otp28-elixir1.18-dialyzer-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-otp28-elixir1.18-dialyzer-
+
+      - name: Create PLT directory
+        run: mkdir -p priv/plts
+
+      - name: Build PLT if needed
+        if: steps.dialyzer-cache.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
 
       - name: Run Dialyzer
         run: mix dialyzer --halt-exit-status

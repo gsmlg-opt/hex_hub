@@ -60,8 +60,7 @@ if config_env() == :prod do
   # S3 configuration (when STORAGE_TYPE=s3)
   if storage_type == :s3 do
     s3_config = [
-      scheme:
-        if(System.get_env("AWS_S3_SCHEME") == "http", do: "http://", else: "https://"),
+      scheme: if(System.get_env("AWS_S3_SCHEME") == "http", do: "http://", else: "https://"),
       host: System.get_env("AWS_S3_HOST"),
       port: String.to_integer(System.get_env("AWS_S3_PORT", "443"))
     ]
