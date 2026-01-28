@@ -22,8 +22,11 @@ defmodule HexHubWeb.MCPPublicTest do
   describe "User Story 1: AI Client Queries Package Information" do
     setup do
       # Create test packages for querying
-      package = create_package(%{name: "phoenix", meta: %{description: "Web framework for Elixir"}})
-      _package2 = create_package(%{name: "ecto", meta: %{description: "Database wrapper for Elixir"}})
+      package =
+        create_package(%{name: "phoenix", meta: %{description: "Web framework for Elixir"}})
+
+      _package2 =
+        create_package(%{name: "ecto", meta: %{description: "Database wrapper for Elixir"}})
 
       %{package: package}
     end
@@ -206,12 +209,14 @@ defmodule HexHubWeb.MCPPublicTest do
   describe "User Story 3: AI Client Retrieves Package Dependencies" do
     setup do
       # Create packages with releases for dependency tests
-      package = create_package(%{name: "phoenix_live_view", meta: %{description: "LiveView for Phoenix"}})
+      package =
+        create_package(%{name: "phoenix_live_view", meta: %{description: "LiveView for Phoenix"}})
 
       # Create release with tarball
       tarball = create_test_tarball("phoenix_live_view", "1.0.0")
       meta = %{"app" => "phoenix_live_view", "description" => "LiveView"}
       requirements = %{"phoenix" => %{"requirement" => "~> 1.7"}}
+
       {:ok, _release} =
         HexHub.Packages.create_release("phoenix_live_view", "1.0.0", meta, requirements, tarball)
 

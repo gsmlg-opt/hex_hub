@@ -15,5 +15,8 @@
   # These are available at runtime but not during dialyzer analysis
   ~r/lib\/mix\/tasks\/test\.e2e\.ex.*unknown_function/,
   ~r/test\/support\/conn_case\.ex.*unknown_function/,
-  ~r/test\/support\/admin_conn_case\.ex.*unknown_function/
+  ~r/test\/support\/admin_conn_case\.ex.*unknown_function/,
+  # Ignore pattern match coverage warning in packages.ex normalize_meta/1
+  # This is a defensive clause for handling non-map meta values at runtime
+  ~r/lib\/hex_hub\/mcp\/tools\/packages\.ex.*pattern_match_cov/
 ]
