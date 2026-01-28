@@ -60,7 +60,7 @@ defmodule HexHub.MCP.Tools.Packages do
           releases: formatted_releases,
           total_releases: length(releases),
           latest_version: get_latest_version(releases),
-          repository: get_repository_info(package.repository)
+          repository: get_repository_info(package.repository_name)
         }
 
         {:ok, result}
@@ -124,7 +124,8 @@ defmodule HexHub.MCP.Tools.Packages do
 
     case Packages.get_release(name, version) do
       {:ok, release} ->
-        metadata = Jason.decode!(release.metadata || "{}")
+        # Release has `meta` field which can be a map or JSON string
+        metadata = normalize_meta(release.meta)
 
         result = %{
           name: name,
@@ -132,7 +133,7 @@ defmodule HexHub.MCP.Tools.Packages do
           metadata: metadata,
           requirements: parse_requirements(release.requirements),
           has_docs: release.has_docs,
-          retirement_info: get_retirement_info(release)
+          retirement_info: format_retirement_info(release.retired)
         }
 
         {:ok, result}
@@ -170,7 +171,7 @@ defmodule HexHub.MCP.Tools.Packages do
   defp format_package(package) do
     %{
       name: package.name,
-      repository: package.repository,
+      repository: package.repository_name,
       description: get_meta_field(package.meta, "description"),
       licenses: get_meta_field(package.meta, "licenses", []),
       links: get_meta_field(package.meta, "links", %{}),
@@ -187,18 +188,41 @@ defmodule HexHub.MCP.Tools.Packages do
       version: release.version,
       has_docs: release.has_docs,
       inserted_at: release.inserted_at,
-      retirement_info: get_retirement_info(release),
+      retirement_info: format_retirement_info(release.retired),
       url: build_release_url(release),
       html_url: build_release_html_url(release)
     }
   end
 
   defp get_meta_field(meta, field, default \\ nil) do
-    case Jason.decode(meta || "{}") do
-      {:ok, decoded} -> Map.get(decoded, field, default)
-      {:error, _} -> default
+    cond do
+      # Meta is already a map (most common case in HexHub)
+      is_map(meta) ->
+        Map.get(meta, field) || Map.get(meta, String.to_atom(field)) || default
+
+      # Meta is a JSON string
+      is_binary(meta) ->
+        case Jason.decode(meta || "{}") do
+          {:ok, decoded} -> Map.get(decoded, field, default)
+          {:error, _} -> default
+        end
+
+      # Meta is nil or other
+      true ->
+        default
     end
   end
+
+  defp normalize_meta(meta) when is_map(meta), do: meta
+
+  defp normalize_meta(meta) when is_binary(meta) do
+    case Jason.decode(meta) do
+      {:ok, decoded} -> decoded
+      {:error, _} -> %{}
+    end
+  end
+
+  defp normalize_meta(_), do: %{}
 
   defp get_latest_version([]), do: nil
 
@@ -229,17 +253,19 @@ defmodule HexHub.MCP.Tools.Packages do
 
   defp parse_requirements(requirements) when is_map(requirements), do: requirements
 
-  defp get_retirement_info(release) do
-    case release.retirement do
-      nil ->
-        nil
+  # Format retirement info from release.retired (boolean or map)
+  defp format_retirement_info(false), do: nil
+  defp format_retirement_info(nil), do: nil
 
-      retirement ->
-        %{
-          reason: retirement.reason,
-          message: retirement.message
-        }
-    end
+  defp format_retirement_info(true) do
+    %{reason: "unknown", message: "This release has been retired"}
+  end
+
+  defp format_retirement_info(retirement) when is_map(retirement) do
+    %{
+      reason: Map.get(retirement, :reason) || Map.get(retirement, "reason"),
+      message: Map.get(retirement, :message) || Map.get(retirement, "message")
+    }
   end
 
   # URL builders
