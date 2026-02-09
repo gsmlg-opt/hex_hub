@@ -38,7 +38,7 @@ HexHub is a complete implementation of the Hex API specification for managing El
 - ✅ Anonymous publishing mode (admin configurable)
 - ✅ Admin dashboard with user/package management
 
-The application is ready for production use. See the [development plan](DEVELOPMENT_PLAN.md) for detailed implementation summary.
+The application is ready for production use.
 
 ## Quick Start
 
