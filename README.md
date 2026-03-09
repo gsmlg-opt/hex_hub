@@ -62,7 +62,7 @@ mix setup
 mix phx.server
 ```
 
-The application will be available at `http://localhost:4000`
+The application will be available at `http://localhost:4360`
 
 ### Production Deployment
 
@@ -166,8 +166,8 @@ The application implements the complete Hex API specification:
 |----------|-------------|---------|
 | `SECRET_KEY_BASE` | 64-byte secret for sessions | *(required in prod)* |
 | `PHX_HOST` | Hostname for URL generation | `hex-hub.dev` |
-| `PORT` | Main API port | `4000` |
-| `ADMIN_PORT` | Admin dashboard port | `4001` |
+| `PORT` | Main API port | `4360` |
+| `ADMIN_PORT` | Admin dashboard port | `4361` |
 | `MNESIA_DIR` | Path for Mnesia database storage | `mnesia` |
 | `STORAGE_TYPE` | Storage backend (`local` or `s3`) | `local` |
 | `STORAGE_PATH` | Path for package/docs file storage (when `STORAGE_TYPE=local`) | `priv/storage` |
@@ -360,8 +360,8 @@ docker pull ghcr.io/gsmlg-dev/hex-hub:main
 # Run with basic configuration
 docker run -d \
   --name hex-hub \
-  -p 4000:4000 \
-  -p 4001:4001 \
+  -p 4360:4360 \
+  -p 4361:4361 \
   -e SECRET_KEY_BASE=$(openssl rand -base64 48) \
   -e PHX_HOST=localhost \
   -e MNESIA_DIR=/data/mnesia \
@@ -378,8 +378,8 @@ services:
   hex-hub:
     image: ghcr.io/gsmlg-dev/hex-hub:main
     ports:
-      - "4000:4000"   # Main API
-      - "4001:4001"   # Admin dashboard
+      - "4360:4360"   # Main API
+      - "4361:4361"   # Admin dashboard
     environment:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - PHX_HOST=${PHX_HOST:-localhost}
@@ -406,7 +406,7 @@ RUN mix local.hex --force && \
     mix compile && \
     mix assets.deploy
 
-EXPOSE 4000 4001
+EXPOSE 4360 4361
 CMD ["mix", "phx.server"]
 ```
 
