@@ -94,7 +94,8 @@ ENV MIX_ENV="prod"
 # default secret key base
 ENV SECRET_KEY_BASE="uxrVaRd0kooQYWbYBN1AqF2B3M/Ggblq7/fH7CknPP4aw+z/4+e4KZLsa+Wic4/N"
 
-ENV STORAGE_PATH="/data"
+ENV STORAGE_TYPE="local"
+ENV STORAGE_PATH="/data/storage"
 ENV MNESIA_DIR="/data/mnesia"
 
 VOLUME [ "/data" ]

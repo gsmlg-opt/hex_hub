@@ -162,9 +162,16 @@ The application implements the complete Hex API specification:
 
 ### Environment Variables
 
-- `SECRET_KEY_BASE`: 64-byte secret for sessions
-- `PHX_HOST`: Hostname for URL generation
-- `MIX_ENV`: Environment (dev, test, prod)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SECRET_KEY_BASE` | 64-byte secret for sessions | *(required in prod)* |
+| `PHX_HOST` | Hostname for URL generation | `hex-hub.dev` |
+| `PORT` | Main API port | `4000` |
+| `ADMIN_PORT` | Admin dashboard port | `4001` |
+| `MNESIA_DIR` | Path for Mnesia database storage | `mnesia` |
+| `STORAGE_TYPE` | Storage backend (`local` or `s3`) | `local` |
+| `STORAGE_PATH` | Path for package/docs file storage (when `STORAGE_TYPE=local`) | `priv/storage` |
+| `MIX_ENV` | Environment (dev, test, prod) | `dev` |
 
 ### Storage Configuration
 
@@ -326,11 +333,21 @@ For production deployment:
 
 ### Mnesia Configuration
 
-HexHub uses Mnesia for data storage. Data is stored in:
-- `Mnesia.<node_name>/` directory for Mnesia tables
-- `priv/storage/` directory for package and documentation files
+HexHub uses Mnesia for data storage. The database path is configurable via the `MNESIA_DIR` environment variable:
 
-For persistence, ensure these directories are backed up and restored as needed.
+```bash
+# Set a custom Mnesia data directory
+export MNESIA_DIR=/var/lib/hex_hub/mnesia
+```
+
+Default paths:
+- **Production**: `mnesia` (relative to app root), or `/data/mnesia` in Docker
+- **Development**: `priv/mnesia/dev`
+- **Test**: `priv/mnesia/test`
+
+Package and documentation files are stored separately at `STORAGE_PATH` (default `priv/storage`, or `/data` in Docker).
+
+For persistence, ensure these directories are on durable storage and backed up regularly.
 
 ### Docker Deployment
 
@@ -347,8 +364,9 @@ docker run -d \
   -p 4001:4001 \
   -e SECRET_KEY_BASE=$(openssl rand -base64 48) \
   -e PHX_HOST=localhost \
-  -v hex_hub_data:/app/priv/storage \
-  -v hex_hub_mnesia:/app/Mnesia.hex_hub@localhost \
+  -e MNESIA_DIR=/data/mnesia \
+  -e STORAGE_PATH=/data \
+  -v hex_hub_data:/data \
   ghcr.io/gsmlg-dev/hex-hub:main
 ```
 
@@ -365,13 +383,13 @@ services:
     environment:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - PHX_HOST=${PHX_HOST:-localhost}
+      - MNESIA_DIR=/data/mnesia
+      - STORAGE_PATH=/data
     volumes:
-      - hex_hub_data:/app/priv/storage
-      - hex_hub_mnesia:/app/Mnesia.hex_hub@localhost
+      - hex_hub_data:/data
 
 volumes:
   hex_hub_data:
-  hex_hub_mnesia:
 ```
 
 For building from source:
