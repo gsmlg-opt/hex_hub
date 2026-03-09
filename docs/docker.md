@@ -42,6 +42,7 @@ docker run -p 4000:4000 \
 - `CLUSTERING_ENABLED`: Enable clustering (default: false)
 - `STORAGE_TYPE`: `local` or `s3` (default: local)
 - `S3_BUCKET`: S3 bucket name (if using S3)
+- `S3_BUCKET_PATH`: Path prefix within the S3 bucket (default: `/`)
 - `AWS_ACCESS_KEY_ID`: AWS access key (if using S3)
 - `AWS_SECRET_ACCESS_KEY`: AWS secret key (if using S3)
 - `AWS_REGION`: AWS region (if using S3)

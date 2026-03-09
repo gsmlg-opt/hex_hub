@@ -253,6 +253,7 @@ export AWS_S3_SCHEME=http  # Use http for local MinIO
 |----------|-------------|---------|
 | `STORAGE_TYPE` | Storage backend (`local` or `s3`) | `local` |
 | `S3_BUCKET` | S3 bucket name | - |
+| `S3_BUCKET_PATH` | Path prefix within the S3 bucket | `/` |
 | `AWS_ACCESS_KEY_ID` | AWS access key ID | - |
 | `AWS_SECRET_ACCESS_KEY` | AWS secret access key | - |
 | `AWS_REGION` | AWS region | `us-east-1` |

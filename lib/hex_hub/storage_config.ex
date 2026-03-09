@@ -11,6 +11,7 @@ defmodule HexHub.StorageConfig do
           storage_type: atom(),
           storage_path: String.t(),
           s3_bucket: String.t() | nil,
+          s3_bucket_path: String.t(),
           s3_region: String.t() | nil,
           s3_host: String.t() | nil,
           s3_port: integer() | nil,
@@ -24,6 +25,7 @@ defmodule HexHub.StorageConfig do
       storage_type: Application.get_env(:hex_hub, :storage_type, :local),
       storage_path: Application.get_env(:hex_hub, :storage_path, "priv/storage"),
       s3_bucket: Application.get_env(:hex_hub, :s3_bucket),
+      s3_bucket_path: Application.get_env(:hex_hub, :s3_bucket_path, "/"),
       s3_region: Application.get_env(:hex_hub, :s3_region, "us-east-1"),
       s3_host: Keyword.get(s3_config, :host),
       s3_port: Keyword.get(s3_config, :port),
@@ -61,6 +63,7 @@ defmodule HexHub.StorageConfig do
       storage_type = String.to_atom(params["storage_type"] || "local")
       storage_path = params["storage_path"] || "priv/storage"
       s3_bucket = params["s3_bucket"]
+      s3_bucket_path = params["s3_bucket_path"] || "/"
       s3_region = params["s3_region"] || "us-east-1"
       s3_host = params["s3_host"]
       s3_port = if port = params["s3_port"], do: String.to_integer(port), else: nil
@@ -80,6 +83,7 @@ defmodule HexHub.StorageConfig do
       Application.put_env(:hex_hub, :storage_type, storage_type)
       Application.put_env(:hex_hub, :storage_path, storage_path)
       Application.put_env(:hex_hub, :s3_bucket, s3_bucket)
+      Application.put_env(:hex_hub, :s3_bucket_path, s3_bucket_path)
       Application.put_env(:hex_hub, :s3_region, s3_region)
 
       # Update ExAws S3 configuration

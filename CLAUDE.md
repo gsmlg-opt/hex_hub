@@ -116,7 +116,7 @@ GitHub Actions runs: Compile (warnings-as-errors), Format Check, Credo (strict),
 
 See `config/runtime.exs` for full list. Key ones:
 - `SECRET_KEY_BASE`, `PHX_HOST` — Required in production
-- `STORAGE_TYPE` (`local`/`s3`), `S3_BUCKET`, `AWS_*` — Storage config
+- `STORAGE_TYPE` (`local`/`s3`), `S3_BUCKET`, `S3_BUCKET_PATH`, `AWS_*` — Storage config
 - `UPSTREAM_ENABLED`, `UPSTREAM_URL` — Upstream proxy
 - `CLUSTERING_ENABLED` — Mnesia clustering via libcluster
 - `MCP_REQUIRE_AUTH`, `MCP_RATE_LIMIT` — MCP public access

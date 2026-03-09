@@ -112,9 +112,11 @@ defmodule HexHub.Storage do
 
       upload_opts = build_s3_upload_opts(opts)
 
+      full_key = s3_key(key)
+
       result =
         content
-        |> S3.upload(bucket, key, upload_opts)
+        |> S3.upload(bucket, full_key, upload_opts)
         |> ExAws.request()
         |> handle_s3_response("upload", key)
 
@@ -176,9 +178,11 @@ defmodule HexHub.Storage do
     if bucket do
       start_time = System.monotonic_time()
 
+      full_key = s3_key(key)
+
       result =
         bucket
-        |> S3.get_object(key)
+        |> S3.get_object(full_key)
         |> ExAws.request()
         |> handle_s3_download_response(key)
 
@@ -236,9 +240,11 @@ defmodule HexHub.Storage do
     if bucket do
       start_time = System.monotonic_time()
 
+      full_key = s3_key(key)
+
       result =
         bucket
-        |> S3.delete_object(key)
+        |> S3.delete_object(full_key)
         |> ExAws.request()
         |> handle_s3_response("delete", key)
 
@@ -265,6 +271,20 @@ defmodule HexHub.Storage do
 
   defp get_s3_bucket() do
     Application.get_env(:hex_hub, :s3_bucket)
+  end
+
+  defp get_s3_bucket_path() do
+    Application.get_env(:hex_hub, :s3_bucket_path, "/")
+  end
+
+  defp s3_key(key) do
+    bucket_path = get_s3_bucket_path() |> String.trim_leading("/") |> String.trim_trailing("/")
+
+    if bucket_path == "" do
+      key
+    else
+      "#{bucket_path}/#{key}"
+    end
   end
 
   defp build_s3_upload_opts(opts) do
@@ -336,7 +356,9 @@ defmodule HexHub.Storage do
       # Use ExAws to generate a presigned URL
       config = ExAws.Config.new(:s3)
 
-      case ExAws.S3.presigned_url(config, :get, bucket, key, expires_in: expires_in) do
+      full_key = s3_key(key)
+
+      case ExAws.S3.presigned_url(config, :get, bucket, full_key, expires_in: expires_in) do
         {:ok, url} -> {:ok, url}
         {:error, error} -> {:error, format_s3_error(error)}
       end
@@ -366,7 +388,9 @@ defmodule HexHub.Storage do
 
     if bucket do
       # Use ExAws default configuration (already set in runtime.exs)
-      case ExAws.S3.head_object(bucket, key) |> ExAws.request() do
+      full_key = s3_key(key)
+
+      case ExAws.S3.head_object(bucket, full_key) |> ExAws.request() do
         {:ok, _} -> true
         {:error, _} -> false
       end
