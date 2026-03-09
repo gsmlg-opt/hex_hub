@@ -345,7 +345,7 @@ Default paths:
 - **Development**: `priv/mnesia/dev`
 - **Test**: `priv/mnesia/test`
 
-Package and documentation files are stored separately at `STORAGE_PATH` (default `priv/storage`, or `/data` in Docker).
+Package and documentation files are stored separately at `STORAGE_PATH` (default `priv/storage`, or `/data/storage` in Docker).
 
 For persistence, ensure these directories are on durable storage and backed up regularly.
 
@@ -365,7 +365,7 @@ docker run -d \
   -e SECRET_KEY_BASE=$(openssl rand -base64 48) \
   -e PHX_HOST=localhost \
   -e MNESIA_DIR=/data/mnesia \
-  -e STORAGE_PATH=/data \
+  -e STORAGE_PATH=/data/storage \
   -v hex_hub_data:/data \
   ghcr.io/gsmlg-dev/hex-hub:main
 ```
@@ -384,7 +384,7 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - PHX_HOST=${PHX_HOST:-localhost}
       - MNESIA_DIR=/data/mnesia
-      - STORAGE_PATH=/data
+      - STORAGE_PATH=/data/storage
     volumes:
       - hex_hub_data:/data
 
