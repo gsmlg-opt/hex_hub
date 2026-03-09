@@ -61,11 +61,21 @@ config :ex_aws,
   secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
   region: System.get_env("AWS_REGION", "us-east-1")
 
-config :ex_aws, :s3,
+s3_config = [
   scheme: System.get_env("AWS_S3_SCHEME", "https://"),
-  host: System.get_env("AWS_S3_HOST"),
   port: if(port = System.get_env("AWS_S3_PORT"), do: String.to_integer(port), else: 443),
   path_style: System.get_env("AWS_S3_PATH_STYLE", "false") == "true"
+]
+
+# Only set host if explicitly provided (nil overrides ExAws default AWS endpoint)
+s3_config =
+  case System.get_env("AWS_S3_HOST") do
+    nil -> s3_config
+    "" -> s3_config
+    host -> Keyword.put(s3_config, :host, host)
+  end
+
+config :ex_aws, :s3, s3_config
 
 config :logger, :default_formatter, format: "[$level] $message\n"
 

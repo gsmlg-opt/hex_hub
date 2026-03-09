@@ -62,9 +62,16 @@ if config_env() == :prod do
   if storage_type == :s3 do
     s3_config = [
       scheme: if(System.get_env("AWS_S3_SCHEME") == "http", do: "http://", else: "https://"),
-      host: System.get_env("AWS_S3_HOST"),
       port: String.to_integer(System.get_env("AWS_S3_PORT", "443"))
     ]
+
+    # Only set host if explicitly provided (nil overrides ExAws default AWS endpoint)
+    s3_config =
+      case System.get_env("AWS_S3_HOST") do
+        nil -> s3_config
+        "" -> s3_config
+        host -> Keyword.put(s3_config, :host, host)
+      end
 
     # Add path_style option for MinIO/LocalStack compatibility
     s3_config =

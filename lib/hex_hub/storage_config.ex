@@ -75,10 +75,6 @@ defmodule HexHub.StorageConfig do
         throw({:error, "S3 bucket is required when using S3 storage"})
       end
 
-      if storage_type == :s3 and (s3_host == nil or s3_host == "") do
-        throw({:error, "S3 host is required when using S3 storage"})
-      end
-
       # Update hex_hub configuration
       Application.put_env(:hex_hub, :storage_type, storage_type)
       Application.put_env(:hex_hub, :storage_path, storage_path)
@@ -86,17 +82,31 @@ defmodule HexHub.StorageConfig do
       Application.put_env(:hex_hub, :s3_bucket_path, s3_bucket_path)
       Application.put_env(:hex_hub, :s3_region, s3_region)
 
-      # Update ExAws S3 configuration
-      s3_config = %{
+      # Update ExAws S3 configuration (only include host when explicitly set)
+      s3_config = [
         scheme: s3_scheme,
-        host: s3_host,
         port: s3_port,
         path_style: s3_path_style
-      }
+      ]
+
+      s3_config =
+        if s3_host != nil and s3_host != "" do
+          Keyword.put(s3_config, :host, s3_host)
+        else
+          s3_config
+        end
 
       # Get current ExAws configuration
       current_s3_config = Application.get_env(:ex_aws, :s3, [])
-      updated_s3_config = Keyword.merge(current_s3_config, Enum.into(s3_config, []))
+      # Remove host from current config if new config doesn't specify one
+      current_s3_config =
+        if not Keyword.has_key?(s3_config, :host) do
+          Keyword.delete(current_s3_config, :host)
+        else
+          current_s3_config
+        end
+
+      updated_s3_config = Keyword.merge(current_s3_config, s3_config)
       Application.put_env(:ex_aws, :s3, updated_s3_config)
 
       :ok
@@ -146,23 +156,29 @@ defmodule HexHub.StorageConfig do
     if config.s3_bucket == nil or config.s3_bucket == "" do
       {:error, "S3 bucket not configured"}
     else
-      # Test S3 connection by trying to list bucket
-      try do
-        require ExAws.S3
+      # Test S3 connection by trying to list bucket (with timeout)
+      task =
+        Task.async(fn ->
+          try do
+            case ExAws.S3.list_objects(config.s3_bucket, max_keys: 1) |> ExAws.request() do
+              {:ok, _result} ->
+                {:ok, "S3 connection working correctly"}
 
-        case ExAws.S3.list_objects(config.s3_bucket) |> ExAws.request() do
-          {:ok, _result} ->
-            {:ok, "S3 connection working correctly"}
+              {:error, reason} ->
+                {:error, "S3 connection failed: #{inspect(reason)}"}
+            end
+          rescue
+            UndefinedFunctionError ->
+              {:error, "ExAws.S3 not available - check S3 dependencies"}
 
-          {:error, reason} ->
-            {:error, "S3 connection failed: #{inspect(reason)}"}
-        end
-      rescue
-        UndefinedFunctionError ->
-          {:error, "ExAws.S3 not available - check S3 dependencies"}
+            e ->
+              {:error, "S3 connection failed: #{Exception.message(e)}"}
+          end
+        end)
 
-        e ->
-          {:error, "S3 connection failed: #{Exception.message(e)}"}
+      case Task.yield(task, 10_000) || Task.shutdown(task) do
+        {:ok, result} -> result
+        nil -> {:error, "S3 connection timed out after 10 seconds"}
       end
     end
   end
