@@ -15,14 +15,16 @@ mix test                     # Run all tests
 mix test path/to/test.exs    # Run single test file
 mix test path/to/test.exs:42 # Run test at specific line
 mix format                   # Format code
-mix credo --strict           # Static analysis
-mix dialyzer                 # Type checking (slow first run, PLT cached in priv/plts/)
+mix lint                     # Runs credo --strict + dialyzer (defined in mix.exs aliases)
+mix credo --strict           # Static analysis only
+mix dialyzer                 # Type checking only (slow first run, PLT cached in priv/plts/)
+mix compile --warnings-as-errors  # CI enforces this — check before pushing
 
 # E2E tests (separate from unit tests, in e2e_test/ directory)
 MIX_ENV=test mix test.e2e e2e_test/publish_test.exs
 MIX_ENV=test mix test.e2e e2e_test/publish_test.exs --only us1
 
-# Assets (builds both main + admin apps)
+# Assets (Tailwind standalone CLI + Bun bundler, builds both main + admin apps)
 mix assets.build             # Dev build
 mix assets.deploy            # Production minified build
 ```
@@ -45,6 +47,8 @@ Key plug pipelines to understand when adding routes:
 - `:api_auth_optional` — Allows anonymous access when anonymous publishing is enabled
 - `:registry` — Binary protobuf format for hex client compatibility (no content-type filtering)
 - `:require_write` — Authorization check for write operations
+
+**Important**: Many API routes are intentionally duplicated at both root level (`/packages/:name/...`) and under `/api/` prefix (`/api/packages/:name/...`). Root-level routes exist for `HEX_MIRROR`/`HEX_API_URL` compatibility with the Mix client. When adding new API endpoints, add them under `/api/` and duplicate at root level only if needed for hex client compatibility.
 
 ### Authentication Flow
 
@@ -78,17 +82,18 @@ When a package isn't found locally, `HexHub.Upstream` transparently fetches from
 
 ### Telemetry-First Logging
 
-**Do NOT use `Logger` directly** for operational events. Emit telemetry events instead:
+**Do NOT use `Logger` directly** for operational events. Use the `HexHub.Telemetry.log/4` helper:
 
 ```elixir
-# Correct
-:telemetry.execute([:hex_hub, :package, :published], %{duration: ms}, %{package: name})
+# Correct — use the telemetry helper with category and metadata
+HexHub.Telemetry.log(:info, :package, "Package published", %{name: name, version: version})
+HexHub.Telemetry.log(:warning, :auth, "Authentication failed", %{reason: "invalid_token"})
 
-# Wrong
+# Wrong — never call Logger directly for operational events
 Logger.info("Package #{name} published")
 ```
 
-Use `HexHub.Telemetry.log/4` helper for structured logging. Handlers in `lib/hex_hub/telemetry/` route events to console/file.
+Categories: `:api`, `:upstream`, `:storage`, `:auth`, `:package`, `:mcp`, `:cluster`, `:config`, `:user`, `:backup`, `:general`. Handlers in `lib/hex_hub/telemetry/` route events to console/file.
 
 Exceptions: `Application.start/2` startup messages, rescue blocks where telemetry may not be available.
 
