@@ -20,9 +20,6 @@ mix credo --strict           # Static analysis only
 mix dialyzer                 # Type checking only (slow first run, PLT cached in priv/plts/)
 mix compile --warnings-as-errors  # CI enforces this — check before pushing
 
-# Storage migration (run once after upgrading to hosted/cached layout)
-mix storage.migrate
-
 # E2E tests (separate from unit tests, in e2e_test/ directory)
 MIX_ENV=test mix test.e2e e2e_test/publish_test.exs
 MIX_ENV=test mix test.e2e e2e_test/publish_test.exs --only us1
@@ -86,8 +83,6 @@ storage/
 ```
 
 Use `Storage.generate_package_key/3` and `Storage.generate_docs_key/3` to build keys — never construct paths manually. The `source` parameter (`:hosted` | `:cached`) maps from Mnesia's package `:source` field (`:local` | `:cached`) via `Packages.get_package_source/1`.
-
-**Migration**: `mix storage.migrate` moves files from old flat `packages/`/`docs/` directories into the hierarchical structure. Idempotent.
 
 ### MCP Server
 
