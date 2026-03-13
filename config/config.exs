@@ -68,12 +68,12 @@ config :bun,
   hex_hub: [
     args: ~w(build assets/js/app.js --outdir=priv/static/assets),
     cd: Path.expand("..", __DIR__),
-    env: %{"NODE_PATH" => "#{Path.expand("../deps", __DIR__)}"}
+    env: %{"NODE_PATH" => "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"}
   ],
   hex_hub_admin: [
     args: ~w(build assets/js/admin.js --outdir=priv/static/assets),
     cd: Path.expand("..", __DIR__),
-    env: %{"NODE_PATH" => "#{Path.expand("../deps", __DIR__)}"}
+    env: %{"NODE_PATH" => "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"}
   ]
 
 config :tailwind,
@@ -83,14 +83,16 @@ config :tailwind,
       --input=assets/css/app.css
       --output=priv/static/assets/app.css
     ),
-    cd: Path.expand("..", __DIR__)
+    cd: Path.expand("..", __DIR__),
+    env: %{"NODE_PATH" => "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"}
   ],
   hex_hub_admin: [
     args: ~w(
       --input=assets/css/admin.css
       --output=priv/static/assets/admin.css
     ),
-    cd: Path.expand("..", __DIR__)
+    cd: Path.expand("..", __DIR__),
+    env: %{"NODE_PATH" => "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"}
   ]
 
 # Telemetry-based logging configuration

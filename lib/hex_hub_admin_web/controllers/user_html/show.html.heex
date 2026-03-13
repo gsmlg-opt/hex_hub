@@ -3,12 +3,12 @@
     <div class="flex items-center justify-between mb-6">
       <div>
         <div class="flex items-center gap-3">
-          <h1 class="text-3xl font-bold text-base-content">{@user.username}</h1>
+          <h1 class="text-3xl font-bold text-on-surface">{@user.username}</h1>
           <%= if HexHub.Users.is_system_user?(@user.username) do %>
             <span class="badge badge-info badge-lg">System User</span>
           <% end %>
         </div>
-        <p class="text-base-content/70 mt-2">{@user.email}</p>
+        <p class="text-on-surface-variant mt-2">{@user.email}</p>
       </div>
 
       <div class="flex space-x-3">
@@ -16,10 +16,10 @@
           Back to Users
         </.dm_link>
         <%= if HexHub.Users.is_system_user?(@user.username) do %>
-          <span class="btn btn-primary btn-disabled" title="System users cannot be edited">
+          <span class="btn btn-primary" disabled title="System users cannot be edited">
             Edit User
           </span>
-          <span class="btn btn-error btn-disabled" title="System users cannot be deleted">
+          <span class="btn btn-error" disabled title="System users cannot be deleted">
             Delete User
           </span>
         <% else %>
@@ -44,37 +44,37 @@
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg">
+    <div class="card bg-surface shadow-lg">
       <div class="card-body">
-        <h2 class="card-title text-base-content">User Details</h2>
+        <h2 class="card-title text-on-surface">User Details</h2>
 
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">Username</span>
-            <span class="text-base-content">{@user.username}</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">Username</span>
+            <span class="text-on-surface">{@user.username}</span>
           </div>
 
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">Email</span>
-            <span class="text-base-content">{@user.email}</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">Email</span>
+            <span class="text-on-surface">{@user.email}</span>
           </div>
 
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">Joined</span>
-            <span class="text-base-content">{DateTime.to_iso8601(@user.inserted_at)}</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">Joined</span>
+            <span class="text-on-surface">{DateTime.to_iso8601(@user.inserted_at)}</span>
           </div>
 
           <div class="flex justify-between items-center py-3">
-            <span class="font-medium text-base-content/70">Last Updated</span>
-            <span class="text-base-content">{DateTime.to_iso8601(@user.updated_at)}</span>
+            <span class="font-medium text-on-surface-variant">Last Updated</span>
+            <span class="text-on-surface">{DateTime.to_iso8601(@user.updated_at)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg mt-8">
+    <div class="card bg-surface shadow-lg mt-8">
       <div class="card-body">
-        <h2 class="card-title text-base-content">Owned Packages</h2>
+        <h2 class="card-title text-on-surface">Owned Packages</h2>
 
         <div class="overflow-x-auto">
           <%= if length(@packages || []) > 0 do %>
@@ -95,21 +95,9 @@
             </.dm_table>
           <% else %>
             <div class="text-center py-12">
-              <svg
-                class="mx-auto h-12 w-12 text-base-content/40"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                />
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-base-content">No packages</h3>
-              <p class="mt-1 text-sm text-base-content/70">
+              <.dm_mdi name="package-variant" class="mx-auto h-12 w-12 text-on-surface-variant" />
+              <h3 class="mt-2 text-sm font-medium text-on-surface">No packages</h3>
+              <p class="mt-1 text-sm text-on-surface-variant">
                 This user doesn't own any packages yet.
               </p>
             </div>

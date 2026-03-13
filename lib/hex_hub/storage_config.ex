@@ -17,9 +17,11 @@ defmodule HexHub.StorageConfig do
       [] ->
         get_default_config()
 
-      [{:storage_configs, "default", storage_type, storage_path, s3_bucket, s3_bucket_path,
-        s3_region, s3_host, s3_port, s3_scheme, s3_path_style, s3_access_key_id,
-        s3_secret_access_key, inserted_at, updated_at}] ->
+      [
+        {:storage_configs, "default", storage_type, storage_path, s3_bucket, s3_bucket_path,
+         s3_region, s3_host, s3_port, s3_scheme, s3_path_style, s3_access_key_id,
+         s3_secret_access_key, inserted_at, updated_at}
+      ] ->
         %{
           id: "default",
           storage_type: storage_type,

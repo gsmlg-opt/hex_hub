@@ -411,5 +411,4 @@ defmodule HexHub.Storage do
   def get(key) do
     download(key)
   end
-
 end

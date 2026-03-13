@@ -141,8 +141,10 @@ defmodule HexHub.StorageConfigTest do
       assert :ok = StorageConfig.update_config(params)
 
       # Read directly from Mnesia to verify persistence
-      [{:storage_configs, "default", storage_type, _path, bucket, bucket_path, region, _, _, _, _,
-        _, _, _, _}] = :mnesia.dirty_read(:storage_configs, "default")
+      [
+        {:storage_configs, "default", storage_type, _path, bucket, bucket_path, region, _, _, _,
+         _, _, _, _, _}
+      ] = :mnesia.dirty_read(:storage_configs, "default")
 
       assert storage_type == :s3
       assert bucket == "persist-test"

@@ -1,23 +1,10 @@
 <Layouts.app flash={@flash}>
   
 <!-- Navbar -->
-  <div class="navbar bg-base-100 shadow-sm lg:hidden">
+  <div class="navbar bg-surface shadow-sm lg:hidden">
     <div class="flex-none">
       <label for="my-drawer-2" class="btn btn-square btn-ghost">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          class="inline-block w-5 h-5 stroke-current"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          >
-          </path>
-        </svg>
+        <.dm_mdi name="menu" class="w-5 h-5" />
       </label>
     </div>
     <div class="flex-1">
@@ -31,248 +18,88 @@
     
 <!-- Stats cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-6 mb-8">
-      <div class="stat shadow bg-base-100">
-        <div class="stat-figure text-primary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="inline-block w-8 h-8 stroke-current"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 7v10a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2H6a2 2 0 00-2-2z"
-            />
-          </svg>
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Total Packages</span>
+          <.dm_mdi name="package-variant" class="w-8 h-8 text-primary" />
         </div>
-        <div class="stat-title">Total Packages</div>
-        <div class="stat-value text-primary">{@stats.total_packages}</div>
+        <div class="text-2xl font-bold text-primary">{@stats.total_packages}</div>
       </div>
 
-      <div class="stat shadow bg-base-100">
-        <div class="stat-figure text-success">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="inline-block w-8 h-8 stroke-current"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-            />
-          </svg>
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Local Packages</span>
+          <.dm_mdi name="shield-check" class="w-8 h-8 text-success" />
         </div>
-        <div class="stat-title">Local Packages</div>
-        <div class="stat-value text-success">{@stats.local_packages}</div>
-        <div class="stat-desc">Published directly</div>
+        <div class="text-2xl font-bold text-success">{@stats.local_packages}</div>
+        <div class="text-xs text-on-surface-variant mt-1">Published directly</div>
       </div>
 
-      <div class="stat shadow bg-base-100">
-        <div class="stat-figure text-secondary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="inline-block w-8 h-8 stroke-current"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-            />
-          </svg>
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Cached Packages</span>
+          <.dm_mdi name="database" class="w-8 h-8 text-secondary" />
         </div>
-        <div class="stat-title">Cached Packages</div>
-        <div class="stat-value text-secondary">{@stats.cached_packages}</div>
-        <div class="stat-desc">From upstream</div>
+        <div class="text-2xl font-bold text-secondary">{@stats.cached_packages}</div>
+        <div class="text-xs text-on-surface-variant mt-1">From upstream</div>
       </div>
 
-      <div class="stat shadow bg-base-100">
-        <div class="stat-figure text-secondary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="inline-block w-8 h-8 stroke-current"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-            />
-          </svg>
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Total Repositories</span>
+          <.dm_mdi name="source-repository" class="w-8 h-8 text-secondary" />
         </div>
-        <div class="stat-title">Total Repositories</div>
-        <div class="stat-value text-secondary">{@stats.total_repositories}</div>
+        <div class="text-2xl font-bold text-secondary">{@stats.total_repositories}</div>
       </div>
 
-      <div class="stat shadow bg-base-100">
-        <div class="stat-figure text-accent">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="inline-block w-8 h-8 stroke-current"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-            />
-          </svg>
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Total Users</span>
+          <.dm_mdi name="account-group" class="w-8 h-8 text-tertiary" />
         </div>
-        <div class="stat-title">Total Users</div>
-        <div class="stat-value text-accent">{@stats.total_users}</div>
+        <div class="text-2xl font-bold text-tertiary">{@stats.total_users}</div>
       </div>
 
-      <div class="stat shadow bg-base-100">
-        <div class="stat-figure text-info">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="inline-block w-8 h-8 stroke-current"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Upstream</span>
+          <.dm_mdi name="flash" class="w-8 h-8 text-info" />
         </div>
-        <div class="stat-title">Upstream</div>
-        <div class="stat-value text-info">
+        <div class="text-2xl font-bold text-info">
           {if @stats.upstream_enabled, do: "Enabled", else: "Disabled"}
         </div>
       </div>
 
-      <div class="stat shadow bg-base-100">
-        <div class="stat-figure text-warning">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="inline-block w-8 h-8 stroke-current"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-            />
-          </svg>
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Storage</span>
+          <.dm_mdi name="harddisk" class="w-8 h-8 text-warning" />
         </div>
-        <div class="stat-title">Storage</div>
-        <div class="stat-value text-warning">
+        <div class="text-2xl font-bold text-warning">
           {String.capitalize(to_string(@stats.storage_type))}
         </div>
       </div>
     </div>
     
 <!-- Quick actions -->
-    <div class="card bg-base-100 shadow">
+    <div class="card bg-surface shadow">
       <div class="card-body">
         <h2 class="card-title">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <a href={~p"/repositories"} class="btn btn-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-              />
-            </svg>
-            Manage Repositories
+            <.dm_mdi name="source-repository" class="h-5 w-5" /> Manage Repositories
           </a>
           <a href={~p"/packages"} class="btn btn-secondary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-              />
-            </svg>
-            Manage Packages
+            <.dm_mdi name="package-variant" class="h-5 w-5" /> Manage Packages
           </a>
-          <a href={~p"/users"} class="btn btn-accent">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-            Manage Users
+          <a href={~p"/users"} class="btn btn-tertiary">
+            <.dm_mdi name="account-group" class="h-5 w-5" /> Manage Users
           </a>
           <a href={~p"/upstream"} class="btn btn-info">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            Upstream Settings
+            <.dm_mdi name="cog" class="h-5 w-5" /> Upstream Settings
           </a>
           <a href={~p"/storage"} class="btn btn-warning">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-              />
-            </svg>
-            Storage Settings
+            <.dm_mdi name="harddisk" class="h-5 w-5" /> Storage Settings
           </a>
         </div>
       </div>

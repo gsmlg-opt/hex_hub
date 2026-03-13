@@ -2,8 +2,8 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-2xl font-bold text-base-content">Local Packages</h1>
-        <p class="text-sm text-base-content/70 mt-1">
+        <h1 class="text-2xl font-bold text-on-surface">Local Packages</h1>
+        <p class="text-sm text-on-surface-variant mt-1">
           Packages published directly to HexHub. Total: {@pagination.total} packages
         </p>
       </div>
@@ -13,36 +13,36 @@
     </div>
     
 <!-- Search and Sort Controls -->
-    <div class="card bg-base-100 shadow mb-6">
+    <div class="card bg-surface shadow mb-6">
       <div class="card-body py-4">
         <form method="get" action={~p"/local-packages"} class="flex flex-wrap gap-4 items-end">
-          <div class="form-control flex-1 min-w-[200px]">
+          <div class="form-group flex-1 min-w-[200px]">
             <label class="label">
-              <span class="label-text">Search</span>
+              <span class="form-label">Search</span>
             </label>
             <input
               type="text"
               name="search"
               value={@search}
               placeholder="Search packages..."
-              class="input input-bordered w-full"
+              class="input w-full"
             />
           </div>
-          <div class="form-control">
+          <div class="form-group">
             <label class="label">
-              <span class="label-text">Sort by</span>
+              <span class="form-label">Sort by</span>
             </label>
-            <select name="sort" class="select select-bordered">
+            <select name="sort" class="select">
               <option value="updated_at" selected={@sort == "updated_at"}>Updated</option>
               <option value="name" selected={@sort == "name"}>Name</option>
               <option value="downloads" selected={@sort == "downloads"}>Downloads</option>
             </select>
           </div>
-          <div class="form-control">
+          <div class="form-group">
             <label class="label">
-              <span class="label-text">Direction</span>
+              <span class="form-label">Direction</span>
             </label>
-            <select name="sort_dir" class="select select-bordered">
+            <select name="sort_dir" class="select">
               <option value="desc" selected={@sort_dir == "desc"}>Descending</option>
               <option value="asc" selected={@sort_dir == "asc"}>Ascending</option>
             </select>
@@ -61,24 +61,11 @@
     
 <!-- Empty State -->
     <%= if @packages == [] do %>
-      <div class="card bg-base-100 shadow">
+      <div class="card bg-surface shadow">
         <div class="card-body items-center text-center py-16">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-16 w-16 text-base-content/30"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-            />
-          </svg>
-          <h3 class="text-lg font-medium text-base-content mt-4">No local packages found</h3>
-          <p class="text-base-content/70 mt-2">
+          <.dm_mdi name="package-variant" class="h-16 w-16 text-on-surface-variant" />
+          <h3 class="text-lg font-medium text-on-surface mt-4">No local packages found</h3>
+          <p class="text-on-surface-variant mt-2">
             <%= if @search != "" do %>
               No packages match your search. Try a different term.
             <% else %>
@@ -98,7 +85,7 @@
             >
               {package.name}
             </.dm_link>
-            <div class="text-sm text-base-content/60">
+            <div class="text-sm text-on-surface-variant">
               {package.latest_version || "No versions"}
             </div>
           </:col>
@@ -109,7 +96,7 @@
             {package.meta["description"] || "No description"}
           </:col>
           <:col :let={package} label="Downloads">
-            <span class="badge badge-ghost">{package.downloads}</span>
+            <span class="badge badge-outline">{package.downloads}</span>
           </:col>
           <:col :let={package} label="Versions">
             <span class="badge badge-info badge-sm">{length(package.versions)}</span>
@@ -130,7 +117,7 @@
       
 <!-- Pagination -->
       <div class="flex justify-between items-center mt-6">
-        <div class="text-sm text-base-content/70">
+        <div class="text-sm text-on-surface-variant">
           Showing {(@pagination.page - 1) * @pagination.per_page + 1} to {min(
             @pagination.page * @pagination.per_page,
             @pagination.total
@@ -147,7 +134,7 @@
               Previous
             </.dm_link>
           <% else %>
-            <button class="join-item btn btn-sm btn-disabled">Previous</button>
+            <button class="join-item btn btn-sm" disabled>Previous</button>
           <% end %>
 
           <button class="join-item btn btn-sm btn-active">
@@ -164,7 +151,7 @@
               Next
             </.dm_link>
           <% else %>
-            <button class="join-item btn btn-sm btn-disabled">Next</button>
+            <button class="join-item btn btn-sm" disabled>Next</button>
           <% end %>
         </div>
       </div>

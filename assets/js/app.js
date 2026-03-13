@@ -1,13 +1,16 @@
-
 import { Socket } from "phoenix";
 import "phoenix_html";
 import { LiveSocket } from "phoenix_live_view";
+import * as DuskmoonHooks from "phoenix_duskmoon/hooks";
+import { registerAll } from "@duskmoon-dev/elements";
+
+registerAll();
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
-  hooks: {},
+  hooks: { ...DuskmoonHooks },
 });
 
 // connect if there are any LiveViews on the page
@@ -53,4 +56,3 @@ if (process.env.NODE_ENV === "development") {
     window.liveReloader = reloader
   });
 }
-

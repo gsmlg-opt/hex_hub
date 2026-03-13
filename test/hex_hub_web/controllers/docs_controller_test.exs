@@ -34,8 +34,8 @@ defmodule HexHubWeb.DocsControllerTest do
     test "contains code snippets", %{conn: conn} do
       conn = get(conn, ~p"/docs/getting-started")
 
-      # Should have mockup-code blocks with configuration examples
-      assert html_response(conn, 200) =~ "mockup-code"
+      # Should have code blocks with configuration examples
+      assert html_response(conn, 200) =~ "font-mono"
     end
   end
 

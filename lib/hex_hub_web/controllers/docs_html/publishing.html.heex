@@ -1,78 +1,78 @@
 <Layouts.app flash={@flash}>
   <.docs_layout current_page={@current_page} page_title={@page_title}>
-    <div class="prose prose-lg max-w-none">
+    <div class="max-w-none">
       <h1 class="text-4xl font-bold mb-6">Publishing Packages to HexHub</h1>
 
-      <p class="text-lg text-base-content/70 mb-8">
+      <p class="text-lg text-on-surface-variant mb-8">
         Learn how to publish your Elixir packages to HexHub. This guide covers account creation,
         API key generation, and the complete publishing workflow.
       </p>
 
-      <h2 id="prerequisites">Prerequisites</h2>
+      <h2 id="prerequisites" class="text-2xl font-bold mb-4">Prerequisites</h2>
 
-      <p>Before publishing packages to HexHub, you need:</p>
+      <p class="mb-4">Before publishing packages to HexHub, you need:</p>
 
-      <ul>
+      <ul class="list-disc list-inside space-y-2 mb-6">
         <li>A HexHub user account</li>
         <li>An API key with write permissions</li>
         <li>A valid Elixir package with a <code>mix.exs</code> file</li>
       </ul>
 
-      <h2 id="account-setup">Account Setup</h2>
+      <h2 id="account-setup" class="text-2xl font-bold mb-4">Account Setup</h2>
 
-      <h3>Creating an Account</h3>
+      <h3 class="text-xl font-semibold mb-3">Creating an Account</h3>
 
-      <p>Create a new HexHub account using the API:</p>
+      <p class="mb-4">Create a new HexHub account using the API:</p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code>curl -X POST <%= @hex_hub_api_url %>/users \</code></pre>
         <pre data-prefix=" "><code>  -H "Content-Type&#58; application/json" \</code></pre>
         <pre data-prefix=" "><code>  -d '&#123;"username"&#58; "myuser", "email"&#58; "user@example.com", "password"&#58; "secret123"&#125;'</code></pre>
       </div>
 
-      <h3 id="api-keys">Generating an API Key</h3>
+      <h3 id="api-keys" class="text-xl font-semibold mb-3">Generating an API Key</h3>
 
-      <p>
+      <p class="mb-4">
         Generate an API key with write permissions. You'll need to authenticate with your
         username and password using Basic Authentication:
       </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code>curl -X POST <%= @hex_hub_api_url %>/keys \</code></pre>
         <pre data-prefix=" "><code>  -u "myuser&#58;secret123" \</code></pre>
         <pre data-prefix=" "><code>  -H "Content-Type&#58; application/json" \</code></pre>
         <pre data-prefix=" "><code>  -d '&#123;"name"&#58; "publish-key", "permissions"&#58; [&#123;"domain"&#58; "api", "resource"&#58; "write"&#125;]&#125;'</code></pre>
       </div>
 
-      <p>Save the returned API key securely - you'll need it for publishing.</p>
+      <p class="mb-4">Save the returned API key securely - you'll need it for publishing.</p>
 
-      <h2 id="publishing">Publishing Packages</h2>
+      <h2 id="publishing" class="text-2xl font-bold mb-4">Publishing Packages</h2>
 
-      <h3>Quick Publish</h3>
+      <h3 class="text-xl font-semibold mb-3">Quick Publish</h3>
 
-      <p>
+      <p class="mb-4">
         To publish your package to HexHub, set the <code>HEX_API_URL</code> environment variable
         and run <code>mix hex.publish</code>:
       </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code class="text-success">HEX_API_URL</code><code>=<%= @hex_hub_api_url %> mix hex.publish</code></pre>
       </div>
 
-      <h3>With API Key (Non-Interactive)</h3>
+      <h3 class="text-xl font-semibold mb-3">With API Key (Non-Interactive)</h3>
 
-      <p>
+      <p class="mb-4">
         For automated publishing in CI/CD pipelines, use both <code>HEX_API_URL</code>
         and <code>HEX_API_KEY</code>:
       </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code class="text-success">HEX_API_URL</code><code>=<%= @hex_hub_api_url %> \</code></pre>
         <pre data-prefix=" "><code class="text-success">HEX_API_KEY</code><code>=your_api_key \</code></pre>
         <pre data-prefix=" "><code>mix hex.publish --yes</code></pre>
       </div>
 
-      <div class="alert alert-info not-prose mb-6">
+      <div class="alert alert-info mb-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -96,20 +96,20 @@
         </div>
       </div>
 
-      <h3>Publishing Package Only (No Docs)</h3>
+      <h3 class="text-xl font-semibold mb-3">Publishing Package Only (No Docs)</h3>
 
-      <p>To publish just the package without documentation:</p>
+      <p class="mb-4">To publish just the package without documentation:</p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code class="text-success">HEX_API_URL</code><code>=<%= @hex_hub_api_url %> \</code></pre>
         <pre data-prefix=" "><code>mix hex.publish package --yes</code></pre>
       </div>
 
-      <h2 id="ci-cd">CI/CD Integration</h2>
+      <h2 id="ci-cd" class="text-2xl font-bold mb-4">CI/CD Integration</h2>
 
-      <h3>GitHub Actions</h3>
+      <h3 class="text-xl font-semibold mb-3">GitHub Actions</h3>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="1"><code># .github/workflows/publish.yml</code></pre>
         <pre data-prefix="2"><code class="text-info">name:</code> <code>Publish to HexHub</code></pre>
         <pre data-prefix="3"><code class="text-info">on:</code></pre>
@@ -134,9 +134,9 @@
         <pre data-prefix="22"><code>          mix hex.publish --yes</code></pre>
       </div>
 
-      <h3>Docker</h3>
+      <h3 class="text-xl font-semibold mb-3">Docker</h3>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="1"><code># docker-compose.yml</code></pre>
         <pre data-prefix="2"><code class="text-info">services:</code></pre>
         <pre data-prefix="3"><code>  publish:</code></pre>
@@ -147,10 +147,12 @@
         <pre data-prefix="8"><code>    command: mix hex.publish --yes</code></pre>
       </div>
 
-      <h2 id="environment-variables">Environment Variables Reference</h2>
+      <h2 id="environment-variables" class="text-2xl font-bold mb-4">
+        Environment Variables Reference
+      </h2>
 
-      <div class="overflow-x-auto not-prose mb-6">
-        <table class="table table-zebra">
+      <div class="overflow-x-auto mb-6">
+        <table class="table table-striped">
           <thead>
             <tr>
               <th>Variable</th>
@@ -178,7 +180,7 @@
         </table>
       </div>
 
-      <div class="alert alert-warning not-prose mb-6">
+      <div class="alert alert-warning mb-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="stroke-current shrink-0 h-6 w-6"
@@ -201,28 +203,28 @@
         </div>
       </div>
 
-      <h2 id="troubleshooting">Troubleshooting</h2>
+      <h2 id="troubleshooting" class="text-2xl font-bold mb-4">Troubleshooting</h2>
 
-      <h3>Authentication Errors</h3>
+      <h3 class="text-xl font-semibold mb-3">Authentication Errors</h3>
 
-      <p>If you get a 401 Unauthorized error:</p>
-      <ul>
+      <p class="mb-4">If you get a 401 Unauthorized error:</p>
+      <ul class="list-disc list-inside space-y-2 mb-6">
         <li>Verify your API key is correct</li>
         <li>Ensure your API key has write permissions</li>
         <li>Check that <code>HEX_API_URL</code> is set correctly</li>
       </ul>
 
-      <h3>Version Conflicts</h3>
+      <h3 class="text-xl font-semibold mb-3">Version Conflicts</h3>
 
-      <p>If publishing fails due to version conflicts:</p>
-      <ul>
+      <p class="mb-4">If publishing fails due to version conflicts:</p>
+      <ul class="list-disc list-inside space-y-2 mb-6">
         <li>Ensure the version in <code>mix.exs</code> doesn't already exist on HexHub</li>
         <li>Use semantic versioning for new releases</li>
       </ul>
 
-      <h2 id="next-steps">Next Steps</h2>
+      <h2 id="next-steps" class="text-2xl font-bold mb-4">Next Steps</h2>
 
-      <ul>
+      <ul class="list-disc list-inside space-y-2 mb-4">
         <li>
           <a href="/docs/api-reference" class="link link-primary">API Reference</a>
           - Explore the complete HexHub API documentation

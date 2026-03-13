@@ -2,8 +2,8 @@
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-base-content">{@package.name}</h1>
-        <p class="mt-2 text-base-content/70">
+        <h1 class="text-3xl font-bold text-on-surface">{@package.name}</h1>
+        <p class="mt-2 text-on-surface-variant">
           {@package.meta["description"] || "No description"}
         </p>
       </div>
@@ -29,28 +29,28 @@
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg">
+    <div class="card bg-surface shadow-lg">
       <div class="card-body">
-        <h2 class="card-title text-base-content">Package Details</h2>
+        <h2 class="card-title text-on-surface">Package Details</h2>
 
         <div class="space-y-4">
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">Repository</span>
-            <span class="text-base-content">{@package.repository_name}</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">Repository</span>
+            <span class="text-on-surface">{@package.repository_name}</span>
           </div>
 
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">License</span>
-            <span class="text-base-content">{@package.meta["license"] || "Not specified"}</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">License</span>
+            <span class="text-on-surface">{@package.meta["license"] || "Not specified"}</span>
           </div>
 
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">Downloads</span>
-            <span class="text-base-content">{@package.downloads}</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">Downloads</span>
+            <span class="text-on-surface">{@package.downloads}</span>
           </div>
 
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">Visibility</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">Visibility</span>
             <span class={
               if @package.private, do: "badge badge-error", else: "badge badge-success"
             }>
@@ -58,22 +58,22 @@
             </span>
           </div>
 
-          <div class="flex justify-between items-center py-3 border-b border-base-200">
-            <span class="font-medium text-base-content/70">Updated</span>
-            <span class="text-base-content">{DateTime.to_iso8601(@package.updated_at)}</span>
+          <div class="flex justify-between items-center py-3 border-b border-outline-variant">
+            <span class="font-medium text-on-surface-variant">Updated</span>
+            <span class="text-on-surface">{DateTime.to_iso8601(@package.updated_at)}</span>
           </div>
 
           <div class="flex justify-between items-center py-3">
-            <span class="font-medium text-base-content/70">Created</span>
-            <span class="text-base-content">{DateTime.to_iso8601(@package.inserted_at)}</span>
+            <span class="font-medium text-on-surface-variant">Created</span>
+            <span class="text-on-surface">{DateTime.to_iso8601(@package.inserted_at)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg mt-8">
+    <div class="card bg-surface shadow-lg mt-8">
       <div class="card-body">
-        <h2 class="card-title text-base-content">Releases</h2>
+        <h2 class="card-title text-on-surface">Releases</h2>
 
         <div class="overflow-x-auto">
           <.dm_table data={@releases}>
@@ -92,12 +92,12 @@
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg mt-8">
+    <div class="card bg-surface shadow-lg mt-8">
       <div class="card-body">
-        <h2 class="card-title text-base-content">Metadata</h2>
+        <h2 class="card-title text-on-surface">Metadata</h2>
 
-        <div class="mockup-code">
-          <pre class="text-sm whitespace-pre-wrap text-base-content">
+        <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto">
+          <pre class="text-sm whitespace-pre-wrap text-on-surface">
             <code><%= Jason.encode!(@package.meta, pretty: true) %></code>
           </pre>
         </div>

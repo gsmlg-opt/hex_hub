@@ -1,10 +1,10 @@
 <Layouts.app flash={@flash}>
   <div class="flex items-center mb-6">
     <.dm_link href={~p"/repositories"} class="btn btn-ghost mr-4">Back</.dm_link>
-    <h1 class="text-3xl font-bold text-base-content">New Repository</h1>
+    <h1 class="text-3xl font-bold text-on-surface">New Repository</h1>
   </div>
 
-  <div class="card bg-base-100 shadow">
+  <div class="card bg-surface shadow">
     <div class="card-body">
       <.dm_form action={~p"/repositories"} method="post">
         <input type="hidden" name="_csrf_token" value={get_csrf_token()} />

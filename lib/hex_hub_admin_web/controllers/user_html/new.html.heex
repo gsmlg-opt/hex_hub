@@ -2,14 +2,14 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-base-content">Create New User</h1>
-        <p class="text-sm text-base-content/70">
+        <h1 class="text-2xl font-bold text-on-surface">Create New User</h1>
+        <p class="text-sm text-on-surface-variant">
           Create a new user account in the system.
         </p>
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg">
+    <div class="card bg-surface shadow-lg">
       <div class="card-body">
         <.dm_form action={~p"/users"} method="post">
           <input type="hidden" name="_csrf_token" value={get_csrf_token()} />

@@ -1,28 +1,28 @@
 <Layouts.app flash={@flash}>
   <.docs_layout current_page={@current_page} page_title={@page_title}>
-    <div class="prose prose-lg max-w-none">
+    <div class="max-w-none">
       <h1 class="text-4xl font-bold mb-6">Getting Started with HexHub</h1>
 
-      <p class="text-lg text-base-content/70 mb-8">
+      <p class="text-lg text-on-surface-variant mb-8">
         Learn how to configure your Elixir projects to use HexHub as your package registry.
         HexHub is fully compatible with the standard Hex client, so you can use it as a
         drop-in replacement for hex.pm.
       </p>
 
-      <h2 id="hex-mirror">Configuring HEX_MIRROR</h2>
+      <h2 id="hex-mirror" class="text-2xl font-bold mb-4">Configuring HEX_MIRROR</h2>
 
-      <p>
+      <p class="mb-4">
         The simplest way to use HexHub is to set the <code>HEX_MIRROR</code> environment variable.
         This tells the Hex client to fetch packages from HexHub instead of hex.pm.
       </p>
 
-      <h3>Shell Configuration</h3>
+      <h3 class="text-xl font-semibold mb-3">Shell Configuration</h3>
 
-      <p>
+      <p class="mb-4">
         Add this to your shell configuration file (<code>~/.bashrc</code>, <code>~/.zshrc</code>, etc.):
       </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="1"><code># Add to ~/.bashrc or ~/.zshrc</code></pre>
         <pre data-prefix="2"><code class="text-success">export</code> <code class="text-info">HEX_MIRROR=<%= @hex_hub_url %></code></pre>
         <pre data-prefix="3"><code></code></pre>
@@ -30,21 +30,25 @@
         <pre data-prefix="5"><code class="text-success">source</code> <code>~/.bashrc</code></pre>
       </div>
 
-      <h3>Mix Configuration</h3>
+      <h3 class="text-xl font-semibold mb-3">Mix Configuration</h3>
 
-      <p>Alternatively, you can configure Hex in your <code>config/config.exs</code>:</p>
+      <p class="mb-4">
+        Alternatively, you can configure Hex in your <code>config/config.exs</code>:
+      </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="1"><code># config/config.exs</code></pre>
         <pre data-prefix="2"><code class="text-info">config</code> <code>:hex,</code></pre>
         <pre data-prefix="3"><code>  cdn_url: "<%= @hex_hub_url %>"</code></pre>
       </div>
 
-      <h3 id="docker">Docker Configuration</h3>
+      <h3 id="docker" class="text-xl font-semibold mb-3">Docker Configuration</h3>
 
-      <p>In your Dockerfile, set the environment variable before running mix commands:</p>
+      <p class="mb-4">
+        In your Dockerfile, set the environment variable before running mix commands:
+      </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="1"><code># Dockerfile</code></pre>
         <pre data-prefix="2"><code class="text-info">ENV</code> <code>HEX_MIRROR=<%= @hex_hub_url %></code></pre>
         <pre data-prefix="3"><code></code></pre>
@@ -53,13 +57,13 @@
         <pre data-prefix="6"><code>  - HEX_MIRROR=<%= @hex_hub_url %></code></pre>
       </div>
 
-      <h3 id="ci-cd">CI/CD Configuration</h3>
+      <h3 id="ci-cd" class="text-xl font-semibold mb-3">CI/CD Configuration</h3>
 
-      <p>Configure HexHub in your CI/CD pipeline:</p>
+      <p class="mb-4">Configure HexHub in your CI/CD pipeline:</p>
 
-      <h4>GitHub Actions</h4>
+      <h4 class="text-lg font-semibold mb-2">GitHub Actions</h4>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="1"><code># .github/workflows/test.yml</code></pre>
         <pre data-prefix="2"><code class="text-info">jobs:</code></pre>
         <pre data-prefix="3"><code>  test:</code></pre>
@@ -76,9 +80,9 @@
         <pre data-prefix="14"><code>      - run: mix test</code></pre>
       </div>
 
-      <h4>GitLab CI</h4>
+      <h4 class="text-lg font-semibold mb-2">GitLab CI</h4>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="1"><code># .gitlab-ci.yml</code></pre>
         <pre data-prefix="2"><code class="text-info">variables:</code></pre>
         <pre data-prefix="3"><code>  HEX_MIRROR: <%= @hex_hub_url %></code></pre>
@@ -89,19 +93,19 @@
         <pre data-prefix="8"><code>    - mix test</code></pre>
       </div>
 
-      <h2 id="verification">Verification</h2>
+      <h2 id="verification" class="text-2xl font-bold mb-4">Verification</h2>
 
-      <p>To verify that HexHub is configured correctly, run:</p>
+      <p class="mb-4">To verify that HexHub is configured correctly, run:</p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code>mix hex.config</code></pre>
       </div>
 
-      <p>You should see the HexHub URL in the configuration output.</p>
+      <p class="mb-4">You should see the HexHub URL in the configuration output.</p>
 
-      <h2 id="upstream">Upstream Package Fetching</h2>
+      <h2 id="upstream" class="text-2xl font-bold mb-4">Upstream Package Fetching</h2>
 
-      <div class="alert alert-info not-prose mb-6">
+      <div class="alert alert-info mb-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -126,9 +130,9 @@
         </div>
       </div>
 
-      <h2 id="next-steps">Next Steps</h2>
+      <h2 id="next-steps" class="text-2xl font-bold mb-4">Next Steps</h2>
 
-      <ul>
+      <ul class="list-disc list-inside space-y-2 mb-4">
         <li>
           <a href="/docs/publishing" class="link link-primary">Publishing Packages</a>
           - Learn how to publish your own packages to HexHub

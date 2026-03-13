@@ -37,10 +37,10 @@ defmodule HexHubWeb.Layouts do
     ~H"""
     <.dm_simple_appbar class={[
       "z-50 bg-primary",
-      "shadow shadow-primary-content"
+      "shadow shadow-primary/20"
     ]}>
       <:logo>
-        <a href="/" class="text-xl font-bold text-primary-content hover:opacity-80">HexHub</a>
+        <a href="/" class="text-xl font-bold text-on-primary hover:opacity-80">HexHub</a>
       </:logo>
       <:user_profile>
         <div class="flex items-center">

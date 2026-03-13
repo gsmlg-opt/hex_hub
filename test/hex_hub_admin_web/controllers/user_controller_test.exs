@@ -49,8 +49,8 @@ defmodule HexHubAdminWeb.UserControllerTest do
       conn = get(conn, ~p"/users/anonymous")
 
       response = html_response(conn, 200)
-      # Check for disabled buttons (btn-disabled class)
-      assert response =~ "btn-disabled"
+      # Check for disabled buttons (disabled attribute)
+      assert response =~ "disabled"
       assert response =~ "System users cannot be edited"
     end
 

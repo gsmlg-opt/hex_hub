@@ -43,7 +43,7 @@ defmodule HexHub.MixProject do
       {:phoenix_live_view, "~> 1.1.0-rc.0"},
       {:lazy_html, ">= 0.1.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:phoenix_duskmoon, "~> 7.0"},
+      {:phoenix_duskmoon, "~> 9.0.0-rc"},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:bun, "~> 1.4", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.16"},
@@ -83,7 +83,14 @@ defmodule HexHub.MixProject do
       setup: ["deps.get", "assets.setup", "assets.build"],
       test: ["test"],
       lint: ["credo --strict", "dialyzer"],
-      "assets.setup": ["tailwind.install --if-missing", "bun.install --if-missing"],
+      "assets.setup": [
+        "tailwind.install --if-missing",
+        "bun.install --if-missing",
+        "cmd ln -sfn ../deps/phoenix node_modules/phoenix",
+        "cmd ln -sfn ../deps/phoenix_html node_modules/phoenix_html",
+        "cmd ln -sfn ../deps/phoenix_live_view node_modules/phoenix_live_view",
+        "cmd ln -sfn ../deps/phoenix_duskmoon node_modules/phoenix_duskmoon"
+      ],
       "assets.build": [
         "tailwind hex_hub",
         "tailwind hex_hub_admin",

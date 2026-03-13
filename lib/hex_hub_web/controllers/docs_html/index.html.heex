@@ -1,18 +1,18 @@
 <Layouts.app flash={@flash}>
   <.docs_layout current_page={@current_page} page_title={@page_title}>
-    <div class="prose prose-lg max-w-none">
+    <div class="max-w-none">
       <h1 class="text-4xl font-bold mb-6">HexHub Documentation</h1>
 
-      <p class="text-lg text-base-content/70 mb-8">
+      <p class="text-lg text-on-surface-variant mb-8">
         Welcome to the HexHub documentation. HexHub is a private hex package manager and hexdocs
         server that provides a drop-in replacement for hex.pm. Learn how to configure your
         Elixir projects to use HexHub, publish packages, and integrate with the API.
       </p>
 
-      <div class="grid md:grid-cols-2 gap-6 not-prose mb-8">
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
         <a
           href="/docs/getting-started"
-          class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
+          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
         >
           <div class="card-body">
             <div class="flex items-center gap-3 mb-2">
@@ -45,7 +45,7 @@
 
         <a
           href="/docs/publishing"
-          class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
+          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
         >
           <div class="card-body">
             <div class="flex items-center gap-3 mb-2">
@@ -76,11 +76,11 @@
 
         <a
           href="/docs/api-reference"
-          class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
+          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
         >
           <div class="card-body">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+              <div class="w-10 h-10 bg-tertiary rounded-lg flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -100,7 +100,7 @@
             </div>
             <p>Complete API documentation for all HexHub endpoints.</p>
             <div class="card-actions justify-end">
-              <span class="text-accent">Read more &rarr;</span>
+              <span class="text-tertiary">Read more &rarr;</span>
             </div>
           </div>
         </a>
@@ -108,11 +108,11 @@
         <a
           href="/openapi/hex-api.yaml"
           target="_blank"
-          class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
+          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
         >
           <div class="card-body">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-neutral rounded-lg flex items-center justify-center">
+              <div class="w-10 h-10 bg-surface-container-high rounded-lg flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -132,32 +132,32 @@
             </div>
             <p>Download the OpenAPI 3.0 specification for code generation and API tools.</p>
             <div class="card-actions justify-end">
-              <span class="text-neutral-content">Download YAML &rarr;</span>
+              <span class="text-on-surface">Download YAML &rarr;</span>
             </div>
           </div>
         </a>
       </div>
 
-      <h2>Quick Start</h2>
+      <h2 class="text-2xl font-bold mb-4">Quick Start</h2>
 
-      <p>
+      <p class="mb-4">
         To start using HexHub as your package mirror, set the <code>HEX_MIRROR</code>
         environment variable:
       </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code class="text-success">export</code> <code class="text-info">HEX_MIRROR=http://localhost:4000</code></pre>
       </div>
 
-      <p>
+      <p class="mb-4">
         Then you can install packages from HexHub just like you would from hex.pm:
       </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix="$"><code>mix deps.get</code></pre>
       </div>
 
-      <div class="alert alert-info not-prose">
+      <div class="alert alert-info">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

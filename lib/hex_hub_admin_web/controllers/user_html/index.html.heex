@@ -2,8 +2,8 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-base-content">Users</h1>
-        <p class="text-sm text-base-content/70 mt-1">
+        <h1 class="text-2xl font-bold text-on-surface">Users</h1>
+        <p class="text-sm text-on-surface-variant mt-1">
           Manage all users in the system. Total: {@total_count} users
         </p>
       </div>
@@ -43,7 +43,8 @@
             </.dm_link>
             <%= if HexHub.Users.is_system_user?(user.username) do %>
               <span
-                class="btn btn-sm btn-ghost btn-disabled"
+                class="btn btn-sm btn-ghost"
+                disabled
                 title="System users cannot be deleted"
               >
                 Protected
@@ -67,7 +68,7 @@
     </div>
 
     <div class="flex items-center justify-between mt-6">
-      <div class="text-sm text-base-content/70">
+      <div class="text-sm text-on-surface-variant">
         Showing {min((@page - 1) * 20 + 1, @total_count)} to {min(@page * 20, @total_count)} of {@total_count} results
       </div>
       <div class="join">
@@ -75,9 +76,10 @@
           navigate={~p"/users?page=#{@page - 1}"}
           class={
             if @page <= 1,
-              do: "btn btn-sm join-item btn-disabled",
+              do: "btn btn-sm join-item",
               else: "btn btn-sm join-item"
           }
+          disabled={@page <= 1}
         >
           Previous
         </.dm_link>
@@ -85,9 +87,10 @@
           navigate={~p"/users?page=#{@page + 1}"}
           class={
             if @page >= @total_pages,
-              do: "btn btn-sm join-item btn-disabled",
+              do: "btn btn-sm join-item",
               else: "btn btn-sm join-item"
           }
+          disabled={@page >= @total_pages}
         >
           Next
         </.dm_link>

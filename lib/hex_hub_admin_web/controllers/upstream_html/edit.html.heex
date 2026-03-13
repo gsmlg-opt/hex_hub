@@ -11,14 +11,14 @@
 
     <.form for={@upstream_config} action="/upstream" method="put" class="space-y-6">
       <!-- Basic Settings -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Basic Settings</h2>
 
-          <div class="form-control">
+          <div class="form-group">
             <label class="label">
-              <span class="label-text">Enable Upstream</span>
-              <span class="label-text-alt">Allow fetching packages from upstream repository</span>
+              <span class="form-label">Enable Upstream</span>
+              <span class="helper-text">Allow fetching packages from upstream repository</span>
             </label>
             <div class="flex gap-4">
               <label class="cursor-pointer">
@@ -44,58 +44,58 @@
             </div>
           </div>
 
-          <div class="form-control">
+          <div class="form-group">
             <label class="label">
-              <span class="label-text">API URL</span>
-              <span class="label-text-alt">For fetching package metadata</span>
+              <span class="form-label">API URL</span>
+              <span class="helper-text">For fetching package metadata</span>
             </label>
             <input
               type="url"
               name="upstream[api_url]"
-              class="input input-bordered w-full"
+              class="input w-full"
               value={@upstream_config.api_url}
               placeholder="https://hex.pm"
               required
             />
             <label class="label">
-              <span class="label-text-alt">The base URL for package API calls</span>
+              <span class="helper-text">The base URL for package API calls</span>
             </label>
           </div>
 
-          <div class="form-control">
+          <div class="form-group">
             <label class="label">
-              <span class="label-text">Repository URL</span>
-              <span class="label-text-alt">For downloading package tarballs</span>
+              <span class="form-label">Repository URL</span>
+              <span class="helper-text">For downloading package tarballs</span>
             </label>
             <input
               type="url"
               name="upstream[repo_url]"
-              class="input input-bordered w-full"
+              class="input w-full"
               value={@upstream_config.repo_url}
               placeholder="https://repo.hex.pm"
               required
             />
             <label class="label">
-              <span class="label-text-alt">The base URL for package tarball downloads</span>
+              <span class="helper-text">The base URL for package tarball downloads</span>
             </label>
           </div>
 
-          <div class="form-control">
+          <div class="form-group">
             <label class="label">
-              <span class="label-text">API Key</span>
-              <span class="label-text-alt">
+              <span class="form-label">API Key</span>
+              <span class="helper-text">
                 Optional: Authentication token for private repositories
               </span>
             </label>
             <input
               type="password"
               name="upstream[api_key]"
-              class="input input-bordered w-full"
+              class="input w-full"
               value={@upstream_config.api_key || ""}
               placeholder="Enter API key (optional)"
             />
             <label class="label">
-              <span class="label-text-alt">
+              <span class="helper-text">
                 Bearer token for accessing private or authenticated repositories
               </span>
             </label>
@@ -104,65 +104,65 @@
       </div>
       
 <!-- Advanced Settings -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Advanced Settings</h2>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control">
+            <div class="form-group">
               <label class="label">
-                <span class="label-text">Timeout (milliseconds)</span>
-                <span class="label-text-alt">Request timeout</span>
+                <span class="form-label">Timeout (milliseconds)</span>
+                <span class="helper-text">Request timeout</span>
               </label>
               <input
                 type="number"
                 name="upstream[timeout]"
-                class="input input-bordered"
+                class="input"
                 value={@upstream_config.timeout}
                 min="1000"
                 max="300000"
                 required
               />
               <label class="label">
-                <span class="label-text-alt">1,000 - 300,000 ms (1 second - 5 minutes)</span>
+                <span class="helper-text">1,000 - 300,000 ms (1 second - 5 minutes)</span>
               </label>
             </div>
 
-            <div class="form-control">
+            <div class="form-group">
               <label class="label">
-                <span class="label-text">Retry Attempts</span>
-                <span class="label-text-alt">Number of retry attempts</span>
+                <span class="form-label">Retry Attempts</span>
+                <span class="helper-text">Number of retry attempts</span>
               </label>
               <input
                 type="number"
                 name="upstream[retry_attempts]"
-                class="input input-bordered"
+                class="input"
                 value={@upstream_config.retry_attempts}
                 min="0"
                 max="10"
                 required
               />
               <label class="label">
-                <span class="label-text-alt">0 - 10 attempts</span>
+                <span class="helper-text">0 - 10 attempts</span>
               </label>
             </div>
 
-            <div class="form-control">
+            <div class="form-group">
               <label class="label">
-                <span class="label-text">Retry Delay (milliseconds)</span>
-                <span class="label-text-alt">Delay between retries</span>
+                <span class="form-label">Retry Delay (milliseconds)</span>
+                <span class="helper-text">Delay between retries</span>
               </label>
               <input
                 type="number"
                 name="upstream[retry_delay]"
-                class="input input-bordered"
+                class="input"
                 value={@upstream_config.retry_delay}
                 min="100"
                 max="60000"
                 required
               />
               <label class="label">
-                <span class="label-text-alt">100 - 60,000 ms (0.1 - 60 seconds)</span>
+                <span class="helper-text">100 - 60,000 ms (0.1 - 60 seconds)</span>
               </label>
             </div>
           </div>
@@ -170,24 +170,11 @@
       </div>
       
 <!-- Information Card -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Configuration Information</h2>
           <div class="alert alert-info">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              class="stroke-current shrink-0 w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              >
-              </path>
-            </svg>
+            <.dm_mdi name="information" class="w-6 h-6" />
             <div>
               <h3 class="font-bold">Important Notes</h3>
               <ul class="list-disc list-inside text-sm mt-2 space-y-1">

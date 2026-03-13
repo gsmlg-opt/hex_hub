@@ -1,13 +1,13 @@
 <Layouts.app flash={@flash}>
   <.docs_layout current_page={@current_page} page_title={@page_title}>
-    <div class="prose prose-lg max-w-none">
+    <div class="max-w-none">
       <h1 class="text-4xl font-bold mb-4">API Reference</h1>
 
-      <p class="text-lg text-base-content/70 mb-4">
+      <p class="text-lg text-on-surface-variant mb-4">
         {@api_info.description |> String.split("\n") |> List.first()}
       </p>
 
-      <div class="flex gap-4 not-prose mb-8">
+      <div class="flex gap-4 mb-8">
         <div class="badge badge-lg badge-outline">Version: {@api_info.version}</div>
         <a href="/openapi/hex-api.yaml" target="_blank" class="badge badge-lg badge-primary gap-2">
           <svg
@@ -28,14 +28,14 @@
         </a>
       </div>
 
-      <h2 id="authentication">Authentication</h2>
+      <h2 id="authentication" class="text-2xl font-bold mb-4">Authentication</h2>
 
-      <p>
+      <p class="mb-4">
         The HexHub API supports two authentication methods:
       </p>
 
-      <div class="overflow-x-auto not-prose mb-6">
-        <table class="table table-zebra">
+      <div class="overflow-x-auto mb-6">
+        <table class="table table-striped">
           <thead>
             <tr>
               <th>Method</th>
@@ -58,17 +58,17 @@
         </table>
       </div>
 
-      <h2 id="rate-limiting">Rate Limiting</h2>
+      <h2 id="rate-limiting" class="text-2xl font-bold mb-4">Rate Limiting</h2>
 
-      <p>
+      <p class="mb-4">
         API requests are limited to <strong>100 requests per minute</strong>
         per IP address, or <strong>500 requests per minute</strong>
         for authenticated users. The following headers
         are returned with each response:
       </p>
 
-      <div class="overflow-x-auto not-prose mb-6">
-        <table class="table table-zebra">
+      <div class="overflow-x-auto mb-6">
+        <table class="table table-striped">
           <thead>
             <tr>
               <th>Header</th>
@@ -92,19 +92,19 @@
         </table>
       </div>
 
-      <h2 id="media-types">Media Types</h2>
+      <h2 id="media-types" class="text-2xl font-bold mb-4">Media Types</h2>
 
-      <p>The API supports the following media types:</p>
+      <p class="mb-4">The API supports the following media types:</p>
 
-      <ul>
+      <ul class="list-disc list-inside space-y-2 mb-6">
         <li><code>application/json</code> - Standard JSON format</li>
         <li><code>application/vnd.hex+json</code> - Hex-specific JSON format</li>
         <li><code>application/vnd.hex+erlang</code> - Erlang term format</li>
       </ul>
 
-      <h2 id="endpoints">Endpoints</h2>
+      <h2 id="endpoints" class="text-2xl font-bold mb-4">Endpoints</h2>
 
-      <div class="not-prose">
+      <div>
         <!-- Quick navigation -->
         <div class="flex flex-wrap gap-2 mb-8">
           <%= for {tag, _endpoints} <- @endpoints_by_tag do %>
@@ -127,19 +127,21 @@
 
             <div class="space-y-4">
               <%= for {path, method, spec} <- endpoints do %>
-                <div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow">
+                <div class="card bg-surface shadow-md hover:shadow-lg transition-shadow">
                   <div class="card-body p-4">
                     <div class="flex flex-wrap items-center gap-3 mb-2">
                       <span class={method_badge_class(method)}>
                         {String.upcase(method)}
                       </span>
-                      <code class="text-sm font-mono bg-base-200 px-2 py-1 rounded">{path}</code>
+                      <code class="text-sm font-mono bg-surface-container px-2 py-1 rounded">
+                        {path}
+                      </code>
                     </div>
-                    <p class="text-base-content/80 mb-2">
+                    <p class="text-on-surface/80 mb-2">
                       {spec["summary"]}
                     </p>
                     <%= if spec["description"] && spec["description"] != spec["summary"] do %>
-                      <p class="text-sm text-base-content/60">
+                      <p class="text-sm text-on-surface-variant">
                         {spec["description"]
                         |> String.split("\n")
                         |> List.first()
@@ -156,7 +158,7 @@
                         <h4 class="text-sm font-semibold mb-2">Parameters:</h4>
                         <div class="flex flex-wrap gap-2">
                           <%= for param <- spec["parameters"] do %>
-                            <span class="badge badge-ghost badge-sm">
+                            <span class="badge badge-outline badge-sm">
                               {param["name"]}
                               <%= if param["required"] do %>
                                 <span class="text-error">*</span>
@@ -178,7 +180,7 @@
                                 String.starts_with?(code, "2") -> "badge badge-success badge-sm"
                                 String.starts_with?(code, "4") -> "badge badge-warning badge-sm"
                                 String.starts_with?(code, "5") -> "badge badge-error badge-sm"
-                                true -> "badge badge-ghost badge-sm"
+                                true -> "badge badge-outline badge-sm"
                               end
                             }>
                               {code}
@@ -195,13 +197,13 @@
         <% end %>
       </div>
 
-      <h2 id="error-responses">Error Responses</h2>
+      <h2 id="error-responses" class="text-2xl font-bold mb-4">Error Responses</h2>
 
-      <p>
+      <p class="mb-4">
         Error responses follow a consistent format across all endpoints:
       </p>
 
-      <div class="mockup-code not-prose mb-6">
+      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
         <pre data-prefix=""><code>&#123;</code></pre>
         <pre data-prefix=""><code>  "status"&#58; 404,</code></pre>
         <pre data-prefix=""><code>  "message"&#58; "Not Found",</code></pre>
@@ -211,9 +213,9 @@
         <pre data-prefix=""><code>&#125;</code></pre>
       </div>
 
-      <h2 id="next-steps">Next Steps</h2>
+      <h2 id="next-steps" class="text-2xl font-bold mb-4">Next Steps</h2>
 
-      <ul>
+      <ul class="list-disc list-inside space-y-2 mb-4">
         <li>
           <a href="/docs/getting-started" class="link link-primary">Getting Started</a>
           - Configure your environment to use HexHub

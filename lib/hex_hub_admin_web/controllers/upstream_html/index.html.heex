@@ -11,7 +11,7 @@
 
     <div class="grid gap-6">
       <!-- Status Card -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Status</h2>
           <div class="flex items-center gap-2">
@@ -35,7 +35,7 @@
       </div>
       
 <!-- Configuration Card -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Current Configuration</h2>
 
@@ -54,7 +54,7 @@
               <div class="input-group">
                 <input
                   type="text"
-                  class="input input-bordered"
+                  class="input"
                   value={@upstream_config.api_url}
                   readonly
                 />
@@ -66,7 +66,7 @@
               <div class="input-group">
                 <input
                   type="text"
-                  class="input input-bordered"
+                  class="input"
                   value={@upstream_config.repo_url}
                   readonly
                 />
@@ -76,7 +76,7 @@
             <div>
               <label class="label">API Key</label>
               <div class="input-group">
-                <span class={"badge #{if @upstream_config.api_key && @upstream_config.api_key != "", do: "badge-success", else: "badge-ghost"}"}>
+                <span class={"badge #{if @upstream_config.api_key && @upstream_config.api_key != "", do: "badge-success", else: "badge-outline"}"}>
                   {if @upstream_config.api_key && @upstream_config.api_key != "",
                     do: "Configured",
                     else: "Not Set"}
@@ -89,7 +89,7 @@
               <div class="input-group">
                 <input
                   type="text"
-                  class="input input-bordered"
+                  class="input"
                   value={@upstream_config.timeout}
                   readonly
                 />
@@ -101,7 +101,7 @@
               <div class="input-group">
                 <input
                   type="text"
-                  class="input input-bordered"
+                  class="input"
                   value={@upstream_config.retry_attempts}
                   readonly
                 />
@@ -113,7 +113,7 @@
               <div class="input-group">
                 <input
                   type="text"
-                  class="input input-bordered"
+                  class="input"
                   value={@upstream_config.retry_delay}
                   readonly
                 />
@@ -124,10 +124,10 @@
       </div>
       
 <!-- Usage Statistics -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Usage Information</h2>
-          <div class="prose max-w-none">
+          <div class="max-w-none">
             <p class="text-sm">
               <strong>API URL</strong>: Used for fetching package metadata and release information from the upstream repository.
             </p>

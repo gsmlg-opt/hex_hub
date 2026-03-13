@@ -11,14 +11,14 @@
 
     <.form for={@storage_config} action="/storage" method="put" class="space-y-6">
       <!-- Storage Type -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Storage Type</h2>
 
-          <div class="form-control">
+          <div class="form-group">
             <label class="label">
-              <span class="label-text">Storage Type</span>
-              <span class="label-text-alt">
+              <span class="form-label">Storage Type</span>
+              <span class="helper-text">
                 Choose where to store package files and documentation
               </span>
             </label>
@@ -45,159 +45,163 @@
               </label>
             </div>
           </div>
-
-          <!-- Local Storage Options -->
+          
+<!-- Local Storage Options -->
           <div id="local-config" class={if @storage_config.storage_type != :local, do: "hidden"}>
-            <div class="form-control">
+            <div class="form-group">
               <label class="label">
-                <span class="label-text">Storage Path</span>
+                <span class="form-label">Storage Path</span>
               </label>
               <input
                 type="text"
                 name="storage[storage_path]"
-                class="input input-bordered w-full"
+                class="input w-full"
                 value={@storage_config.storage_path}
                 placeholder="priv/storage"
               />
               <label class="label">
-                <span class="label-text-alt">The directory where files will be stored</span>
+                <span class="helper-text">The directory where files will be stored</span>
               </label>
             </div>
           </div>
-
-          <!-- S3 Storage Options -->
+          
+<!-- S3 Storage Options -->
           <div id="s3-config" class={if @storage_config.storage_type != :s3, do: "hidden"}>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">S3 Bucket</span>
-                  <span class="label-text-alt">Required</span>
+                  <span class="form-label">S3 Bucket</span>
+                  <span class="helper-text">Required</span>
                 </label>
                 <input
                   type="text"
                   name="storage[s3_bucket]"
-                  class="input input-bordered"
+                  class="input"
                   value={@storage_config.s3_bucket}
                   placeholder="my-hex-packages"
                 />
                 <label class="label">
-                  <span class="label-text-alt">The S3 bucket name</span>
+                  <span class="helper-text">The S3 bucket name</span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">S3 Bucket Path</span>
-                  <span class="label-text-alt">Prefix path inside bucket</span>
+                  <span class="form-label">S3 Bucket Path</span>
+                  <span class="helper-text">Prefix path inside bucket</span>
                 </label>
                 <input
                   type="text"
                   name="storage[s3_bucket_path]"
-                  class="input input-bordered"
+                  class="input"
                   value={@storage_config.s3_bucket_path}
                   placeholder="/"
                 />
                 <label class="label">
-                  <span class="label-text-alt">
+                  <span class="helper-text">
                     Subdirectory within the bucket (e.g. /hex-packages)
                   </span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">S3 Region</span>
-                  <span class="label-text-alt">AWS region</span>
+                  <span class="form-label">S3 Region</span>
+                  <span class="helper-text">AWS region</span>
                 </label>
                 <input
                   type="text"
                   name="storage[s3_region]"
-                  class="input input-bordered"
+                  class="input"
                   value={@storage_config.s3_region}
                   placeholder="us-east-1"
                 />
                 <label class="label">
-                  <span class="label-text-alt">The AWS region for your bucket</span>
+                  <span class="helper-text">The AWS region for your bucket</span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">Access Key ID</span>
+                  <span class="form-label">Access Key ID</span>
                 </label>
                 <input
                   type="text"
                   name="storage[s3_access_key_id]"
-                  class="input input-bordered"
+                  class="input"
                   value={@storage_config.s3_access_key_id}
                   placeholder="AKIAIOSFODNN7EXAMPLE"
                   autocomplete="off"
                 />
                 <label class="label">
-                  <span class="label-text-alt">AWS access key ID</span>
+                  <span class="helper-text">AWS access key ID</span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">Secret Access Key</span>
+                  <span class="form-label">Secret Access Key</span>
                 </label>
                 <input
                   type="password"
                   name="storage[s3_secret_access_key]"
-                  class="input input-bordered"
-                  placeholder={if @storage_config.s3_secret_access_key, do: "••••••••  (unchanged if left blank)", else: ""}
+                  class="input"
+                  placeholder={
+                    if @storage_config.s3_secret_access_key,
+                      do: "••••••••  (unchanged if left blank)",
+                      else: ""
+                  }
                   autocomplete="off"
                 />
                 <label class="label">
-                  <span class="label-text-alt">
+                  <span class="helper-text">
                     Leave blank to keep existing value
                   </span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">S3 Host</span>
-                  <span class="label-text-alt">For custom S3-compatible services</span>
+                  <span class="form-label">S3 Host</span>
+                  <span class="helper-text">For custom S3-compatible services</span>
                 </label>
                 <input
                   type="text"
                   name="storage[s3_host]"
-                  class="input input-bordered"
+                  class="input"
                   value={@storage_config.s3_host}
                   placeholder="s3.amazonaws.com"
                 />
                 <label class="label">
-                  <span class="label-text-alt">S3 endpoint hostname</span>
+                  <span class="helper-text">S3 endpoint hostname</span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">S3 Port</span>
-                  <span class="label-text-alt">S3 endpoint port</span>
+                  <span class="form-label">S3 Port</span>
+                  <span class="helper-text">S3 endpoint port</span>
                 </label>
                 <input
                   type="number"
                   name="storage[s3_port]"
-                  class="input input-bordered"
+                  class="input"
                   value={@storage_config.s3_port}
                   placeholder="443"
                   min="1"
                   max="65535"
                 />
                 <label class="label">
-                  <span class="label-text-alt">Port number (1-65535)</span>
+                  <span class="helper-text">Port number (1-65535)</span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">S3 Scheme</span>
-                  <span class="label-text-alt">HTTP or HTTPS</span>
+                  <span class="form-label">S3 Scheme</span>
+                  <span class="helper-text">HTTP or HTTPS</span>
                 </label>
-                <select name="storage[s3_scheme]" class="select select-bordered">
+                <select name="storage[s3_scheme]" class="select">
                   <option value="https://" selected={@storage_config.s3_scheme == "https://"}>
                     HTTPS
                   </option>
@@ -206,16 +210,16 @@
                   </option>
                 </select>
                 <label class="label">
-                  <span class="label-text-alt">Use HTTPS for production</span>
+                  <span class="helper-text">Use HTTPS for production</span>
                 </label>
               </div>
 
-              <div class="form-control">
+              <div class="form-group">
                 <label class="label">
-                  <span class="label-text">Path Style</span>
-                  <span class="label-text-alt">For MinIO and compatible services</span>
+                  <span class="form-label">Path Style</span>
+                  <span class="helper-text">For MinIO and compatible services</span>
                 </label>
-                <select name="storage[s3_path_style]" class="select select-bordered">
+                <select name="storage[s3_path_style]" class="select">
                   <option value="false" selected={!@storage_config.s3_path_style}>
                     Virtual Host Style
                   </option>
@@ -224,7 +228,7 @@
                   </option>
                 </select>
                 <label class="label">
-                  <span class="label-text-alt">Path style for custom S3 services</span>
+                  <span class="helper-text">Path style for custom S3 services</span>
                 </label>
               </div>
             </div>
@@ -233,24 +237,11 @@
       </div>
       
 <!-- Information Card -->
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Configuration Information</h2>
           <div class="alert alert-info">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              class="stroke-current shrink-0 w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              >
-              </path>
-            </svg>
+            <.dm_mdi name="information" class="w-6 h-6" />
             <div>
               <h3 class="font-bold">Important Notes</h3>
               <ul class="list-disc list-inside text-sm mt-2 space-y-1">
