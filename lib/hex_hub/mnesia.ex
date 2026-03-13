@@ -15,6 +15,7 @@ defmodule HexHub.Mnesia do
     :audit_logs,
     :upstream_configs,
     :publish_configs,
+    :storage_configs,
     :blocked_addresses,
     :retired_releases,
     :system_metadata,
@@ -248,6 +249,26 @@ defmodule HexHub.Mnesia do
          ],
          type: :set
        ] ++ storage_opt(storage_type)},
+      {:storage_configs,
+       [
+         attributes: [
+           :id,
+           :storage_type,
+           :storage_path,
+           :s3_bucket,
+           :s3_bucket_path,
+           :s3_region,
+           :s3_host,
+           :s3_port,
+           :s3_scheme,
+           :s3_path_style,
+           :s3_access_key_id,
+           :s3_secret_access_key,
+           :inserted_at,
+           :updated_at
+         ],
+         type: :set
+       ] ++ storage_opt(storage_type)},
       {:blocked_addresses,
        [
          attributes: [:ip_address, :type, :reason, :blocked_at, :blocked_until, :created_by],
@@ -320,25 +341,15 @@ defmodule HexHub.Mnesia do
     end
   end
 
-  # Determine storage type based on node configuration
-  # disc_copies requires a proper distributed node name
+  # Determine storage type for Mnesia tables.
+  # Always use disc_copies for data persistence across restarts.
+  # Mnesia supports disc_copies on nonode@nohost as long as the schema is on disc.
   defp get_storage_type do
-    case node() do
-      :nonode@nohost ->
-        # Running without a node name, can't use disc_copies
-        # This is typical for development with `mix phx.server`
-        :ram_copies
-
-      _ ->
-        # Running with a node name, try disc_copies for persistence
-        # Will fall back to ram_copies if schema doesn't support it
-        :disc_copies
-    end
+    :disc_copies
   end
 
   # Generate storage option keyword list based on storage type
   defp storage_opt(:disc_copies), do: [disc_copies: [node()]]
-  defp storage_opt(:ram_copies), do: [ram_copies: [node()]]
 
   defp create_indices() do
     # Additional indices for common queries
@@ -451,15 +462,7 @@ defmodule HexHub.Mnesia do
   Only runs when the node has a proper distributed name (not nonode@nohost).
   """
   def migrate_to_disc_copies do
-    # Only migrate if we have a proper node name that supports disc_copies
-    case node() do
-      :nonode@nohost ->
-        # Can't use disc_copies without a node name, skip migration
-        :ok
-
-      _ ->
-        do_migrate_to_disc_copies()
-    end
+    do_migrate_to_disc_copies()
   end
 
   defp do_migrate_to_disc_copies do
@@ -475,6 +478,7 @@ defmodule HexHub.Mnesia do
       :audit_logs,
       :upstream_configs,
       :publish_configs,
+      :storage_configs,
       :blocked_addresses,
       :retired_releases,
       :system_metadata,

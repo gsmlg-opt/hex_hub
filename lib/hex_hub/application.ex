@@ -35,6 +35,9 @@ defmodule HexHub.Application do
     # Initialize default publish configuration if needed
     HexHub.PublishConfig.init_default_config()
 
+    # Initialize storage configuration from Mnesia (or seed from env)
+    HexHub.StorageConfig.init_default_config()
+
     # Ensure anonymous user exists for anonymous publishing feature
     HexHub.Users.ensure_anonymous_user()
 
