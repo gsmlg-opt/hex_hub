@@ -90,12 +90,10 @@ if config_env() == :prod do
   end
 end
 
-# Configure Tailwind CSS binary path from environment variable
-if tailwind_bin = System.get_env("TAILWINDCSS_BIN") do
-  config :tailwind, path: tailwind_bin
+if System.get_env("MIX_BUN_PATH") do
+  config :bun, path: System.get_env("MIX_BUN_PATH")
 end
 
-# Configure Bun binary path from environment variable
-if bun_bin = System.get_env("BUN_BIN") do
-  config :bun, path: bun_bin
+if System.get_env("MIX_TAILWIND_PATH") do
+  config :tailwind, path: System.get_env("MIX_TAILWIND_PATH")
 end

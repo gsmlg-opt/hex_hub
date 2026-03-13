@@ -8,8 +8,8 @@
   pkgs-stable = import inputs.nixpkgs-stable {system = pkgs.stdenv.system;};
 in {
   env.GREET = "HexHub";
-  env.TAILWINDCSS_BIN = "${pkgs-stable.tailwindcss_4}/bin/tailwindcss";
-  env.BUN_BIN = "${pkgs-stable.bun}/bin/bun";
+  env.MIX_TAILWIND_PATH = "${pkgs-stable.tailwindcss_4}/bin/tailwindcss";
+  env.MIX_BUN_PATH = "${pkgs-stable.bun}/bin/bun";
   env.NODE_PATH = "${config.git.root}/deps";
 
   packages = with pkgs-stable;
