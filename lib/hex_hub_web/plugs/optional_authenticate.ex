@@ -44,10 +44,17 @@ defmodule HexHubWeb.Plugs.OptionalAuthenticate do
         assign(conn, :current_user, %{username: username, permissions: permissions})
 
       {:error, :invalid_key} ->
-        conn
-        |> put_status(401)
-        |> Controller.json(%{"message" => "Invalid API key", "status" => 401})
-        |> halt()
+        # If anonymous publishing is enabled, fall back to anonymous user
+        # instead of rejecting. This allows clients to set HEX_API_KEY to
+        # any placeholder value (e.g. "anonymous") when no real key exists.
+        if PublishConfig.anonymous_publishing_enabled?() do
+          assign_anonymous_user(conn)
+        else
+          conn
+          |> put_status(401)
+          |> Controller.json(%{"message" => "Invalid API key", "status" => 401})
+          |> halt()
+        end
 
       {:error, :revoked_key} ->
         conn

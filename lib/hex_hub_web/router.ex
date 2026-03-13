@@ -243,6 +243,9 @@ defmodule HexHubWeb.Router do
     post "/publish", ReleaseController, :publish
     # Alternative publish endpoint used by hex client
     post "/packages/:name/releases", ReleaseController, :publish
+
+    # Docs publishing (supports anonymous when enabled, part of mix hex.publish flow)
+    post "/packages/:name/releases/:version/docs", DocsController, :publish
   end
 
   # Authenticated API routes requiring write permissions (always require auth)
@@ -253,8 +256,7 @@ defmodule HexHubWeb.Router do
     post "/packages/:name/releases/:version/retire", RetirementController, :retire
     delete "/packages/:name/releases/:version/retire", RetirementController, :unretire
 
-    # Authenticated documentation endpoints (write operations)
-    post "/packages/:name/releases/:version/docs", DocsController, :publish
+    # Authenticated documentation endpoints (delete requires auth)
     delete "/packages/:name/releases/:version/docs", DocsController, :delete
 
     # Authenticated ownership endpoints (write operations)
