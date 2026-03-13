@@ -6,7 +6,7 @@ defmodule HexHubWeb.API.DocsController do
   action_fallback HexHubWeb.FallbackController
 
   def publish(conn, %{"name" => name, "version" => version}) do
-    with {:ok, body, conn} <- Plug.Conn.read_body(conn),
+    with {:ok, body} <- extract_body(conn),
          {:ok, release} <- Packages.upload_docs(name, version, body) do
       conn
       |> put_status(:created)
@@ -27,6 +27,21 @@ defmodule HexHubWeb.API.DocsController do
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{message: reason})
+    end
+  end
+
+  # Extract body from conn, preferring the pre-parsed raw_body from TarballParser
+  defp extract_body(conn) do
+    case conn.private[:raw_body] do
+      body when is_binary(body) and byte_size(body) > 0 ->
+        {:ok, body}
+
+      _ ->
+        case Plug.Conn.read_body(conn, length: 100_000_000, read_length: 1_000_000, read_timeout: 120_000) do
+          {:ok, body, _conn} -> {:ok, body}
+          {:more, _partial, _conn} -> {:error, "Body too large"}
+          {:error, reason} -> {:error, "Failed to read body: #{inspect(reason)}"}
+        end
     end
   end
 
