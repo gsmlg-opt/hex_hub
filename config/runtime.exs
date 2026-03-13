@@ -89,3 +89,13 @@ if config_env() == :prod do
     config :ex_aws, :s3, s3_config
   end
 end
+
+# Configure Tailwind CSS binary path from environment variable
+if tailwind_bin = System.get_env("TAILWINDCSS_BIN") do
+  config :tailwind, path: tailwind_bin
+end
+
+# Configure Bun binary path from environment variable
+if bun_bin = System.get_env("BUN_BIN") do
+  config :bun, path: bun_bin
+end

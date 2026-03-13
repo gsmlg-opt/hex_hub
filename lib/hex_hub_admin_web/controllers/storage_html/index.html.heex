@@ -161,15 +161,15 @@
         btn.classList.remove('loading');
         btn.disabled = false;
         if (data.status === 'success') {
-          alert('Connection successful: ' + data.message);
+          showSnackbar(data.message, 'success');
         } else {
-          alert('Connection failed: ' + data.message);
+          showSnackbar(data.message, 'error');
         }
       })
       .catch(error => {
         btn.classList.remove('loading');
         btn.disabled = false;
-        alert('Error testing storage connection: ' + error.message);
+        showSnackbar('Error testing storage connection: ' + error.message, 'error');
       });
     });
   </script>

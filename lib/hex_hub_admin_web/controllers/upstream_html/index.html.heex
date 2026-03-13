@@ -168,13 +168,13 @@
       .then(response => response.json())
       .then(data => {
         if (data.status === 'success') {
-          alert('✅ ' + data.message);
+          showSnackbar(data.message, 'success');
         } else {
-          alert('❌ ' + data.message);
+          showSnackbar(data.message, 'error');
         }
       })
       .catch(error => {
-        alert('❌ Error testing connection: ' + error.message);
+        showSnackbar('Error testing connection: ' + error.message, 'error');
       });
     });
   </script>

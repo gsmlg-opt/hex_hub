@@ -7,3 +7,13 @@
 @source "../js";
 @source "../../lib/hex_hub_admin_web";
 @source "../../deps/phoenix_duskmoon/lib/phoenix_duskmoon/";
+
+/* Workaround: @duskmoon-dev/core defines these in index.css but not in plugin/components exports */
+/* See https://github.com/duskmoon-dev/duskmoonui/issues/26 */
+@utility grid-cols-auto-fill-* {
+  grid-template-columns: repeat(auto-fill, minmax(min(calc(--value(integer) * 0.25rem), 100%), 1fr));
+}
+
+@utility grid-cols-auto-fit-* {
+  grid-template-columns: repeat(auto-fit, minmax(min(calc(--value(integer) * 0.25rem), 100%), 1fr));
+}

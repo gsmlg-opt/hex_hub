@@ -7,7 +7,10 @@
 }: let
   pkgs-stable = import inputs.nixpkgs-stable {system = pkgs.stdenv.system;};
 in {
-  env.GREET = "Hex Hub";
+  env.GREET = "HexHub";
+  env.TAILWINDCSS_BIN = "${pkgs-stable.tailwindcss_4}/bin/tailwindcss";
+  env.BUN_BIN = "${pkgs-stable.bun}/bin/bun";
+  env.NODE_PATH = "${config.git.root}/deps";
 
   packages = with pkgs-stable;
     [

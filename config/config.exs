@@ -64,7 +64,7 @@ config :hex_hub, :mcp,
   debug: System.get_env("MCP_DEBUG", "false") == "true"
 
 config :bun,
-  version: "1.2.13",
+  version: "1.3.2",
   hex_hub: [
     args: ~w(build assets/js/app.js --outdir=priv/static/assets),
     cd: Path.expand("..", __DIR__),

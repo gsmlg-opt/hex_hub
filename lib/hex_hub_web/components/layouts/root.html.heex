@@ -4,6 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <script>
+      (function() {
+        var t = localStorage.getItem("theme");
+        if (t && t !== "default") document.documentElement.setAttribute("data-theme", t);
+        else if (t === "default") document.documentElement.removeAttribute("data-theme");
+      })();
+    </script>
     <.live_title default="HexHub" suffix=" · HexHub">
       {assigns[:page_title]}
     </.live_title>

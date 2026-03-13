@@ -4,6 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <script>
+      (function() {
+        var t = localStorage.getItem("theme");
+        if (t && t !== "default") document.documentElement.setAttribute("data-theme", t);
+        else if (t === "default") document.documentElement.removeAttribute("data-theme");
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href={~p"/favicon.ico"} />
     <link phx-track-static rel="stylesheet" href={~p"/assets/admin.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/admin.js"}>
@@ -12,5 +19,34 @@
   </head>
   <body class="bg-surface antialiased">
     {@inner_content}
+
+    <.dm_snackbar_container position="bottom" id="snackbar-container">
+      <.dm_snackbar id="global-snackbar" type="info">
+        <:message><span id="snackbar-message"></span></:message>
+        <:close />
+      </.dm_snackbar>
+    </.dm_snackbar_container>
+
+    <script>
+      window.showSnackbar = function(message, type) {
+        var snackbar = document.getElementById('global-snackbar');
+        var msgEl = document.getElementById('snackbar-message');
+        if (!snackbar || !msgEl) return;
+        msgEl.textContent = message;
+        snackbar.className = snackbar.className
+          .replace(/snackbar-(info|success|warning|error)/g, '')
+          .replace(/snackbar-show/g, '')
+          .trim();
+        snackbar.classList.add('snackbar-' + (type || 'info'), 'snackbar-show');
+        var closeBtn = snackbar.querySelector('.snackbar-close');
+        if (closeBtn) {
+          closeBtn.onclick = function() { snackbar.classList.remove('snackbar-show'); };
+        }
+        clearTimeout(window._snackbarTimer);
+        window._snackbarTimer = setTimeout(function() {
+          snackbar.classList.remove('snackbar-show');
+        }, 5000);
+      };
+    </script>
   </body>
 </html>

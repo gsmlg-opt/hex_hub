@@ -16,6 +16,26 @@ let liveSocket = new LiveSocket("/admin/live", Socket, {
   hooks: { ...DuskmoonHooks },
 })
 
+// Vanilla JS theme switcher for non-LiveView pages (where phx-hook won't fire)
+document.addEventListener("change", (e) => {
+  if (e.target.classList.contains("theme-controller-item")) {
+    const theme = e.target.value;
+    if (theme && theme !== "default") {
+      document.documentElement.setAttribute("data-theme", theme);
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    localStorage.setItem("theme", theme);
+    const details = e.target.closest("details");
+    if (details) details.removeAttribute("open");
+  }
+});
+
+const savedTheme = localStorage.getItem("theme") || "default";
+document.querySelectorAll(".theme-controller-item").forEach((input) => {
+  input.checked = input.value === savedTheme;
+});
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
