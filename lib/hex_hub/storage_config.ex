@@ -163,6 +163,10 @@ defmodule HexHub.StorageConfig do
     Application.put_env(:hex_hub, :s3_bucket_path, cfg.s3_bucket_path)
     Application.put_env(:hex_hub, :s3_region, cfg.s3_region)
 
+    if cfg.s3_region do
+      Application.put_env(:ex_aws, :region, cfg.s3_region)
+    end
+
     if cfg.s3_access_key_id do
       Application.put_env(:ex_aws, :access_key_id, cfg.s3_access_key_id)
     end
@@ -173,6 +177,7 @@ defmodule HexHub.StorageConfig do
 
     s3_config =
       [
+        region: cfg.s3_region,
         scheme: cfg.s3_scheme,
         port: cfg.s3_port,
         path_style: cfg.s3_path_style
