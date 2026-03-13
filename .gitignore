@@ -33,6 +33,7 @@ hex_hub-*.tar
 
 /priv/test_storage/
 /priv/storage/
+/priv/backups/
 /custom/storage
 
 # In case you use Node.js/npm, you want to ignore these.
