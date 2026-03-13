@@ -46,134 +46,187 @@
             </div>
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Storage Path</span>
-              <span class="label-text-alt">For local storage only</span>
-            </label>
-            <input
-              type="text"
-              name="storage[storage_path]"
-              class="input input-bordered w-full"
-              value={@storage_config.storage_path}
-              placeholder="priv/storage"
-              required
-            />
-            <label class="label">
-              <span class="label-text-alt">The directory where files will be stored</span>
-            </label>
+          <!-- Local Storage Options -->
+          <div id="local-config" class={if @storage_config.storage_type != :local, do: "hidden"}>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Storage Path</span>
+              </label>
+              <input
+                type="text"
+                name="storage[storage_path]"
+                class="input input-bordered w-full"
+                value={@storage_config.storage_path}
+                placeholder="priv/storage"
+              />
+              <label class="label">
+                <span class="label-text-alt">The directory where files will be stored</span>
+              </label>
+            </div>
           </div>
-        </div>
-      </div>
-      
-<!-- S3 Configuration -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">S3 Configuration</h2>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">S3 Bucket</span>
-                <span class="label-text-alt">Required for S3 storage</span>
-              </label>
-              <input
-                type="text"
-                name="storage[s3_bucket]"
-                class="input input-bordered"
-                value={@storage_config.s3_bucket}
-                placeholder="my-hex-packages"
-              />
-              <label class="label">
-                <span class="label-text-alt">The S3 bucket name</span>
-              </label>
-            </div>
+          <!-- S3 Storage Options -->
+          <div id="s3-config" class={if @storage_config.storage_type != :s3, do: "hidden"}>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">S3 Bucket</span>
+                  <span class="label-text-alt">Required</span>
+                </label>
+                <input
+                  type="text"
+                  name="storage[s3_bucket]"
+                  class="input input-bordered"
+                  value={@storage_config.s3_bucket}
+                  placeholder="my-hex-packages"
+                />
+                <label class="label">
+                  <span class="label-text-alt">The S3 bucket name</span>
+                </label>
+              </div>
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">S3 Region</span>
-                <span class="label-text-alt">AWS region</span>
-              </label>
-              <input
-                type="text"
-                name="storage[s3_region]"
-                class="input input-bordered"
-                value={@storage_config.s3_region}
-                placeholder="us-east-1"
-              />
-              <label class="label">
-                <span class="label-text-alt">The AWS region for your bucket</span>
-              </label>
-            </div>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">S3 Bucket Path</span>
+                  <span class="label-text-alt">Prefix path inside bucket</span>
+                </label>
+                <input
+                  type="text"
+                  name="storage[s3_bucket_path]"
+                  class="input input-bordered"
+                  value={@storage_config.s3_bucket_path}
+                  placeholder="/"
+                />
+                <label class="label">
+                  <span class="label-text-alt">
+                    Subdirectory within the bucket (e.g. /hex-packages)
+                  </span>
+                </label>
+              </div>
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">S3 Host</span>
-                <span class="label-text-alt">For custom S3-compatible services</span>
-              </label>
-              <input
-                type="text"
-                name="storage[s3_host]"
-                class="input input-bordered"
-                value={@storage_config.s3_host}
-                placeholder="s3.amazonaws.com"
-              />
-              <label class="label">
-                <span class="label-text-alt">S3 endpoint hostname</span>
-              </label>
-            </div>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">S3 Region</span>
+                  <span class="label-text-alt">AWS region</span>
+                </label>
+                <input
+                  type="text"
+                  name="storage[s3_region]"
+                  class="input input-bordered"
+                  value={@storage_config.s3_region}
+                  placeholder="us-east-1"
+                />
+                <label class="label">
+                  <span class="label-text-alt">The AWS region for your bucket</span>
+                </label>
+              </div>
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">S3 Port</span>
-                <span class="label-text-alt">S3 endpoint port</span>
-              </label>
-              <input
-                type="number"
-                name="storage[s3_port]"
-                class="input input-bordered"
-                value={@storage_config.s3_port}
-                placeholder="443"
-                min="1"
-                max="65535"
-              />
-              <label class="label">
-                <span class="label-text-alt">Port number (1-65535)</span>
-              </label>
-            </div>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Access Key ID</span>
+                </label>
+                <input
+                  type="text"
+                  name="storage[s3_access_key_id]"
+                  class="input input-bordered"
+                  value={@storage_config.s3_access_key_id}
+                  placeholder="AKIAIOSFODNN7EXAMPLE"
+                  autocomplete="off"
+                />
+                <label class="label">
+                  <span class="label-text-alt">AWS access key ID</span>
+                </label>
+              </div>
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">S3 Scheme</span>
-                <span class="label-text-alt">HTTP or HTTPS</span>
-              </label>
-              <select name="storage[s3_scheme]" class="select select-bordered">
-                <option value="https://" selected={@storage_config.s3_scheme == "https://"}>
-                  HTTPS
-                </option>
-                <option value="http://" selected={@storage_config.s3_scheme == "http://"}>
-                  HTTP
-                </option>
-              </select>
-              <label class="label">
-                <span class="label-text-alt">Use HTTPS for production</span>
-              </label>
-            </div>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Secret Access Key</span>
+                </label>
+                <input
+                  type="password"
+                  name="storage[s3_secret_access_key]"
+                  class="input input-bordered"
+                  placeholder={if @storage_config.s3_secret_access_key, do: "••••••••  (unchanged if left blank)", else: ""}
+                  autocomplete="off"
+                />
+                <label class="label">
+                  <span class="label-text-alt">
+                    Leave blank to keep existing value
+                  </span>
+                </label>
+              </div>
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Path Style</span>
-                <span class="label-text-alt">For MinIO and compatible services</span>
-              </label>
-              <select name="storage[s3_path_style]" class="select select-bordered">
-                <option value="false" selected={!@storage_config.s3_path_style}>
-                  Virtual Host Style
-                </option>
-                <option value="true" selected={@storage_config.s3_path_style}>Path Style</option>
-              </select>
-              <label class="label">
-                <span class="label-text-alt">Path style for custom S3 services</span>
-              </label>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">S3 Host</span>
+                  <span class="label-text-alt">For custom S3-compatible services</span>
+                </label>
+                <input
+                  type="text"
+                  name="storage[s3_host]"
+                  class="input input-bordered"
+                  value={@storage_config.s3_host}
+                  placeholder="s3.amazonaws.com"
+                />
+                <label class="label">
+                  <span class="label-text-alt">S3 endpoint hostname</span>
+                </label>
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">S3 Port</span>
+                  <span class="label-text-alt">S3 endpoint port</span>
+                </label>
+                <input
+                  type="number"
+                  name="storage[s3_port]"
+                  class="input input-bordered"
+                  value={@storage_config.s3_port}
+                  placeholder="443"
+                  min="1"
+                  max="65535"
+                />
+                <label class="label">
+                  <span class="label-text-alt">Port number (1-65535)</span>
+                </label>
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">S3 Scheme</span>
+                  <span class="label-text-alt">HTTP or HTTPS</span>
+                </label>
+                <select name="storage[s3_scheme]" class="select select-bordered">
+                  <option value="https://" selected={@storage_config.s3_scheme == "https://"}>
+                    HTTPS
+                  </option>
+                  <option value="http://" selected={@storage_config.s3_scheme == "http://"}>
+                    HTTP
+                  </option>
+                </select>
+                <label class="label">
+                  <span class="label-text-alt">Use HTTPS for production</span>
+                </label>
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Path Style</span>
+                  <span class="label-text-alt">For MinIO and compatible services</span>
+                </label>
+                <select name="storage[s3_path_style]" class="select select-bordered">
+                  <option value="false" selected={!@storage_config.s3_path_style}>
+                    Virtual Host Style
+                  </option>
+                  <option value="true" selected={@storage_config.s3_path_style}>
+                    Path Style
+                  </option>
+                </select>
+                <label class="label">
+                  <span class="label-text-alt">Path style for custom S3 services</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -226,4 +279,20 @@
       </div>
     </.form>
   </div>
+
+  <script>
+    document.querySelectorAll('input[name="storage[storage_type]"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        const localConfig = document.getElementById('local-config');
+        const s3Config = document.getElementById('s3-config');
+        if (this.value === 'local') {
+          localConfig.classList.remove('hidden');
+          s3Config.classList.add('hidden');
+        } else {
+          localConfig.classList.add('hidden');
+          s3Config.classList.remove('hidden');
+        }
+      });
+    });
+  </script>
 </Layouts.app>

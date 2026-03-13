@@ -1,6 +1,4 @@
 <Layouts.app flash={@flash}>
-  
-<!-- Page content -->
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold">Storage Configuration</h1>
@@ -15,7 +13,10 @@
         <div class="card-body">
           <h2 class="card-title">Storage Status</h2>
           <div class="flex items-center gap-2">
-            <span class="badge badge-success">
+            <span class={[
+              "badge badge-lg",
+              if(@storage_config.storage_type == :s3, do: "badge-primary", else: "badge-success")
+            ]}>
               {String.capitalize(to_string(@storage_config.storage_type))}
             </span>
             <form action="/storage/test-connection" method="post" class="inline">
@@ -35,119 +36,91 @@
           </div>
         </div>
       </div>
-      
-<!-- Configuration Card -->
+
+      <!-- Configuration Details -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Current Configuration</h2>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="label">Storage Type</label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="input input-bordered"
-                  value={String.capitalize(to_string(@storage_config.storage_type))}
-                  readonly
-                />
-              </div>
-            </div>
+          <div class="overflow-x-auto">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th class="w-48 text-base-content/60">Storage Type</th>
+                  <td>{String.capitalize(to_string(@storage_config.storage_type))}</td>
+                </tr>
 
-            <div>
-              <label class="label">Storage Path</label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="input input-bordered"
-                  value={@storage_config.storage_path}
-                  readonly
-                />
-              </div>
-            </div>
+                <%= if @storage_config.storage_type == :local do %>
+                  <tr>
+                    <th class="text-base-content/60">Storage Path</th>
+                    <td><code class="bg-base-200 px-2 py-1 rounded">{@storage_config.storage_path}</code></td>
+                  </tr>
+                <% end %>
 
-            <%= if @storage_config.storage_type == :s3 do %>
-              <div>
-                <label class="label">S3 Bucket</label>
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="input input-bordered"
-                    value={@storage_config.s3_bucket}
-                    readonly
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label class="label">S3 Region</label>
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="input input-bordered"
-                    value={@storage_config.s3_region}
-                    readonly
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label class="label">S3 Host</label>
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="input input-bordered"
-                    value={@storage_config.s3_host}
-                    readonly
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label class="label">S3 Port</label>
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="input input-bordered"
-                    value={@storage_config.s3_port}
-                    readonly
-                  />
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-      
-<!-- Usage Information -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">Storage Information</h2>
-          <div class="prose max-w-none">
-            <%= if @storage_config.storage_type == :local do %>
-              <p class="text-sm">
-                <strong>Local Storage</strong>: Files are stored in the local filesystem at the configured path.
-              </p>
-              <p class="text-sm">
-                <strong>Storage Path</strong>: The directory where package files and documentation are stored.
-              </p>
-            <% else %>
-              <p class="text-sm">
-                <strong>S3 Storage</strong>: Files are stored in an S3-compatible object storage service.
-              </p>
-              <p class="text-sm">
-                <strong>S3 Bucket</strong>: The bucket name where files are stored.
-              </p>
-              <p class="text-sm">
-                <strong>S3 Region</strong>: The AWS region where the bucket is located.
-              </p>
-              <p class="text-sm">
-                <strong>S3 Host</strong>: The S3 endpoint hostname for custom S3-compatible services.
-              </p>
-              <p class="text-sm">
-                <strong>S3 Port</strong>: The port for the S3 endpoint (default: 443 for HTTPS).
-              </p>
-            <% end %>
+                <%= if @storage_config.storage_type == :s3 do %>
+                  <tr>
+                    <th class="text-base-content/60">Bucket</th>
+                    <td><code class="bg-base-200 px-2 py-1 rounded">{@storage_config.s3_bucket}</code></td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Bucket Path</th>
+                    <td><code class="bg-base-200 px-2 py-1 rounded">{@storage_config.s3_bucket_path}</code></td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Region</th>
+                    <td>{@storage_config.s3_region}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Host</th>
+                    <td>
+                      <%= if @storage_config.s3_host && @storage_config.s3_host != "" do %>
+                        <code class="bg-base-200 px-2 py-1 rounded">{@storage_config.s3_host}</code>
+                      <% else %>
+                        <span class="text-base-content/40">Default (AWS)</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Port</th>
+                    <td>{@storage_config.s3_port || 443}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Scheme</th>
+                    <td>{@storage_config.s3_scheme}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Path Style</th>
+                    <td>
+                      <%= if @storage_config.s3_path_style do %>
+                        <span class="badge badge-sm badge-info">Path Style</span>
+                      <% else %>
+                        <span class="badge badge-sm">Virtual Host</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Access Key ID</th>
+                    <td>
+                      <%= if @storage_config.s3_access_key_id do %>
+                        <code class="bg-base-200 px-2 py-1 rounded">{String.slice(@storage_config.s3_access_key_id, 0, 4) <> "••••••••"}</code>
+                      <% else %>
+                        <span class="text-base-content/40">Not configured</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="text-base-content/60">Secret Access Key</th>
+                    <td>
+                      <%= if @storage_config.s3_secret_access_key do %>
+                        <code class="bg-base-200 px-2 py-1 rounded">••••••••</code>
+                      <% else %>
+                        <span class="text-base-content/40">Not configured</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -155,28 +128,32 @@
   </div>
 
   <script>
-    // Handle test connection form submission with AJAX
     document.getElementById('test-storage-connection-btn')?.addEventListener('click', function(e) {
       e.preventDefault();
-      const form = e.target.closest('form');
+      const btn = e.target;
+      const form = btn.closest('form');
+      btn.classList.add('loading');
+      btn.disabled = true;
 
       fetch(form.action, {
         method: form.method,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(new FormData(form))
       })
       .then(response => response.json())
       .then(data => {
+        btn.classList.remove('loading');
+        btn.disabled = false;
         if (data.status === 'success') {
-          alert('✅ ' + data.message);
+          alert('Connection successful: ' + data.message);
         } else {
-          alert('❌ ' + data.message);
+          alert('Connection failed: ' + data.message);
         }
       })
       .catch(error => {
-        alert('❌ Error testing storage connection: ' + error.message);
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        alert('Error testing storage connection: ' + error.message);
       });
     });
   </script>
