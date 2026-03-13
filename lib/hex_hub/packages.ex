@@ -150,6 +150,28 @@ defmodule HexHub.Packages do
   end
 
   @doc """
+  Update the storage source for a package (e.g. from :cached to :local when
+  a previously upstream-cached package is published locally).
+  """
+  @spec update_package_source(String.t(), atom()) :: :ok | {:error, String.t()}
+  def update_package_source(package_name, new_source) do
+    case :mnesia.dirty_read(@packages_table, package_name) do
+      [{@packages_table, name, repo, meta, private, downloads, inserted_at, updated_at,
+        html_url, docs_html_url, _old_source}] ->
+        updated = {@packages_table, name, repo, meta, private, downloads, inserted_at,
+                   updated_at, html_url, docs_html_url, new_source}
+
+        case :mnesia.transaction(fn -> :mnesia.write(updated) end) do
+          {:atomic, :ok} -> :ok
+          {:aborted, reason} -> {:error, "Failed to update package source: #{inspect(reason)}"}
+        end
+
+      [] ->
+        {:error, "Package not found"}
+    end
+  end
+
+  @doc """
   List all packages with optional search, sorting, letter filtering, and pagination.
 
   Searches local packages first. If no local results are found and a search term
