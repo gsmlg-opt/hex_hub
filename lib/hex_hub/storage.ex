@@ -46,17 +46,23 @@ defmodule HexHub.Storage do
     generate_signed_url(storage_type, key, opts)
   end
 
+  @type source :: :hosted | :cached
+
   @doc """
   Generate a storage key for package or documentation.
+
+  The `source` parameter determines the directory prefix:
+  - `:hosted` (default) — locally published packages stored under `hosted/`
+  - `:cached` — packages fetched from upstream stored under `cached/`
   """
-  @spec generate_package_key(String.t(), String.t()) :: String.t()
-  def generate_package_key(package_name, version) do
-    "packages/#{package_name}-#{version}.tar.gz"
+  @spec generate_package_key(String.t(), String.t(), source()) :: String.t()
+  def generate_package_key(package_name, version, source \\ :hosted) do
+    "#{source}/packages/#{package_name}/#{package_name}-#{version}.tar.gz"
   end
 
-  @spec generate_docs_key(String.t(), String.t()) :: String.t()
-  def generate_docs_key(package_name, version) do
-    "docs/#{package_name}-#{version}.tar.gz"
+  @spec generate_docs_key(String.t(), String.t(), source()) :: String.t()
+  def generate_docs_key(package_name, version, source \\ :hosted) do
+    "#{source}/docs/#{package_name}/#{package_name}-#{version}.tar.gz"
   end
 
   ## Private functions
@@ -404,5 +410,89 @@ defmodule HexHub.Storage do
   @spec get(String.t()) :: {:ok, binary()} | {:error, String.t()}
   def get(key) do
     download(key)
+  end
+
+  @doc """
+  Migrate storage from flat `packages/` and `docs/` directories to the new
+  `hosted/` and `cached/` structure. Idempotent — skips if old directories
+  don't exist or are empty. Called on application startup.
+  """
+  @spec migrate_directory_structure() :: :ok | {:error, String.t()}
+  def migrate_directory_structure do
+    case get_storage_type() do
+      :local -> migrate_local_directory_structure()
+      :s3 -> :ok
+    end
+  end
+
+  defp migrate_local_directory_structure do
+    base = storage_path()
+    old_packages_dir = Path.join(base, "packages")
+    old_docs_dir = Path.join(base, "docs")
+
+    has_old_packages = File.dir?(old_packages_dir) and has_files?(old_packages_dir)
+    has_old_docs = File.dir?(old_docs_dir) and has_files?(old_docs_dir)
+
+    if has_old_packages or has_old_docs do
+      Telemetry.log(:info, :storage, "Migrating storage directory structure")
+
+      if has_old_packages, do: migrate_directory(old_packages_dir, base, "packages")
+      if has_old_docs, do: migrate_directory(old_docs_dir, base, "docs")
+
+      Telemetry.log(:info, :storage, "Storage migration complete")
+    end
+
+    :ok
+  end
+
+  defp migrate_directory(old_dir, base, type) do
+    files = Path.wildcard(Path.join(old_dir, "*.tar.gz"))
+
+    Enum.each(files, fn file_path ->
+      filename = Path.basename(file_path)
+      {package_name, source} = lookup_file_source(filename)
+
+      new_dir = Path.join([base, to_string(source), type, package_name])
+      File.mkdir_p!(new_dir)
+
+      new_path = Path.join(new_dir, filename)
+
+      unless File.exists?(new_path) do
+        File.rename!(file_path, new_path)
+      end
+    end)
+
+    # Remove old directory if empty
+    if not has_files?(old_dir) do
+      File.rmdir(old_dir)
+    end
+  end
+
+  defp lookup_file_source(filename) do
+    # Extract package name from filename (e.g., "phoenix-1.7.0.tar.gz" -> "phoenix")
+    case Regex.run(~r/^(.+)-[\d]+\.[\d]+\.[\d]+/, filename) do
+      [_, package_name] ->
+        source =
+          case :mnesia.dirty_read(:packages, package_name) do
+            [{:packages, _, _, _, _, _, _, _, _, _, :local}] -> :hosted
+            [{:packages, _, _, _, _, _, _, _, _, _, :cached}] -> :cached
+            # No Mnesia record — hosted packages always have metadata,
+            # so an orphaned tarball is most likely a cached artifact.
+            _ -> :cached
+          end
+
+        {package_name, source}
+
+      _ ->
+        {"unknown", :cached}
+    end
+  end
+
+  defp has_files?(dir) do
+    case File.ls(dir) do
+      {:ok, []} -> false
+      {:ok, _files} -> true
+      {:error, _} -> false
+    end
   end
 end

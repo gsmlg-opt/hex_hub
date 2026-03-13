@@ -151,16 +151,16 @@ defmodule HexHub.Backup.Importer do
   def restore_package_files(tmp_dir) do
     packages_dir = Path.join(tmp_dir, "packages")
     storage_path = Application.get_env(:hex_hub, :storage_path, "priv/storage")
-    tarballs_dir = Path.join(storage_path, "tarballs")
+    hosted_packages_dir = Path.join([storage_path, "hosted", "packages"])
 
-    File.mkdir_p!(tarballs_dir)
+    File.mkdir_p!(hosted_packages_dir)
 
     if File.exists?(packages_dir) do
       count =
-        Path.wildcard(Path.join(packages_dir, "*.tar"))
+        Path.wildcard(Path.join(packages_dir, "*.tar.gz"))
         |> Enum.reduce(0, fn src_path, acc ->
           filename = Path.basename(src_path)
-          dest_path = Path.join(tarballs_dir, filename)
+          dest_path = Path.join(hosted_packages_dir, filename)
           File.cp!(src_path, dest_path)
           acc + 1
         end)
@@ -177,7 +177,7 @@ defmodule HexHub.Backup.Importer do
   def restore_doc_files(tmp_dir) do
     docs_dir = Path.join(tmp_dir, "docs")
     storage_path = Application.get_env(:hex_hub, :storage_path, "priv/storage")
-    storage_docs_dir = Path.join(storage_path, "docs")
+    storage_docs_dir = Path.join([storage_path, "hosted", "docs"])
 
     File.mkdir_p!(storage_docs_dir)
 

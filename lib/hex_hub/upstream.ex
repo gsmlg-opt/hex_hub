@@ -270,8 +270,8 @@ defmodule HexHub.Upstream do
   """
   @spec cache_package(String.t(), String.t(), binary(), map()) :: :ok | {:error, String.t()}
   def cache_package(package_name, version, tarball, _metadata) do
-    # Store the tarball
-    package_key = Storage.generate_package_key(package_name, version)
+    # Store the tarball under cached/ directory
+    package_key = Storage.generate_package_key(package_name, version, :cached)
 
     case Storage.upload(package_key, tarball) do
       {:ok, _} ->
@@ -298,7 +298,7 @@ defmodule HexHub.Upstream do
   """
   @spec cache_docs(String.t(), String.t(), binary()) :: :ok | {:error, String.t()}
   def cache_docs(package_name, version, docs_tarball) do
-    docs_key = Storage.generate_docs_key(package_name, version)
+    docs_key = Storage.generate_docs_key(package_name, version, :cached)
 
     case Storage.upload(docs_key, docs_tarball) do
       {:ok, _} ->

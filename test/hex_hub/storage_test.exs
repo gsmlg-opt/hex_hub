@@ -13,8 +13,10 @@ defmodule HexHub.StorageTest do
     Application.put_env(:hex_hub, :storage_path, "priv/test_storage")
 
     # Create necessary subdirectories
-    File.mkdir_p!("priv/test_storage/packages")
-    File.mkdir_p!("priv/test_storage/docs")
+    File.mkdir_p!("priv/test_storage/hosted/packages")
+    File.mkdir_p!("priv/test_storage/hosted/docs")
+    File.mkdir_p!("priv/test_storage/cached/packages")
+    File.mkdir_p!("priv/test_storage/cached/docs")
 
     # Always restore original config after test
     on_exit(fn ->
@@ -98,13 +100,24 @@ defmodule HexHub.StorageTest do
       assert {:error, "File not found"} = HexHub.Storage.download("nonexistent/file.tar.gz")
     end
 
-    test "generate_package_key/2 creates correct key" do
-      assert "packages/phoenix-1.7.0.tar.gz" =
+    test "generate_package_key/2 creates correct hosted key by default" do
+      assert "hosted/packages/phoenix/phoenix-1.7.0.tar.gz" =
                HexHub.Storage.generate_package_key("phoenix", "1.7.0")
     end
 
-    test "generate_docs_key/2 creates correct key" do
-      assert "docs/phoenix-1.7.0.tar.gz" = HexHub.Storage.generate_docs_key("phoenix", "1.7.0")
+    test "generate_package_key/3 creates correct cached key" do
+      assert "cached/packages/phoenix/phoenix-1.7.0.tar.gz" =
+               HexHub.Storage.generate_package_key("phoenix", "1.7.0", :cached)
+    end
+
+    test "generate_docs_key/2 creates correct hosted key by default" do
+      assert "hosted/docs/phoenix/phoenix-1.7.0.tar.gz" =
+               HexHub.Storage.generate_docs_key("phoenix", "1.7.0")
+    end
+
+    test "generate_docs_key/3 creates correct cached key" do
+      assert "cached/docs/phoenix/phoenix-1.7.0.tar.gz" =
+               HexHub.Storage.generate_docs_key("phoenix", "1.7.0", :cached)
     end
   end
 

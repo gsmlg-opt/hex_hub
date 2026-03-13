@@ -643,13 +643,14 @@ defmodule HexHub.CachedPackages do
   end
 
   defp delete_package_storage(name) do
-    # Use HexHub.Storage to delete package tarballs
-    # Get all versions first
+    # Delete package and docs tarballs from cached storage
     versions = get_package_versions(name)
 
     Enum.each(versions, fn version ->
-      path = "tarballs/#{name}-#{version}.tar"
-      HexHub.Storage.delete(path)
+      package_key = HexHub.Storage.generate_package_key(name, version, :cached)
+      docs_key = HexHub.Storage.generate_docs_key(name, version, :cached)
+      HexHub.Storage.delete(package_key)
+      HexHub.Storage.delete(docs_key)
     end)
   end
 

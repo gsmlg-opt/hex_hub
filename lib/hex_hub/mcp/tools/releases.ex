@@ -84,7 +84,8 @@ defmodule HexHub.MCP.Tools.Releases do
   def download_release(%{"name" => name, "version" => version}) do
     Telemetry.log(:debug, :mcp, "MCP downloading package", %{name: name, version: version})
 
-    tarball_key = "packages/#{name}-#{version}.tar.gz"
+    source = Packages.get_package_source(name)
+    tarball_key = Storage.generate_package_key(name, version, source)
 
     case Storage.exists?(tarball_key) do
       true ->
@@ -438,7 +439,8 @@ defmodule HexHub.MCP.Tools.Releases do
   Get release size in bytes.
   """
   def get_release_size(name, version) do
-    tarball_key = "packages/#{name}-#{version}.tar.gz"
+    source = Packages.get_package_source(name)
+    tarball_key = Storage.generate_package_key(name, version, source)
 
     case Storage.exists?(tarball_key) do
       true ->

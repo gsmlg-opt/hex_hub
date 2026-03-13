@@ -136,6 +136,20 @@ defmodule HexHub.Packages do
   end
 
   @doc """
+  Get the storage source for a package.
+
+  Translates Mnesia `:local` -> `:hosted`, `:cached` -> `:cached`.
+  Returns `:hosted` as default if package is not found.
+  """
+  @spec get_package_source(String.t()) :: :hosted | :cached
+  def get_package_source(package_name) do
+    case :mnesia.dirty_read(@packages_table, package_name) do
+      [{@packages_table, _, _, _, _, _, _, _, _, _, :cached}] -> :cached
+      _ -> :hosted
+    end
+  end
+
+  @doc """
   List all packages with optional search, sorting, letter filtering, and pagination.
 
   Searches local packages first. If no local results are found and a search term
@@ -493,8 +507,8 @@ defmodule HexHub.Packages do
   def create_release(package_name, version, meta, requirements, tarball) do
     with :ok <- validate_version(version),
          {:ok, _package} <- get_package(package_name) do
-      # Upload package file
-      package_key = Storage.generate_package_key(package_name, version)
+      # Upload package file (locally published = :hosted)
+      package_key = Storage.generate_package_key(package_name, version, :hosted)
 
       case Storage.upload(package_key, tarball) do
         {:ok, _} ->
@@ -610,7 +624,8 @@ defmodule HexHub.Packages do
   """
   @spec upload_docs(String.t(), String.t(), binary()) :: {:ok, release()} | {:error, String.t()}
   def upload_docs(package_name, version, docs_tarball) do
-    docs_key = Storage.generate_docs_key(package_name, version)
+    source = get_package_source(package_name)
+    docs_key = Storage.generate_docs_key(package_name, version, source)
 
     with {:ok, _release} <- get_release(package_name, version),
          {:ok, _} <- Storage.upload(docs_key, docs_tarball),
@@ -638,7 +653,8 @@ defmodule HexHub.Packages do
   """
   @spec download_package(String.t(), String.t()) :: {:ok, binary()} | {:error, String.t()}
   def download_package(package_name, version) do
-    package_key = Storage.generate_package_key(package_name, version)
+    source = get_package_source(package_name)
+    package_key = Storage.generate_package_key(package_name, version, source)
     Storage.download(package_key)
   end
 
@@ -647,7 +663,8 @@ defmodule HexHub.Packages do
   """
   @spec download_docs(String.t(), String.t()) :: {:ok, binary()} | {:error, String.t()}
   def download_docs(package_name, version) do
-    docs_key = Storage.generate_docs_key(package_name, version)
+    source = get_package_source(package_name)
+    docs_key = Storage.generate_docs_key(package_name, version, source)
     Storage.download(docs_key)
   end
 
@@ -656,7 +673,8 @@ defmodule HexHub.Packages do
   """
   @spec delete_docs(String.t(), String.t()) :: {:ok, release()} | {:error, String.t()}
   def delete_docs(package_name, version) do
-    docs_key = Storage.generate_docs_key(package_name, version)
+    source = get_package_source(package_name)
+    docs_key = Storage.generate_docs_key(package_name, version, source)
 
     with :ok <- Storage.delete(docs_key),
          {:ok, _} <- update_release_docs_flag(package_name, version, false) do

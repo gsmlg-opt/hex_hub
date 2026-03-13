@@ -277,10 +277,11 @@ defmodule HexHub.Backup.Exporter do
 
         Enum.reduce(releases, acc, fn release, inner_acc ->
           version = Map.get(release, :version)
-          source_path = Path.join([storage_path, "tarballs", "#{package_name}-#{version}.tar"])
+          key = HexHub.Storage.generate_package_key(package_name, version, :hosted)
+          source_path = Path.join([storage_path, key])
 
           if File.exists?(source_path) do
-            dest_path = Path.join(packages_dir, "#{package_name}-#{version}.tar")
+            dest_path = Path.join(packages_dir, "#{package_name}-#{version}.tar.gz")
             File.cp!(source_path, dest_path)
             inner_acc + 1
           else
@@ -311,7 +312,8 @@ defmodule HexHub.Backup.Exporter do
       |> Enum.reduce(0, fn release, acc ->
         package_name = Map.get(release, :package_name)
         version = Map.get(release, :version)
-        source_path = Path.join([storage_path, "docs", "#{package_name}-#{version}.tar.gz"])
+        key = HexHub.Storage.generate_docs_key(package_name, version, :hosted)
+        source_path = Path.join([storage_path, key])
 
         if File.exists?(source_path) do
           dest_path = Path.join(docs_dir, "#{package_name}-#{version}.tar.gz")

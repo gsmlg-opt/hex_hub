@@ -31,7 +31,8 @@ defmodule HexHub.MCP.Tools.Documentation do
         {:error, :no_documentation_available}
 
       version ->
-        doc_key = "docs/#{name}-#{version}.tar.gz"
+        source = Packages.get_package_source(name)
+        doc_key = Storage.generate_docs_key(name, version, source)
 
         case Storage.exists?(doc_key) do
           true ->
@@ -158,7 +159,8 @@ defmodule HexHub.MCP.Tools.Documentation do
   end
 
   defp get_documentation_page(name, version, page) do
-    doc_key = "docs/#{name}-#{version}.tar.gz"
+    source = Packages.get_package_source(name)
+    doc_key = Storage.generate_docs_key(name, version, source)
 
     case Storage.get(doc_key) do
       {:ok, doc_data} ->
@@ -179,7 +181,8 @@ defmodule HexHub.MCP.Tools.Documentation do
   end
 
   defp list_documentation_pages(name, version) do
-    doc_key = "docs/#{name}-#{version}.tar.gz"
+    source = Packages.get_package_source(name)
+    doc_key = Storage.generate_docs_key(name, version, source)
 
     case Storage.get(doc_key) do
       {:ok, doc_data} ->
@@ -200,7 +203,8 @@ defmodule HexHub.MCP.Tools.Documentation do
   end
 
   defp search_in_documentation(name, version, query) do
-    doc_key = "docs/#{name}-#{version}.tar.gz"
+    source = Packages.get_package_source(name)
+    doc_key = Storage.generate_docs_key(name, version, source)
 
     case Storage.get(doc_key) do
       {:ok, doc_data} ->
@@ -406,7 +410,8 @@ defmodule HexHub.MCP.Tools.Documentation do
   Check if documentation exists for a package version.
   """
   def documentation_exists?(name, version) do
-    doc_key = "docs/#{name}-#{version}.tar.gz"
+    source = Packages.get_package_source(name)
+    doc_key = Storage.generate_docs_key(name, version, source)
     Storage.exists?(doc_key)
   end
 
@@ -414,7 +419,8 @@ defmodule HexHub.MCP.Tools.Documentation do
   Get documentation size in bytes.
   """
   def get_documentation_size(name, version) do
-    doc_key = "docs/#{name}-#{version}.tar.gz"
+    source = Packages.get_package_source(name)
+    doc_key = Storage.generate_docs_key(name, version, source)
 
     case Storage.exists?(doc_key) do
       true ->
