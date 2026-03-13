@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 HexHub is a **private hex package manager and hexdocs server** — a drop-in replacement for hex.pm. Built with Phoenix 1.8 and Elixir 1.15+, it uses Mnesia (no external database) and supports clustering for high availability.
 
+**Status**: In active development (not yet published). No data migrations are needed — recreate data from scratch when schemas change.
+
 ## Commands
 
 ```bash
