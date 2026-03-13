@@ -310,9 +310,23 @@ defmodule HexHubWeb.API.ReleaseController do
            {k, _v} when is_list(k) -> to_string(k) == key_binary
            _ -> false
          end) do
-      {_, value} when is_binary(value) -> value
-      {_, value} when is_list(value) -> to_string(value)
-      _ -> nil
+      {_, value} when is_binary(value) ->
+        value
+
+      {_, value} when is_list(value) ->
+        # Only convert charlists (lists of integers) to string.
+        # Leave structured lists (e.g. requirements proplists) as-is.
+        if value != [] and is_integer(hd(value)) do
+          to_string(value)
+        else
+          value
+        end
+
+      {_, value} ->
+        value
+
+      _ ->
+        nil
     end
   end
 
@@ -369,6 +383,18 @@ defmodule HexHubWeb.API.ReleaseController do
       req_map =
         if is_list(requirements) do
           Enum.reduce(requirements, %{}, fn
+            # Hex client format: list of proplists with string keys
+            # e.g. [{"name", "telemetry"}, {"requirement", "~> 1.0"}, ...]
+            opts, acc when is_list(opts) and is_tuple(hd(opts)) ->
+              name = proplist_get(opts, "name")
+
+              if name do
+                Map.put(acc, to_string(name), parse_requirement_proplist(opts))
+              else
+                acc
+              end
+
+            # Legacy format: {name, keyword_list}
             {name, opts}, acc when is_list(opts) ->
               Map.put(acc, to_string(name), parse_requirement_opts(opts))
 
@@ -385,12 +411,30 @@ defmodule HexHubWeb.API.ReleaseController do
     end
   end
 
+  defp parse_requirement_proplist(opts) do
+    %{
+      "requirement" => to_string(proplist_get(opts, "requirement") || ""),
+      "optional" => proplist_get(opts, "optional") || false,
+      "app" => case proplist_get(opts, "app") do
+        nil -> nil
+        app -> to_string(app)
+      end
+    }
+  end
+
   defp parse_requirement_opts(opts) do
     %{
       "requirement" => Keyword.get(opts, :requirement, ""),
       "optional" => Keyword.get(opts, :optional, false),
       "app" => Keyword.get(opts, :app)
     }
+  end
+
+  defp proplist_get(list, key) do
+    case List.keyfind(list, key, 0) do
+      {_, value} -> value
+      nil -> nil
+    end
   end
 
   defp ensure_body(nil, conn) do
@@ -422,8 +466,13 @@ defmodule HexHubWeb.API.ReleaseController do
 
   defp ensure_package_exists(package_name, meta, conn) do
     case Packages.get_package(package_name) do
-      {:ok, _package} ->
-        # Package already exists
+      {:ok, package} ->
+        # If previously cached from upstream, update source to local
+        # since we're now publishing it directly
+        if package[:source] == :cached do
+          Packages.update_package_source(package_name, :local)
+        end
+
         :ok
 
       {:error, :not_found} ->
