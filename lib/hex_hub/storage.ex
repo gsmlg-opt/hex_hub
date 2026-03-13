@@ -115,8 +115,7 @@ defmodule HexHub.Storage do
       full_key = s3_key(key)
 
       result =
-        content
-        |> S3.upload(bucket, full_key, upload_opts)
+        S3.put_object(bucket, full_key, content, upload_opts)
         |> ExAws.request()
         |> handle_s3_response("upload", key)
 
