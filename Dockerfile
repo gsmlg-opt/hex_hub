@@ -100,10 +100,10 @@ ENV MNESIA_DIR="/data/mnesia"
 
 # S3 storage configuration (used when STORAGE_TYPE=s3)
 ENV S3_BUCKET=""
-ENV S3_BUCKET_PATH="/"
+ENV S3_BUCKET_PATH="/hex-hub"
 ENV AWS_ACCESS_KEY_ID=""
 ENV AWS_SECRET_ACCESS_KEY=""
-ENV AWS_REGION="us-east-1"
+ENV AWS_REGION="ap-northeast-1"
 ENV AWS_S3_HOST=""
 ENV AWS_S3_PORT="443"
 ENV AWS_S3_SCHEME="https"
