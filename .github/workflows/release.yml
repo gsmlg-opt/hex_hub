@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 0.1.0)"
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: gsmlg-dev/hex-hub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.tags.outputs.version_tag }}
+      digest: ${{ steps.push.outputs.digest }}
+
+    steps:
+      - name: Validate version format
+        run: |
+          if [[ ! "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "::error::Invalid version format. Expected semver (e.g. 0.1.0 or 1.0.0-rc.1)"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Generate SECRET_KEY_BASE
+        id: secret
+        run: echo "SECRET_KEY_BASE=$(openssl rand -base64 48)" >> $GITHUB_OUTPUT
+
+      - name: Prepare tags
+        id: tags
+        run: |
+          VERSION_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ inputs.version }}"
+          LATEST_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
+          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ steps.tags.outputs.version_tag }}
+            ${{ steps.tags.outputs.latest_tag }}
+          build-args: |
+            SECRET_KEY_BASE=${{ steps.secret.outputs.SECRET_KEY_BASE }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Create git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
+          git push origin "v${{ inputs.version }}"
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          # Get the previous tag for changelog
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            CHANGELOG=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s" --no-merges)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges -20)
+          fi
+          # Write to file to preserve newlines
+          cat > release_notes.md << 'NOTES_EOF'
+          ## Docker Image
+
+          ```
+          ${{ needs.build.outputs.image_tag }}
+          ```
+
+          **Digest:** `${{ needs.build.outputs.digest }}`
+
+          ### Pull
+
+          ```bash
+          docker pull ${{ needs.build.outputs.image_tag }}
+          ```
+
+          ### Run
+
+          ```bash
+          docker run -d \
+            -p 4360:4360 \
+            -p 4361:4361 \
+            -v hex_hub_data:/data \
+            -e SECRET_KEY_BASE=$(openssl rand -base64 48) \
+            -e PHX_HOST=your-domain.com \
+            ${{ needs.build.outputs.image_tag }}
+          ```
+
+          ## What's Changed
+          NOTES_EOF
+          echo "" >> release_notes.md
+          echo "${CHANGELOG}" >> release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ contains(inputs.version, '-') }}

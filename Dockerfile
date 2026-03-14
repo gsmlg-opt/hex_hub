@@ -11,7 +11,7 @@
 #   - https://pkgs.org/ - resource for finding needed packages
 #   - Ex: docker.io/hexpm/elixir:1.15.7-erlang-26.2.5-debian-bookworm-20240423-slim
 #
-FROM ghcr.io/gsmlg-dev/phoenix:latest AS builder
+FROM hexpm/elixir:1.18.4-erlang-28.0.2-debian-bookworm-20250811-slim AS builder
 
 # install build dependencies
 RUN apt-get update \
@@ -69,7 +69,7 @@ RUN mix release
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
-FROM debian:13 AS final
+FROM debian:bookworm-slim AS final
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
