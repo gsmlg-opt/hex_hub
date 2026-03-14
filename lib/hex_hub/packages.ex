@@ -156,10 +156,13 @@ defmodule HexHub.Packages do
   @spec update_package_source(String.t(), atom()) :: :ok | {:error, String.t()}
   def update_package_source(package_name, new_source) do
     case :mnesia.dirty_read(@packages_table, package_name) do
-      [{@packages_table, name, repo, meta, private, downloads, inserted_at, updated_at,
-        html_url, docs_html_url, _old_source}] ->
-        updated = {@packages_table, name, repo, meta, private, downloads, inserted_at,
-                   updated_at, html_url, docs_html_url, new_source}
+      [
+        {@packages_table, name, repo, meta, private, downloads, inserted_at, updated_at, html_url,
+         docs_html_url, _old_source}
+      ] ->
+        updated =
+          {@packages_table, name, repo, meta, private, downloads, inserted_at, updated_at,
+           html_url, docs_html_url, new_source}
 
         case :mnesia.transaction(fn -> :mnesia.write(updated) end) do
           {:atomic, :ok} -> :ok

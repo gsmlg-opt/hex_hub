@@ -415,10 +415,11 @@ defmodule HexHubWeb.API.ReleaseController do
     %{
       "requirement" => to_string(proplist_get(opts, "requirement") || ""),
       "optional" => proplist_get(opts, "optional") || false,
-      "app" => case proplist_get(opts, "app") do
-        nil -> nil
-        app -> to_string(app)
-      end
+      "app" =>
+        case proplist_get(opts, "app") do
+          nil -> nil
+          app -> to_string(app)
+        end
     }
   end
 
