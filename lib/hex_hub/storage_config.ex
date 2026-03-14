@@ -136,7 +136,7 @@ defmodule HexHub.StorageConfig do
   Initialize default storage configuration from Application env if no Mnesia record exists.
   Called on application startup.
   """
-  @spec init_default_config() :: :ok | {:error, term()}
+  @spec init_default_config() :: :ok | {:error, binary()}
   def init_default_config do
     case :mnesia.dirty_read(:storage_configs, "default") do
       [] ->

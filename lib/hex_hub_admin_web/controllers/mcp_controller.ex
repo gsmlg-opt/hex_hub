@@ -68,10 +68,8 @@ defmodule HexHubAdminWeb.MCPController do
 
     {logs, total} =
       if enabled do
-        case LogStore.list_logs(limit: per_page, offset: offset) do
-          {:ok, entries, total} -> {entries, total}
-          _ -> {[], 0}
-        end
+        {:ok, entries, total} = LogStore.list_logs(limit: per_page, offset: offset)
+        {entries, total}
       else
         {[], 0}
       end

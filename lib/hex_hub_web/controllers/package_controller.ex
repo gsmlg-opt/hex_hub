@@ -228,7 +228,7 @@ defmodule HexHubWeb.PackageController do
             {:ok, release.version}
         end
 
-      _ ->
+      {:error, _} ->
         {:error, :not_found}
     end
   end
