@@ -22,11 +22,15 @@
     <nav class="p-4">
       <div class="text-xl font-bold mb-4 px-2">HexHub Admin</div>
       <ul class="nested-menu nested-menu-bordered">
+        <!-- Dashboard -->
+        <li class="nested-menu-title"><span>Dashboard</span></li>
         <li>
           <a href={~p"/"} class="flex items-center gap-2">
             <.dm_mdi name="view-dashboard" class="h-5 w-5" /> Dashboard
           </a>
         </li>
+        <!-- Packages -->
+        <li class="nested-menu-title mt-4"><span>Packages</span></li>
         <li>
           <a href={~p"/repositories"} class="flex items-center gap-2">
             <.dm_mdi name="source-repository" class="h-5 w-5" /> Repositories
@@ -52,11 +56,37 @@
             <.dm_mdi name="magnify" class="h-5 w-5" /> Search Packages
           </a>
         </li>
+        <!-- User -->
+        <li class="nested-menu-title mt-4"><span>User</span></li>
         <li>
           <a href={~p"/users"} class="flex items-center gap-2">
             <.dm_mdi name="account-group" class="h-5 w-5" /> Users
           </a>
         </li>
+        <li>
+          <a href={~p"/tokens"} class="flex items-center gap-2">
+            <.dm_mdi name="key-variant" class="h-5 w-5" /> Tokens
+          </a>
+        </li>
+        <!-- MCP -->
+        <li class="nested-menu-title mt-4"><span>MCP</span></li>
+        <li>
+          <a href={~p"/mcp"} class="flex items-center gap-2">
+            <.dm_mdi name="server-network" class="h-5 w-5" /> Server
+          </a>
+        </li>
+        <li>
+          <a href={~p"/mcp/clients"} class="flex items-center gap-2">
+            <.dm_mdi name="connection" class="h-5 w-5" /> Clients
+          </a>
+        </li>
+        <li>
+          <a href={~p"/mcp/logs"} class="flex items-center gap-2">
+            <.dm_mdi name="text-box-multiple" class="h-5 w-5" /> Logs
+          </a>
+        </li>
+        <!-- Setting -->
+        <li class="nested-menu-title mt-4"><span>Setting</span></li>
         <li>
           <a href={~p"/upstream"} class="flex items-center gap-2">
             <.dm_mdi name="flash" class="h-5 w-5" /> Upstream

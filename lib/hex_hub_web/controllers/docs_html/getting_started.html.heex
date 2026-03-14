@@ -1,147 +1,167 @@
 <Layouts.app flash={@flash}>
   <.docs_layout current_page={@current_page} page_title={@page_title}>
     <div class="max-w-none">
-      <h1 class="text-4xl font-bold mb-6">Getting Started with HexHub</h1>
+      <!-- Page header -->
+      <div class="mb-10">
+        <div class="flex items-center gap-2 text-sm text-on-surface-variant mb-3">
+          <a href="/docs" class="hover:text-primary transition-colors">Documentation</a>
+          <.dm_mdi name="chevron-right" class="w-4 h-4 opacity-40" />
+          <span class="text-on-surface font-medium">Getting Started</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-on-surface mb-4">
+          Getting Started with HexHub
+        </h1>
+        <p class="text-lg text-on-surface-variant leading-relaxed max-w-2xl">
+          Configure your Elixir projects to use HexHub as your package registry.
+          Fully compatible with the standard Hex client &mdash; a drop-in replacement for hex.pm.
+        </p>
+      </div>
 
-      <p class="text-lg text-on-surface-variant mb-8">
-        Learn how to configure your Elixir projects to use HexHub as your package registry.
-        HexHub is fully compatible with the standard Hex client, so you can use it as a
-        drop-in replacement for hex.pm.
-      </p>
+      <!-- HEX_MIRROR Configuration -->
+      <.section_heading id="hex-mirror" level={2}>Configuring HEX_MIRROR</.section_heading>
 
-      <h2 id="hex-mirror" class="text-2xl font-bold mb-4">Configuring HEX_MIRROR</h2>
-
-      <p class="mb-4">
-        The simplest way to use HexHub is to set the <code>HEX_MIRROR</code> environment variable.
+      <p class="text-on-surface-variant mb-6 leading-relaxed">
+        The simplest way to use HexHub is to set the <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">HEX_MIRROR</code> environment variable.
         This tells the Hex client to fetch packages from HexHub instead of hex.pm.
       </p>
 
-      <h3 class="text-xl font-semibold mb-3">Shell Configuration</h3>
+      <!-- Shell Configuration -->
+      <.section_heading id="shell" level={3}>Shell Configuration</.section_heading>
 
-      <p class="mb-4">
-        Add this to your shell configuration file (<code>~/.bashrc</code>, <code>~/.zshrc</code>, etc.):
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        Add this to your shell configuration file (<code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">~/.bashrc</code>,
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">~/.zshrc</code>, etc.):
       </p>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="1"><code># Add to ~/.bashrc or ~/.zshrc</code></pre>
-        <pre data-prefix="2"><code class="text-success">export</code> <code class="text-info">HEX_MIRROR=<%= @hex_hub_url %></code></pre>
-        <pre data-prefix="3"><code></code></pre>
-        <pre data-prefix="4"><code># Then reload your shell or run:</code></pre>
-        <pre data-prefix="5"><code class="text-success">source</code> <code>~/.bashrc</code></pre>
-      </div>
+      <.code_block label="~/.bashrc or ~/.zshrc">
+        <pre class="text-on-surface"><code><span class="text-on-surface-variant"># Add to ~/.bashrc or ~/.zshrc</span>
+<span class="text-success font-semibold">export</span> <span class="text-info">HEX_MIRROR</span>=<%= @hex_hub_url %>
 
-      <h3 class="text-xl font-semibold mb-3">Mix Configuration</h3>
+<span class="text-on-surface-variant"># Then reload your shell or run:</span>
+<span class="text-success font-semibold">source</span> ~/.bashrc</code></pre>
+      </.code_block>
 
-      <p class="mb-4">
-        Alternatively, you can configure Hex in your <code>config/config.exs</code>:
+      <!-- Mix Configuration -->
+      <.section_heading id="mix-config" level={3}>Mix Configuration</.section_heading>
+
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        Alternatively, configure Hex in your <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">config/config.exs</code>:
       </p>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="1"><code># config/config.exs</code></pre>
-        <pre data-prefix="2"><code class="text-info">config</code> <code>:hex,</code></pre>
-        <pre data-prefix="3"><code>  cdn_url: "<%= @hex_hub_url %>"</code></pre>
-      </div>
+      <.code_block label="config/config.exs">
+        <pre class="text-on-surface"><code><span class="text-on-surface-variant"># config/config.exs</span>
+<span class="text-info">config</span> <span class="text-primary">:hex</span>,
+  cdn_url: "<%= @hex_hub_url %>"</code></pre>
+      </.code_block>
 
-      <h3 id="docker" class="text-xl font-semibold mb-3">Docker Configuration</h3>
+      <!-- Docker Configuration -->
+      <.section_heading id="docker" level={3}>Docker Configuration</.section_heading>
 
-      <p class="mb-4">
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
         In your Dockerfile, set the environment variable before running mix commands:
       </p>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="1"><code># Dockerfile</code></pre>
-        <pre data-prefix="2"><code class="text-info">ENV</code> <code>HEX_MIRROR=<%= @hex_hub_url %></code></pre>
-        <pre data-prefix="3"><code></code></pre>
-        <pre data-prefix="4"><code># Or in docker-compose.yml</code></pre>
-        <pre data-prefix="5"><code class="text-info">environment:</code></pre>
-        <pre data-prefix="6"><code>  - HEX_MIRROR=<%= @hex_hub_url %></code></pre>
-      </div>
+      <.code_block label="Dockerfile">
+        <pre class="text-on-surface"><code><span class="text-info font-semibold">ENV</span> HEX_MIRROR=<%= @hex_hub_url %></code></pre>
+      </.code_block>
 
-      <h3 id="ci-cd" class="text-xl font-semibold mb-3">CI/CD Configuration</h3>
+      <.code_block label="docker-compose.yml">
+        <pre class="text-on-surface"><code><span class="text-info">environment</span>:
+  - HEX_MIRROR=<%= @hex_hub_url %></code></pre>
+      </.code_block>
 
-      <p class="mb-4">Configure HexHub in your CI/CD pipeline:</p>
+      <!-- CI/CD Configuration -->
+      <.section_heading id="ci-cd" level={2}>CI/CD Configuration</.section_heading>
 
-      <h4 class="text-lg font-semibold mb-2">GitHub Actions</h4>
+      <p class="text-on-surface-variant mb-6 leading-relaxed">
+        Configure HexHub in your CI/CD pipeline:
+      </p>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="1"><code># .github/workflows/test.yml</code></pre>
-        <pre data-prefix="2"><code class="text-info">jobs:</code></pre>
-        <pre data-prefix="3"><code>  test:</code></pre>
-        <pre data-prefix="4"><code>    runs-on: ubuntu-latest</code></pre>
-        <pre data-prefix="5"><code>    <code class="text-info">env:</code></code></pre>
-        <pre data-prefix="6"><code>      HEX_MIRROR: <%= @hex_hub_url %></code></pre>
-        <pre data-prefix="7"><code>    steps:</code></pre>
-        <pre data-prefix="8"><code>      - uses: actions/checkout@v4</code></pre>
-        <pre data-prefix="9"><code>      - uses: erlef/setup-beam@v1</code></pre>
-        <pre data-prefix="10"><code>        with:</code></pre>
-        <pre data-prefix="11"><code>          elixir-version: '1.15'</code></pre>
-        <pre data-prefix="12"><code>          otp-version: '26'</code></pre>
-        <pre data-prefix="13"><code>      - run: mix deps.get</code></pre>
-        <pre data-prefix="14"><code>      - run: mix test</code></pre>
-      </div>
+      <.section_heading id="github-actions" level={3}>GitHub Actions</.section_heading>
 
-      <h4 class="text-lg font-semibold mb-2">GitLab CI</h4>
+      <.code_block label=".github/workflows/test.yml">
+        <pre class="text-on-surface"><code><span class="text-info">jobs</span>:
+  <span class="text-info">test</span>:
+    runs-on: ubuntu-latest
+    <span class="text-info">env</span>:
+      HEX_MIRROR: <%= @hex_hub_url %>
+    <span class="text-info">steps</span>:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        <span class="text-info">with</span>:
+          elixir-version: '1.15'
+          otp-version: '26'
+      - run: mix deps.get
+      - run: mix test</code></pre>
+      </.code_block>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="1"><code># .gitlab-ci.yml</code></pre>
-        <pre data-prefix="2"><code class="text-info">variables:</code></pre>
-        <pre data-prefix="3"><code>  HEX_MIRROR: <%= @hex_hub_url %></code></pre>
-        <pre data-prefix="4"><code></code></pre>
-        <pre data-prefix="5"><code class="text-info">test:</code></pre>
-        <pre data-prefix="6"><code>  script:</code></pre>
-        <pre data-prefix="7"><code>    - mix deps.get</code></pre>
-        <pre data-prefix="8"><code>    - mix test</code></pre>
-      </div>
+      <.section_heading id="gitlab-ci" level={3}>GitLab CI</.section_heading>
 
-      <h2 id="verification" class="text-2xl font-bold mb-4">Verification</h2>
+      <.code_block label=".gitlab-ci.yml">
+        <pre class="text-on-surface"><code><span class="text-info">variables</span>:
+  HEX_MIRROR: <%= @hex_hub_url %>
 
-      <p class="mb-4">To verify that HexHub is configured correctly, run:</p>
+<span class="text-info">test</span>:
+  <span class="text-info">script</span>:
+    - mix deps.get
+    - mix test</code></pre>
+      </.code_block>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="$"><code>mix hex.config</code></pre>
-      </div>
+      <!-- Verification -->
+      <.section_heading id="verification" level={2}>Verification</.section_heading>
 
-      <p class="mb-4">You should see the HexHub URL in the configuration output.</p>
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        To verify that HexHub is configured correctly, run:
+      </p>
 
-      <h2 id="upstream" class="text-2xl font-bold mb-4">Upstream Package Fetching</h2>
+      <.code_block label="Terminal">
+        <pre class="text-on-surface"><code>mix hex.config</code></pre>
+      </.code_block>
 
-      <div class="alert alert-info mb-6">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          class="stroke-current shrink-0 w-6 h-6"
+      <p class="text-on-surface-variant mb-6 leading-relaxed">
+        You should see the HexHub URL in the configuration output.
+      </p>
+
+      <!-- Upstream -->
+      <.section_heading id="upstream" level={2}>Upstream Package Fetching</.section_heading>
+
+      <.callout type="info" title="Transparent Caching">
+        HexHub automatically fetches packages from upstream repositories (like hex.pm) when they're
+        not available locally. Once fetched, packages are cached permanently for faster subsequent
+        access. You don't need to publish all your dependencies to HexHub.
+      </.callout>
+
+      <!-- Next Steps -->
+      <.section_heading id="next-steps" level={2}>Next Steps</.section_heading>
+
+      <div class="space-y-3">
+        <a
+          href="/docs/publishing"
+          class="group flex items-center gap-3 p-3 rounded-xl border border-outline-variant/40 hover:border-primary/30 hover:bg-primary/3 transition-all"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          >
-          </path>
-        </svg>
-        <div>
-          <h3 class="font-bold">Transparent Caching</h3>
-          <div class="text-sm">
-            HexHub automatically fetches packages from upstream repositories (like hex.pm) when they're
-            not available locally. Once fetched, packages are cached permanently for faster subsequent
-            access. This means you don't need to publish all your dependencies to HexHub.
+          <div class="w-9 h-9 rounded-lg bg-secondary/12 flex items-center justify-center shrink-0">
+            <.dm_mdi name="package-variant-closed-plus" class="w-5 h-5" color="var(--color-secondary)" />
           </div>
-        </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-semibold text-sm text-on-surface">Publishing Packages</span>
+            <p class="text-xs text-on-surface-variant">Learn how to publish your own packages to HexHub</p>
+          </div>
+          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+        </a>
+        <a
+          href="/docs/api-reference"
+          class="group flex items-center gap-3 p-3 rounded-xl border border-outline-variant/40 hover:border-primary/30 hover:bg-primary/3 transition-all"
+        >
+          <div class="w-9 h-9 rounded-lg bg-tertiary/12 flex items-center justify-center shrink-0">
+            <.dm_mdi name="code-braces" class="w-5 h-5" color="var(--color-tertiary)" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-semibold text-sm text-on-surface">API Reference</span>
+            <p class="text-xs text-on-surface-variant">Explore the complete HexHub API documentation</p>
+          </div>
+          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+        </a>
       </div>
-
-      <h2 id="next-steps" class="text-2xl font-bold mb-4">Next Steps</h2>
-
-      <ul class="list-disc list-inside space-y-2 mb-4">
-        <li>
-          <a href="/docs/publishing" class="link link-primary">Publishing Packages</a>
-          - Learn how to publish your own packages to HexHub
-        </li>
-        <li>
-          <a href="/docs/api-reference" class="link link-primary">API Reference</a>
-          - Explore the complete HexHub API documentation
-        </li>
-      </ul>
     </div>
   </.docs_layout>
 </Layouts.app>

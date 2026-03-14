@@ -35,28 +35,65 @@ defmodule HexHubWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <.dm_simple_appbar class={[
-      "z-50 bg-primary",
-      "shadow shadow-primary/20"
-    ]}>
-      <:logo>
-        <a href="/" class="text-xl font-bold text-on-primary hover:opacity-80">HexHub</a>
-      </:logo>
-      <:user_profile>
-        <div class="flex items-center">
-          <.dm_theme_switcher />
-          <.dm_link href="https://github.com/gsmlg-dev/hex_hub">
-            <.dm_mdi name="github" class="w-12 h-12" color="white" />
-          </.dm_link>
+    <header class="sticky top-0 z-50">
+      <nav class="navbar navbar-surface-container-high border-b border-outline-variant">
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between px-4 sm:px-6">
+          <div class="flex items-center gap-8">
+            <a
+              href="/"
+              class="flex items-center gap-2 text-xl font-bold text-primary hover:opacity-80 transition-opacity"
+            >
+              <.dm_mdi name="hexagon-multiple" class="w-7 h-7" color="var(--color-primary)" /> HexHub
+            </a>
+            <div class="hidden sm:flex items-center gap-1">
+              <a
+                href="/packages"
+                class="navbar-item px-3 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              >
+                Packages
+              </a>
+              <a
+                href="/docs"
+                class="navbar-item px-3 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              >
+                Docs
+              </a>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <.dm_theme_switcher />
+            <.dm_link
+              href="https://github.com/gsmlg-dev/hex_hub"
+              class="p-2 rounded-lg hover:bg-surface-container transition-colors"
+            >
+              <.dm_mdi name="github" class="w-6 h-6" />
+            </.dm_link>
+          </div>
         </div>
-      </:user_profile>
-    </.dm_simple_appbar>
+      </nav>
+    </header>
 
-    <main class="p-4">
-      <div class="mx-auto space-y-4">
-        {render_slot(@inner_block)}
-      </div>
+    <main class="min-h-[calc(100dvh-8rem)]">
+      {render_slot(@inner_block)}
     </main>
+
+    <footer class="border-t border-outline-variant bg-surface-container-low">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-on-surface-variant">
+          <p>HexHub &mdash; Private Hex Package Manager</p>
+          <div class="flex items-center gap-4">
+            <a href="/docs" class="hover:text-on-surface transition-colors">Documentation</a>
+            <a href="/docs/api-reference" class="hover:text-on-surface transition-colors">API</a>
+            <a
+              href="https://github.com/gsmlg-dev/hex_hub"
+              class="hover:text-on-surface transition-colors"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <.dm_flash_group flash={@flash} />
     """

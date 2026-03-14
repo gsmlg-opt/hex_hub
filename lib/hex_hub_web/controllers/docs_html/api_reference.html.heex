@@ -1,236 +1,265 @@
 <Layouts.app flash={@flash}>
   <.docs_layout current_page={@current_page} page_title={@page_title}>
     <div class="max-w-none">
-      <h1 class="text-4xl font-bold mb-4">API Reference</h1>
-
-      <p class="text-lg text-on-surface-variant mb-4">
-        {@api_info.description |> String.split("\n") |> List.first()}
-      </p>
-
-      <div class="flex gap-4 mb-8">
-        <div class="badge badge-lg badge-outline">Version: {@api_info.version}</div>
-        <a href="/openapi/hex-api.yaml" target="_blank" class="badge badge-lg badge-primary gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-4 h-4"
+      <!-- Page header -->
+      <div class="mb-10">
+        <div class="flex items-center gap-2 text-sm text-on-surface-variant mb-3">
+          <a href="/docs" class="hover:text-primary transition-colors">Documentation</a>
+          <.dm_mdi name="chevron-right" class="w-4 h-4 opacity-40" />
+          <span class="text-on-surface font-medium">API Reference</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-on-surface mb-4">
+          API Reference
+        </h1>
+        <p class="text-lg text-on-surface-variant leading-relaxed max-w-2xl mb-4">
+          {@api_info.description |> String.split("\n") |> List.first()}
+        </p>
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high/60 text-sm font-medium text-on-surface-variant">
+            <.dm_mdi name="tag-outline" class="w-4 h-4" />
+            v{@api_info.version}
+          </span>
+          <a
+            href="/openapi/hex-api.yaml"
+            target="_blank"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-sm font-medium text-primary hover:bg-primary/15 transition-colors"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-            />
-          </svg>
-          Download OpenAPI Spec
-        </a>
+            <.dm_mdi name="file-download-outline" class="w-4 h-4" />
+            Download OpenAPI Spec
+          </a>
+        </div>
       </div>
 
-      <h2 id="authentication" class="text-2xl font-bold mb-4">Authentication</h2>
+      <!-- Authentication -->
+      <.section_heading id="authentication" level={2}>Authentication</.section_heading>
 
-      <p class="mb-4">
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
         The HexHub API supports two authentication methods:
       </p>
 
-      <div class="overflow-x-auto mb-6">
-        <table class="table table-striped">
+      <div class="rounded-xl border border-outline-variant/40 overflow-hidden mb-6">
+        <table class="w-full text-sm">
           <thead>
-            <tr>
-              <th>Method</th>
-              <th>Use Case</th>
-              <th>Header</th>
+            <tr class="bg-surface-container-high/50">
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Method</th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Use Case</th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30 hidden sm:table-cell">Header</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><strong>Basic Auth</strong></td>
-              <td>Generating API tokens</td>
-              <td><code>Authorization: Basic base64(username:password)</code></td>
+          <tbody class="divide-y divide-outline-variant/20">
+            <tr class="hover:bg-surface-container-low/50 transition-colors">
+              <td class="px-4 py-3 font-medium text-on-surface">Basic Auth</td>
+              <td class="px-4 py-3 text-on-surface-variant">Generating API tokens</td>
+              <td class="px-4 py-3 hidden sm:table-cell"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">Authorization: Basic base64(user:pass)</code></td>
             </tr>
-            <tr>
-              <td><strong>Bearer Token</strong></td>
-              <td>All API operations</td>
-              <td><code>Authorization: Bearer your_api_key</code></td>
+            <tr class="hover:bg-surface-container-low/50 transition-colors">
+              <td class="px-4 py-3 font-medium text-on-surface">Bearer Token</td>
+              <td class="px-4 py-3 text-on-surface-variant">All API operations</td>
+              <td class="px-4 py-3 hidden sm:table-cell"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">Authorization: Bearer your_api_key</code></td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <h2 id="rate-limiting" class="text-2xl font-bold mb-4">Rate Limiting</h2>
+      <!-- Rate Limiting -->
+      <.section_heading id="rate-limiting" level={2}>Rate Limiting</.section_heading>
 
-      <p class="mb-4">
-        API requests are limited to <strong>100 requests per minute</strong>
-        per IP address, or <strong>500 requests per minute</strong>
-        for authenticated users. The following headers
-        are returned with each response:
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        API requests are limited to <strong class="text-on-surface">100 requests/min</strong> per IP,
+        or <strong class="text-on-surface">500 requests/min</strong> for authenticated users.
       </p>
 
-      <div class="overflow-x-auto mb-6">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Header</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>X-RateLimit-Limit</code></td>
-              <td>Maximum requests per minute</td>
-            </tr>
-            <tr>
-              <td><code>X-RateLimit-Remaining</code></td>
-              <td>Remaining requests in the current window</td>
-            </tr>
-            <tr>
-              <td><code>X-RateLimit-Reset</code></td>
-              <td>UNIX timestamp for when the limit resets</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="grid sm:grid-cols-3 gap-3 mb-6">
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50 border border-outline-variant/30">
+          <.dm_mdi name="speedometer" class="w-5 h-5 shrink-0" color="var(--color-info)" />
+          <div>
+            <code class="text-xs font-mono text-info">X-RateLimit-Limit</code>
+            <p class="text-xs text-on-surface-variant mt-0.5">Max requests/min</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50 border border-outline-variant/30">
+          <.dm_mdi name="gauge" class="w-5 h-5 shrink-0" color="var(--color-warning)" />
+          <div>
+            <code class="text-xs font-mono text-warning">X-RateLimit-Remaining</code>
+            <p class="text-xs text-on-surface-variant mt-0.5">Remaining requests</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50 border border-outline-variant/30">
+          <.dm_mdi name="clock-outline" class="w-5 h-5 shrink-0" color="var(--color-success)" />
+          <div>
+            <code class="text-xs font-mono text-success">X-RateLimit-Reset</code>
+            <p class="text-xs text-on-surface-variant mt-0.5">Window reset (UNIX)</p>
+          </div>
+        </div>
       </div>
 
-      <h2 id="media-types" class="text-2xl font-bold mb-4">Media Types</h2>
+      <!-- Media Types -->
+      <.section_heading id="media-types" level={2}>Media Types</.section_heading>
 
-      <p class="mb-4">The API supports the following media types:</p>
-
-      <ul class="list-disc list-inside space-y-2 mb-6">
-        <li><code>application/json</code> - Standard JSON format</li>
-        <li><code>application/vnd.hex+json</code> - Hex-specific JSON format</li>
-        <li><code>application/vnd.hex+erlang</code> - Erlang term format</li>
-      </ul>
-
-      <h2 id="endpoints" class="text-2xl font-bold mb-4">Endpoints</h2>
-
-      <div>
-        <!-- Quick navigation -->
-        <div class="flex flex-wrap gap-2 mb-8">
-          <%= for {tag, _endpoints} <- @endpoints_by_tag do %>
-            <a
-              href={"##{String.downcase(String.replace(tag, " ", "-"))}"}
-              class="badge badge-outline badge-lg hover:badge-primary"
-            >
-              {tag}
-            </a>
-          <% end %>
+      <div class="space-y-2 mb-6">
+        <div class="flex items-center gap-3 p-2.5 rounded-lg">
+          <code class="text-sm font-mono bg-surface-container-high px-2 py-1 rounded text-on-surface">application/json</code>
+          <span class="text-sm text-on-surface-variant">Standard JSON format</span>
         </div>
-        
-<!-- Endpoint sections by tag -->
-        <%= for {tag, endpoints} <- @endpoints_by_tag do %>
-          <section id={String.downcase(String.replace(tag, " ", "-"))} class="mb-12 scroll-mt-20">
-            <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-primary">#</span>
-              {tag}
-            </h3>
+        <div class="flex items-center gap-3 p-2.5 rounded-lg">
+          <code class="text-sm font-mono bg-surface-container-high px-2 py-1 rounded text-on-surface">application/vnd.hex+json</code>
+          <span class="text-sm text-on-surface-variant">Hex-specific JSON format</span>
+        </div>
+        <div class="flex items-center gap-3 p-2.5 rounded-lg">
+          <code class="text-sm font-mono bg-surface-container-high px-2 py-1 rounded text-on-surface">application/vnd.hex+erlang</code>
+          <span class="text-sm text-on-surface-variant">Erlang term format</span>
+        </div>
+      </div>
 
-            <div class="space-y-4">
-              <%= for {path, method, spec} <- endpoints do %>
-                <div class="card bg-surface shadow-md hover:shadow-lg transition-shadow">
-                  <div class="card-body p-4">
-                    <div class="flex flex-wrap items-center gap-3 mb-2">
-                      <span class={method_badge_class(method)}>
-                        {String.upcase(method)}
-                      </span>
-                      <code class="text-sm font-mono bg-surface-container px-2 py-1 rounded">
-                        {path}
-                      </code>
-                    </div>
-                    <p class="text-on-surface/80 mb-2">
-                      {spec["summary"]}
-                    </p>
-                    <%= if spec["description"] && spec["description"] != spec["summary"] do %>
-                      <p class="text-sm text-on-surface-variant">
-                        {spec["description"]
-                        |> String.split("\n")
-                        |> List.first()
-                        |> String.slice(0, 200)}
-                        <%= if String.length(spec["description"] || "") > 200 do %>
-                          ...
-                        <% end %>
-                      </p>
-                    <% end %>
-                    
-<!-- Parameters -->
-                    <%= if spec["parameters"] && length(spec["parameters"]) > 0 do %>
-                      <div class="mt-3">
-                        <h4 class="text-sm font-semibold mb-2">Parameters:</h4>
-                        <div class="flex flex-wrap gap-2">
-                          <%= for param <- spec["parameters"] do %>
-                            <span class="badge badge-outline badge-sm">
-                              {param["name"]}
-                              <%= if param["required"] do %>
-                                <span class="text-error">*</span>
-                              <% end %>
-                            </span>
-                          <% end %>
-                        </div>
-                      </div>
-                    <% end %>
-                    
-<!-- Response codes -->
-                    <%= if spec["responses"] do %>
-                      <div class="mt-3">
-                        <h4 class="text-sm font-semibold mb-2">Responses:</h4>
-                        <div class="flex flex-wrap gap-2">
-                          <%= for {code, _response} <- spec["responses"] do %>
-                            <span class={
-                              cond do
-                                String.starts_with?(code, "2") -> "badge badge-success badge-sm"
-                                String.starts_with?(code, "4") -> "badge badge-warning badge-sm"
-                                String.starts_with?(code, "5") -> "badge badge-error badge-sm"
-                                true -> "badge badge-outline badge-sm"
-                              end
-                            }>
-                              {code}
-                            </span>
-                          <% end %>
-                        </div>
-                      </div>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          </section>
+      <!-- Endpoints -->
+      <.section_heading id="endpoints" level={2}>Endpoints</.section_heading>
+
+      <!-- Tag quick nav -->
+      <div class="flex flex-wrap gap-2 mb-8">
+        <%= for {tag, _endpoints} <- @endpoints_by_tag do %>
+          <a
+            href={"#tag-#{String.downcase(String.replace(tag, " ", "-"))}"}
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-surface-container-high/50 text-on-surface-variant hover:bg-primary/10 hover:text-primary border border-outline-variant/30 hover:border-primary/30 transition-all"
+          >
+            <.dm_mdi name="pound" class="w-3.5 h-3.5" />
+            {tag}
+          </a>
         <% end %>
       </div>
 
-      <h2 id="error-responses" class="text-2xl font-bold mb-4">Error Responses</h2>
+      <!-- Endpoint sections -->
+      <%= for {tag, endpoints} <- @endpoints_by_tag do %>
+        <section id={"tag-#{String.downcase(String.replace(tag, " ", "-"))}"} class="mb-10 scroll-mt-24">
+          <h3 class="text-xl font-bold text-on-surface mb-4 flex items-center gap-2 pb-2 border-b border-outline-variant/30">
+            <.dm_mdi name="folder-outline" class="w-5 h-5" color="var(--color-primary)" />
+            {tag}
+            <span class="text-xs font-normal text-on-surface-variant ml-1">({length(endpoints)} endpoints)</span>
+          </h3>
 
-      <p class="mb-4">
+          <div class="space-y-3">
+            <%= for {path, method, spec} <- endpoints do %>
+              <details class="group rounded-xl border border-outline-variant/40 hover:border-outline-variant/70 transition-colors overflow-hidden">
+                <summary class="flex flex-wrap items-center gap-3 px-4 py-3 cursor-pointer select-none hover:bg-surface-container-low/50 transition-colors">
+                  <.dm_mdi name="chevron-right" class="w-4 h-4 text-on-surface-variant/50 transition-transform group-open:rotate-90 shrink-0" />
+                  <span class={method_badge_class(method)}>
+                    {String.upcase(method)}
+                  </span>
+                  <code class="text-sm font-mono text-on-surface break-all">{path}</code>
+                  <span class="text-sm text-on-surface-variant ml-auto hidden sm:inline">{spec["summary"]}</span>
+                </summary>
+                <div class="px-4 pb-4 pt-2 border-t border-outline-variant/20 bg-surface-container-low/20">
+                  <p class="text-sm text-on-surface-variant mb-3 leading-relaxed">{spec["summary"]}</p>
+
+                  <%= if spec["description"] && spec["description"] != spec["summary"] do %>
+                    <p class="text-sm text-on-surface-variant/80 mb-3 leading-relaxed">
+                      {spec["description"]
+                      |> String.split("\n")
+                      |> List.first()
+                      |> String.slice(0, 300)}
+                      <%= if String.length(spec["description"] || "") > 300 do %>
+                        ...
+                      <% end %>
+                    </p>
+                  <% end %>
+
+                  <%= if spec["parameters"] && length(spec["parameters"]) > 0 do %>
+                    <div class="mb-3">
+                      <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Parameters</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        <%= for param <- spec["parameters"] do %>
+                          <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-container-high/60 text-xs font-mono text-on-surface-variant">
+                            {param["name"]}
+                            <%= if param["required"] do %>
+                              <span class="text-error text-[10px] font-bold">*</span>
+                            <% end %>
+                            <%= if param["in"] do %>
+                              <span class="text-on-surface-variant/50 text-[10px]">({param["in"]})</span>
+                            <% end %>
+                          </span>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <%= if spec["responses"] do %>
+                    <div>
+                      <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Responses</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        <%= for {code, _response} <- spec["responses"] do %>
+                          <span class={status_badge_class(code)}>{code}</span>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </details>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
+      <!-- Error Responses -->
+      <.section_heading id="error-responses" level={2}>Error Responses</.section_heading>
+
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
         Error responses follow a consistent format across all endpoints:
       </p>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix=""><code>&#123;</code></pre>
-        <pre data-prefix=""><code>  "status"&#58; 404,</code></pre>
-        <pre data-prefix=""><code>  "message"&#58; "Not Found",</code></pre>
-        <pre data-prefix=""><code>  "errors"&#58; &#123;</code></pre>
-        <pre data-prefix=""><code>    "detail"&#58; "Package not found"</code></pre>
-        <pre data-prefix=""><code>  &#125;</code></pre>
-        <pre data-prefix=""><code>&#125;</code></pre>
+      <.code_block label="Error Response Format (JSON)">
+        <pre class="text-on-surface"><code>&#123;
+  "status": 404,
+  "message": "Not Found",
+  "errors": &#123;
+    "detail": "Package not found"
+  &#125;
+&#125;</code></pre>
+      </.code_block>
+
+      <!-- Next Steps -->
+      <.section_heading id="next-steps" level={2}>Next Steps</.section_heading>
+
+      <div class="space-y-3">
+        <a
+          href="/docs/getting-started"
+          class="group flex items-center gap-3 p-3 rounded-xl border border-outline-variant/40 hover:border-primary/30 hover:bg-primary/3 transition-all"
+        >
+          <div class="w-9 h-9 rounded-lg bg-primary/12 flex items-center justify-center shrink-0">
+            <.dm_mdi name="rocket-launch-outline" class="w-5 h-5" color="var(--color-primary)" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-semibold text-sm text-on-surface">Getting Started</span>
+            <p class="text-xs text-on-surface-variant">Configure your environment to use HexHub</p>
+          </div>
+          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+        </a>
+        <a
+          href="/docs/publishing"
+          class="group flex items-center gap-3 p-3 rounded-xl border border-outline-variant/40 hover:border-primary/30 hover:bg-primary/3 transition-all"
+        >
+          <div class="w-9 h-9 rounded-lg bg-secondary/12 flex items-center justify-center shrink-0">
+            <.dm_mdi name="package-variant-closed-plus" class="w-5 h-5" color="var(--color-secondary)" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-semibold text-sm text-on-surface">Publishing</span>
+            <p class="text-xs text-on-surface-variant">Learn how to publish packages</p>
+          </div>
+          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+        </a>
+        <a
+          href="/openapi/hex-api.yaml"
+          target="_blank"
+          class="group flex items-center gap-3 p-3 rounded-xl border border-outline-variant/40 hover:border-primary/30 hover:bg-primary/3 transition-all"
+        >
+          <div class="w-9 h-9 rounded-lg bg-on-surface/8 flex items-center justify-center shrink-0">
+            <.dm_mdi name="file-download-outline" class="w-5 h-5" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-semibold text-sm text-on-surface">OpenAPI Specification</span>
+            <p class="text-xs text-on-surface-variant">Download the complete API spec for code generation</p>
+          </div>
+          <.dm_mdi name="open-in-new" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+        </a>
       </div>
-
-      <h2 id="next-steps" class="text-2xl font-bold mb-4">Next Steps</h2>
-
-      <ul class="list-disc list-inside space-y-2 mb-4">
-        <li>
-          <a href="/docs/getting-started" class="link link-primary">Getting Started</a>
-          - Configure your environment to use HexHub
-        </li>
-        <li>
-          <a href="/docs/publishing" class="link link-primary">Publishing</a>
-          - Learn how to publish packages
-        </li>
-        <li>
-          <a href="/openapi/hex-api.yaml" target="_blank" class="link link-primary">
-            OpenAPI Specification
-          </a>
-          - Download the complete API spec for code generation
-        </li>
-      </ul>
     </div>
   </.docs_layout>
 </Layouts.app>

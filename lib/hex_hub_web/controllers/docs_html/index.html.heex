@@ -1,183 +1,158 @@
 <Layouts.app flash={@flash}>
   <.docs_layout current_page={@current_page} page_title={@page_title}>
     <div class="max-w-none">
-      <h1 class="text-4xl font-bold mb-6">HexHub Documentation</h1>
+      <!-- Page header -->
+      <div class="mb-10">
+        <div class="flex items-center gap-2 text-sm text-on-surface-variant mb-3">
+          <.dm_mdi name="book-open-page-variant" class="w-4 h-4" color="var(--color-primary)" />
+          <span>Documentation</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-on-surface mb-4">
+          HexHub Documentation
+        </h1>
+        <p class="text-lg text-on-surface-variant leading-relaxed max-w-2xl">
+          HexHub is a private hex package manager and hexdocs server &mdash; a drop-in
+          replacement for hex.pm. Learn how to configure, publish, and integrate.
+        </p>
+      </div>
 
-      <p class="text-lg text-on-surface-variant mb-8">
-        Welcome to the HexHub documentation. HexHub is a private hex package manager and hexdocs
-        server that provides a drop-in replacement for hex.pm. Learn how to configure your
-        Elixir projects to use HexHub, publish packages, and integrate with the API.
-      </p>
-
-      <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <!-- Doc cards grid -->
+      <div class="grid sm:grid-cols-2 gap-4 mb-12">
         <a
           href="/docs/getting-started"
-          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
+          class="group relative flex flex-col p-5 rounded-2xl border border-outline-variant/40 bg-surface hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
         >
-          <div class="card-body">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="white"
-                  class="w-6 h-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
-                  />
-                </svg>
-              </div>
-              <h2 class="card-title">Getting Started</h2>
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-11 h-11 rounded-xl bg-primary/12 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+              <.dm_mdi name="rocket-launch-outline" class="w-6 h-6" color="var(--color-primary)" />
             </div>
-            <p>
-              Learn how to configure your Elixir projects to use HexHub as your package registry.
-            </p>
-            <div class="card-actions justify-end">
-              <span class="text-primary">Read more &rarr;</span>
+            <div>
+              <h2 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">Getting Started</h2>
+              <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                Configure your Elixir projects to use HexHub as your package registry.
+              </p>
             </div>
+          </div>
+          <div class="flex items-center gap-1 text-sm font-medium text-primary mt-auto pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span>Read guide</span>
+            <.dm_mdi name="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
         </a>
 
         <a
           href="/docs/publishing"
-          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
+          class="group relative flex flex-col p-5 rounded-2xl border border-outline-variant/40 bg-surface hover:border-secondary/30 hover:shadow-lg hover:shadow-secondary/5 transition-all duration-300"
         >
-          <div class="card-body">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="white"
-                  class="w-6 h-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                  />
-                </svg>
-              </div>
-              <h2 class="card-title">Publishing Packages</h2>
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-11 h-11 rounded-xl bg-secondary/12 flex items-center justify-center shrink-0 group-hover:bg-secondary/20 transition-colors">
+              <.dm_mdi name="package-variant-closed-plus" class="w-6 h-6" color="var(--color-secondary)" />
             </div>
-            <p>Step-by-step guide to publishing your packages to HexHub.</p>
-            <div class="card-actions justify-end">
-              <span class="text-secondary">Read more &rarr;</span>
+            <div>
+              <h2 class="text-lg font-bold text-on-surface group-hover:text-secondary transition-colors">Publishing Packages</h2>
+              <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                Step-by-step guide to publishing your packages to HexHub.
+              </p>
             </div>
+          </div>
+          <div class="flex items-center gap-1 text-sm font-medium text-secondary mt-auto pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span>Read guide</span>
+            <.dm_mdi name="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
         </a>
 
         <a
           href="/docs/api-reference"
-          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
+          class="group relative flex flex-col p-5 rounded-2xl border border-outline-variant/40 bg-surface hover:border-tertiary/30 hover:shadow-lg hover:shadow-tertiary/5 transition-all duration-300"
         >
-          <div class="card-body">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-tertiary rounded-lg flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="white"
-                  class="w-6 h-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
-                  />
-                </svg>
-              </div>
-              <h2 class="card-title">API Reference</h2>
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-11 h-11 rounded-xl bg-tertiary/12 flex items-center justify-center shrink-0 group-hover:bg-tertiary/20 transition-colors">
+              <.dm_mdi name="code-braces" class="w-6 h-6" color="var(--color-tertiary)" />
             </div>
-            <p>Complete API documentation for all HexHub endpoints.</p>
-            <div class="card-actions justify-end">
-              <span class="text-tertiary">Read more &rarr;</span>
+            <div>
+              <h2 class="text-lg font-bold text-on-surface group-hover:text-tertiary transition-colors">API Reference</h2>
+              <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                Complete API documentation for all HexHub endpoints.
+              </p>
             </div>
+          </div>
+          <div class="flex items-center gap-1 text-sm font-medium text-tertiary mt-auto pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span>Explore API</span>
+            <.dm_mdi name="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </a>
+
+        <a
+          href="/docs/mcp"
+          class="group relative flex flex-col p-5 rounded-2xl border border-outline-variant/40 bg-surface hover:border-info/30 hover:shadow-lg hover:shadow-info/5 transition-all duration-300"
+        >
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-11 h-11 rounded-xl bg-info/12 flex items-center justify-center shrink-0 group-hover:bg-info/20 transition-colors">
+              <.dm_mdi name="robot-outline" class="w-6 h-6" color="var(--color-info)" />
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-on-surface group-hover:text-info transition-colors">MCP Integration</h2>
+              <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                Connect AI clients to HexHub via the Model Context Protocol.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 text-sm font-medium text-info mt-auto pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span>Read guide</span>
+            <.dm_mdi name="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
         </a>
 
         <a
           href="/openapi/hex-api.yaml"
           target="_blank"
-          class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow"
+          class="group relative flex flex-col p-5 rounded-2xl border border-outline-variant/40 bg-surface hover:border-outline-variant hover:shadow-lg transition-all duration-300"
         >
-          <div class="card-body">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-10 h-10 bg-surface-container-high rounded-lg flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="white"
-                  class="w-6 h-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                  />
-                </svg>
-              </div>
-              <h2 class="card-title">OpenAPI Specification</h2>
+          <div class="flex items-start gap-4 mb-3">
+            <div class="w-11 h-11 rounded-xl bg-on-surface/8 flex items-center justify-center shrink-0 group-hover:bg-on-surface/12 transition-colors">
+              <.dm_mdi name="file-download-outline" class="w-6 h-6" />
             </div>
-            <p>Download the OpenAPI 3.0 specification for code generation and API tools.</p>
-            <div class="card-actions justify-end">
-              <span class="text-on-surface">Download YAML &rarr;</span>
+            <div>
+              <h2 class="text-lg font-bold text-on-surface">OpenAPI Specification</h2>
+              <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                Download the OpenAPI 3.0 spec for code generation and API tools.
+              </p>
             </div>
+          </div>
+          <div class="flex items-center gap-1 text-sm font-medium text-on-surface-variant mt-auto pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span>Download YAML</span>
+            <.dm_mdi name="open-in-new" class="w-4 h-4" />
           </div>
         </a>
       </div>
 
-      <h2 class="text-2xl font-bold mb-4">Quick Start</h2>
+      <!-- Quick Start -->
+      <div class="relative">
+        <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/3 via-transparent to-secondary/3 pointer-events-none"></div>
+        <div class="relative rounded-2xl border border-outline-variant/40 p-6 sm:p-8">
+          <h2 class="text-2xl font-bold text-on-surface mb-2 flex items-center gap-3">
+            <.dm_mdi name="lightning-bolt" class="w-6 h-6" color="var(--color-primary)" />
+            Quick Start
+          </h2>
+          <p class="text-on-surface-variant mb-6">
+            Point your Mix project to HexHub with a single environment variable.
+          </p>
 
-      <p class="mb-4">
-        To start using HexHub as your package mirror, set the <code>HEX_MIRROR</code>
-        environment variable:
-      </p>
+          <.code_block label="Terminal">
+            <pre class="text-on-surface"><code><span class="text-success font-semibold">export</span> <span class="text-info">HEX_MIRROR</span>=http://your-hexhub-host:4360</code></pre>
+          </.code_block>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="$"><code class="text-success">export</code> <code class="text-info">HEX_MIRROR=http://localhost:4000</code></pre>
-      </div>
+          <p class="text-on-surface-variant mb-4">
+            Then fetch packages as usual:
+          </p>
 
-      <p class="mb-4">
-        Then you can install packages from HexHub just like you would from hex.pm:
-      </p>
+          <.code_block label="Terminal">
+            <pre class="text-on-surface"><code>mix deps.get</code></pre>
+          </.code_block>
 
-      <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto mb-6">
-        <pre data-prefix="$"><code>mix deps.get</code></pre>
-      </div>
-
-      <div class="alert alert-info">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          class="stroke-current shrink-0 w-6 h-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          >
-          </path>
-        </svg>
-        <div>
-          <h3 class="font-bold">Upstream Package Fetching</h3>
-          <div class="text-sm">
+          <.callout type="info" title="Upstream Package Fetching">
             HexHub automatically fetches packages from hex.pm when they're not available locally.
-            This means you can use HexHub as a caching proxy without having to publish all your dependencies.
-          </div>
+            You can use HexHub as a caching proxy without publishing all your dependencies.
+          </.callout>
         </div>
       </div>
     </div>
