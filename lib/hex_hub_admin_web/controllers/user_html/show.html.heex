@@ -74,6 +74,172 @@
 
     <div class="card bg-surface shadow-lg mt-8">
       <div class="card-body">
+        <div class="flex items-center justify-between">
+          <h2 class="card-title text-on-surface">API Tokens</h2>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <%= if length(@tokens) > 0 do %>
+            <.dm_table data={@tokens}>
+              <:col :let={token} label="Name">
+                <span class="font-mono">{token.name}</span>
+              </:col>
+              <:col :let={token} label="Secret Key">
+                <div class="flex items-center gap-2">
+                  <code
+                    id={"token-key-#{token.name}"}
+                    class="text-xs bg-surface-variant px-2 py-1 rounded select-all break-all hidden"
+                  >
+                    {token.secret}
+                  </code>
+                  <span
+                    id={"token-mask-#{token.name}"}
+                    class="text-on-surface-variant text-sm"
+                  >
+                    ••••••••
+                  </span>
+                  <button
+                    type="button"
+                    class="btn btn-xs btn-ghost"
+                    onclick={"
+                      var key = document.getElementById('token-key-#{token.name}');
+                      var mask = document.getElementById('token-mask-#{token.name}');
+                      if (key.classList.contains('hidden')) {
+                        key.classList.remove('hidden');
+                        mask.classList.add('hidden');
+                        this.textContent = 'Hide';
+                      } else {
+                        key.classList.add('hidden');
+                        mask.classList.remove('hidden');
+                        this.textContent = 'Show';
+                      }
+                    "}
+                  >
+                    Show
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs btn-ghost"
+                    onclick={"navigator.clipboard.writeText(document.getElementById('token-key-#{token.name}').textContent).then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000); })"}
+                  >
+                    Copy
+                  </button>
+                </div>
+              </:col>
+              <:col :let={token} label="Permissions">
+                <div class="flex gap-1">
+                  <%= for perm <- token.permissions do %>
+                    <span class="badge badge-sm badge-outline">{perm}</span>
+                  <% end %>
+                </div>
+              </:col>
+              <:col :let={token} label="Status">
+                <%= if token.revoked_at do %>
+                  <span class="badge badge-error badge-sm">Revoked</span>
+                <% else %>
+                  <span class="badge badge-success badge-sm">Active</span>
+                <% end %>
+              </:col>
+              <:col :let={token} label="Last Accessed">
+                <%= if token.last_accessed_at do %>
+                  {DateTime.to_iso8601(token.last_accessed_at)}
+                <% else %>
+                  <span class="text-on-surface-variant text-sm">Never</span>
+                <% end %>
+              </:col>
+              <:col :let={token} label="Created">
+                {DateTime.to_iso8601(token.inserted_at)}
+              </:col>
+              <:col :let={token} label="Actions">
+                <%= if is_nil(token.revoked_at) do %>
+                  <form
+                    action={~p"/users/#{@user.username}/tokens/#{token.name}"}
+                    method="post"
+                    class="inline"
+                  >
+                    <input type="hidden" name="_method" value="delete" />
+                    <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+                    <.dm_btn
+                      type="submit"
+                      class="btn btn-sm btn-ghost btn-error"
+                      onclick="return confirm('Are you sure you want to revoke this token?')"
+                    >
+                      Revoke
+                    </.dm_btn>
+                  </form>
+                <% else %>
+                  <span class="text-on-surface-variant text-sm">—</span>
+                <% end %>
+              </:col>
+            </.dm_table>
+          <% else %>
+            <div class="text-center py-8">
+              <.dm_mdi name="key-variant" class="mx-auto h-12 w-12 text-on-surface-variant" />
+              <h3 class="mt-2 text-sm font-medium text-on-surface">No tokens</h3>
+              <p class="mt-1 text-sm text-on-surface-variant">
+                Create a token to allow this user to authenticate with the API.
+              </p>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3 class="text-lg font-semibold text-on-surface">Create New Token</h3>
+        <form action={~p"/users/#{@user.username}/tokens"} method="post" class="mt-4">
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+          <div class="flex flex-col gap-4">
+            <div class="form-control w-full max-w-md">
+              <label class="label">
+                <span class="label-text">Token Name</span>
+              </label>
+              <input
+                type="text"
+                name="token[name]"
+                placeholder="e.g. ci-deploy, my-laptop"
+                class="input input-bordered w-full"
+                required
+              />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Permissions</span>
+              </label>
+              <div class="flex gap-4">
+                <label class="label cursor-pointer gap-2">
+                  <input
+                    type="checkbox"
+                    name="token[perm_read]"
+                    value="true"
+                    class="checkbox checkbox-sm"
+                    checked
+                  />
+                  <span class="label-text">Read</span>
+                </label>
+                <label class="label cursor-pointer gap-2">
+                  <input
+                    type="checkbox"
+                    name="token[perm_write]"
+                    value="true"
+                    class="checkbox checkbox-sm"
+                    checked
+                  />
+                  <span class="label-text">Write</span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <.dm_btn type="submit" class="btn btn-primary">
+                Create Token
+              </.dm_btn>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card bg-surface shadow-lg mt-8">
+      <div class="card-body">
         <h2 class="card-title text-on-surface">Owned Packages</h2>
 
         <div class="overflow-x-auto">

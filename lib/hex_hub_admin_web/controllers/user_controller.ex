@@ -2,6 +2,7 @@ defmodule HexHubAdminWeb.UserController do
   use HexHubAdminWeb, :controller
 
   alias HexHub.Users
+  alias HexHub.ApiKeys
 
   def index(conn, params) do
     page = String.to_integer(params["page"] || "1")
@@ -27,12 +28,15 @@ defmodule HexHubAdminWeb.UserController do
     case Users.get_user(username) do
       {:ok, user} ->
         # Get packages where user is an owner (simplified for now)
-        # For now, return empty list since we don't have user-package ownership mapping
         user_packages = []
+
+        # Load API tokens for this user
+        {:ok, tokens} = ApiKeys.list_keys(user.username)
 
         render(conn, :show,
           user: user,
-          packages: user_packages
+          packages: user_packages,
+          tokens: tokens
         )
 
       {:error, :not_found} ->
