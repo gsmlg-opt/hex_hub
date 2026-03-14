@@ -29,19 +29,20 @@ defmodule HexHubWeb.PackageControllerTest do
   end
 
   describe "GET /packages" do
-    test "lists packages with default sort", %{conn: conn} do
+    test "shows discovery page by default without package list", %{conn: conn} do
       conn = get(conn, ~p"/packages")
-      assert html_response(conn, 200) =~ "Packages"
-      assert html_response(conn, 200) =~ "phoenix"
-      assert html_response(conn, 200) =~ "ecto"
+      response = html_response(conn, 200)
+      assert response =~ "Discover Packages"
+      # Packages appear in trend sections, not as search results
+      assert response =~ "Most Downloaded"
+      assert response =~ "phoenix"
     end
 
     test "filters by search term", %{conn: conn} do
       conn = get(conn, ~p"/packages?search=phoenix")
       response = html_response(conn, 200)
       assert response =~ "phoenix"
-      # When searching, count is displayed with "packages matching" format
-      assert response =~ ~r/>1<\/span>\s*packages matching/
+      assert response =~ "Search Results"
     end
 
     test "filters by search term in description", %{conn: conn} do
@@ -50,10 +51,10 @@ defmodule HexHubWeb.PackageControllerTest do
       assert response =~ "ecto"
     end
 
-    test "sorts by name", %{conn: conn} do
-      conn = get(conn, ~p"/packages?sort=name")
+    test "sorts by name with search filter", %{conn: conn} do
+      conn = get(conn, ~p"/packages?sort=name&search=p")
       response = html_response(conn, 200)
-      assert response =~ "Name (A-Z)"
+      assert response =~ "segment-control-item-active"
     end
 
     test "filters by letter", %{conn: conn} do
@@ -64,17 +65,17 @@ defmodule HexHubWeb.PackageControllerTest do
       # The main package list should not contain ecto (starts with E, not P)
       # Note: ecto might still appear in trend sections, so we check specifically
       # that the filtered count is 2 (phoenix and plug)
-      assert response =~ ">2</span> packages"
+      assert response =~ ">2</span>"
     end
 
-    test "paginates results", %{conn: conn} do
+    test "paginates results with search", %{conn: conn} do
       # Create more packages for pagination
       for i <- 1..35 do
         Packages.create_package("pkg#{i}", "hexpm", %{"description" => "Package #{i}"})
       end
 
-      conn = get(conn, ~p"/packages?page=2")
-      assert html_response(conn, 200) =~ "Packages"
+      conn = get(conn, ~p"/packages?search=pkg&page=2")
+      assert html_response(conn, 200) =~ "Search Results"
     end
 
     test "shows empty state when no packages match", %{conn: conn} do

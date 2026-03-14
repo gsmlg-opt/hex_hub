@@ -1,298 +1,288 @@
 <Layouts.app flash={@flash}>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-on-surface mb-4">
-        Packages
-      </h1>
-      <p class="text-lg text-on-surface-variant">
-        Discover and explore packages from the HexHub registry
-      </p>
-    </div>
-    
-<!-- Search Form -->
-    <div class="mb-6">
-      <form method="get" action="/packages" class="max-w-xl mx-auto">
-        <!-- Preserve sort and letter params -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Search Hero -->
+    <div class="relative mb-10">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl sm:text-4xl font-bold text-on-surface mb-2">
+          <%= if @has_filter do %>
+            Search Results
+          <% else %>
+            Discover Packages
+          <% end %>
+        </h1>
+        <p class="text-on-surface-variant text-sm sm:text-base">
+          <%= if @has_filter do %>
+            <%= if @search do %>
+              Showing results for "<span class="font-semibold text-on-surface">{@search}</span>"
+            <% else %>
+              Packages starting with "<span class="font-semibold text-on-surface">{@letter}</span>"
+            <% end %>
+          <% else %>
+            Search the HexHub registry to find packages
+          <% end %>
+        </p>
+      </div>
+
+      <form method="get" action="/packages" class="max-w-2xl mx-auto">
         <%= if @sort && @sort != :recent_downloads do %>
           <input type="hidden" name="sort" value={@sort} />
         <% end %>
-        <%= if @letter do %>
-          <input type="hidden" name="letter" value={@letter} />
-        <% end %>
-        <div class="join w-full">
-          <input
-            type="text"
-            name="search"
-            value={@search}
-            placeholder="Search packages by name or description..."
-            class="input join-item w-full"
-          />
-          <button type="submit" class="btn btn-primary join-item">
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <.dm_mdi name="magnify" class="w-5 h-5" color="var(--color-on-surface-variant)" />
+            </div>
+            <input
+              type="text"
+              name="search"
+              value={@search}
+              placeholder="Search packages by name or description..."
+              class="input input-primary w-full pl-11"
+              autofocus={!@has_filter}
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">
             Search
           </button>
+          <%= if @has_filter do %>
+            <a href="/packages" class="btn btn-ghost">
+              Clear
+            </a>
+          <% end %>
         </div>
       </form>
     </div>
-    
-<!-- Trend Sections -->
-    <div class="mb-8">
-      <div role="tablist" class="tabs bg-surface-container mb-4">
-        <input
-          type="radio"
-          name="trend_tabs"
-          role="tab"
-          class="tab"
-          aria-label="Most Downloaded"
-          checked
-        />
-        <div role="tabpanel" class="tab-content bg-surface border-outline rounded-lg p-4 mt-2">
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <%= for package <- @most_downloaded do %>
-              <a
-                href={~p"/packages/#{package.name}"}
-                class="card bg-surface-container hover:bg-surface-container-high transition-colors"
-              >
-                <div class="card-body p-3">
-                  <h4 class="card-title text-sm truncate">{package.name}</h4>
-                  <div class="flex justify-between text-xs text-on-surface-variant">
-                    <span>v{package.latest_version}</span>
-                    <span>{format_downloads(package.downloads)}</span>
-                  </div>
-                </div>
-              </a>
-            <% end %>
-          </div>
-        </div>
 
-        <input
-          type="radio"
-          name="trend_tabs"
-          role="tab"
-          class="tab"
-          aria-label="Recently Updated"
-        />
-        <div role="tabpanel" class="tab-content bg-surface border-outline rounded-lg p-4 mt-2">
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <%= for package <- @recently_updated do %>
-              <a
-                href={~p"/packages/#{package.name}"}
-                class="card bg-surface-container hover:bg-surface-container-high transition-colors"
-              >
-                <div class="card-body p-3">
-                  <h4 class="card-title text-sm truncate">{package.name}</h4>
-                  <div class="flex justify-between text-xs text-on-surface-variant">
-                    <span>v{package.latest_version}</span>
-                    <span>{format_relative_time(package.updated_at)}</span>
-                  </div>
-                </div>
-              </a>
-            <% end %>
-          </div>
-        </div>
-
-        <input type="radio" name="trend_tabs" role="tab" class="tab" aria-label="New Packages" />
-        <div role="tabpanel" class="tab-content bg-surface border-outline rounded-lg p-4 mt-2">
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <%= for package <- @new_packages do %>
-              <a
-                href={~p"/packages/#{package.name}"}
-                class="card bg-surface-container hover:bg-surface-container-high transition-colors"
-              >
-                <div class="card-body p-3">
-                  <h4 class="card-title text-sm truncate">{package.name}</h4>
-                  <div class="flex justify-between text-xs text-on-surface-variant">
-                    <span>v{package.latest_version}</span>
-                    <span>{format_relative_time(package.inserted_at)}</span>
-                  </div>
-                </div>
-              </a>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-<!-- Filters Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-surface-container rounded-lg p-4">
-      <!-- Sort Dropdown -->
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-medium">Sort by:</span>
-        <div class="dropdown">
-          <div tabindex="0" role="button" class="btn btn-sm btn-ghost">
-            {sort_label(@sort)}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-4 h-4"
+    <%= if @has_filter do %>
+      <!-- Filters Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-surface-container-low rounded-xl border border-outline-variant p-4">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-medium text-on-surface-variant">Sort:</span>
+          <div class="segment-control">
+            <a
+              href={sort_url(assigns, :recent_downloads)}
+              class={"segment-control-item text-xs #{if @sort == :recent_downloads, do: "segment-control-item-active"}"}
             >
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
+              Downloads
+            </a>
+            <a
+              href={sort_url(assigns, :name)}
+              class={"segment-control-item text-xs #{if @sort == :name, do: "segment-control-item-active"}"}
+            >
+              Name
+            </a>
+            <a
+              href={sort_url(assigns, :recently_updated)}
+              class={"segment-control-item text-xs #{if @sort == :recently_updated, do: "segment-control-item-active"}"}
+            >
+              Updated
+            </a>
+            <a
+              href={sort_url(assigns, :recently_created)}
+              class={"segment-control-item text-xs #{if @sort == :recently_created, do: "segment-control-item-active"}"}
+            >
+              New
+            </a>
           </div>
-          <ul
-            tabindex="0"
-            class="dropdown-content z-[1] menu p-2 shadow bg-surface rounded-lg w-52"
-          >
-            <li>
-              <a
-                href={sort_url(assigns, :recent_downloads)}
-                class={if @sort == :recent_downloads, do: "active"}
-              >
-                Recent Downloads
-              </a>
-            </li>
-            <li>
-              <a
-                href={sort_url(assigns, :total_downloads)}
-                class={if @sort == :total_downloads, do: "active"}
-              >
-                Total Downloads
-              </a>
-            </li>
-            <li>
-              <a href={sort_url(assigns, :name)} class={if @sort == :name, do: "active"}>
-                Name (A-Z)
-              </a>
-            </li>
-            <li>
-              <a
-                href={sort_url(assigns, :recently_updated)}
-                class={if @sort == :recently_updated, do: "active"}
-              >
-                Recently Updated
-              </a>
-            </li>
-            <li>
-              <a
-                href={sort_url(assigns, :recently_created)}
-                class={if @sort == :recently_created, do: "active"}
-              >
-                Recently Created
-              </a>
-            </li>
-          </ul>
+        </div>
+
+        <div class="text-sm text-on-surface-variant">
+          <span class="font-semibold text-on-surface">{@total_count}</span>
+          <%= if @total_count == 1, do: "result", else: "results" %>
         </div>
       </div>
-      
-<!-- Results Count -->
-      <div class="text-sm text-on-surface-variant">
-        <%= if @search do %>
-          <span class="font-medium">{@total_count}</span>
-          packages matching "<span class="font-medium">{@search}</span>"
-        <% else %>
-          <span class="font-medium">{@total_count}</span> packages
-        <% end %>
-      </div>
-    </div>
-    
-<!-- A-Z Filter -->
-    <div class="mb-6">
-      <div class="flex flex-wrap gap-1 justify-center">
-        <a
-          href={letter_url(assigns, nil)}
-          class={"btn btn-sm #{if @letter == nil, do: "btn-primary", else: "btn-ghost"}"}
-        >
-          All
-        </a>
-        <%= for letter <- ?A..?Z do %>
+
+      <!-- A-Z Filter -->
+      <div class="mb-8">
+        <div class="flex flex-wrap gap-1 justify-center">
           <a
-            href={letter_url(assigns, <<letter>>)}
-            class={"btn btn-sm #{if @letter == <<letter>>, do: "btn-primary", else: "btn-ghost"}"}
+            href={letter_url(assigns, nil)}
+            class={"btn btn-sm #{if @letter == nil, do: "btn-primary", else: "btn-ghost"}"}
           >
-            {<<letter>>}
+            All
           </a>
-        <% end %>
-      </div>
-    </div>
-    
-<!-- Package List -->
-    <%= if Enum.empty?(@packages) do %>
-      <!-- Empty State -->
-      <div class="text-center py-12">
-        <div class="text-6xl mb-4">📦</div>
-        <h3 class="text-xl font-semibold mb-2">No packages found</h3>
-        <p class="text-on-surface-variant">
-          <%= if @search do %>
-            No packages match "{@search}". Try a different search term.
-          <% else %>
-            <%= if @letter do %>
-              No packages starting with "{@letter}".
-            <% else %>
-              No packages have been published yet.
-            <% end %>
+          <%= for letter <- ?A..?Z do %>
+            <a
+              href={letter_url(assigns, <<letter>>)}
+              class={"btn btn-sm #{if @letter == <<letter>>, do: "btn-primary", else: "btn-ghost"}"}
+            >
+              {<<letter>>}
+            </a>
           <% end %>
-        </p>
-        <%= if @search || @letter do %>
-          <a href="/packages" class="btn btn-primary mt-4">Clear Filters</a>
-        <% end %>
+        </div>
       </div>
-    <% else %>
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <%= for package <- @packages do %>
-          <div class="card bg-surface shadow-xl hover:shadow-2xl transition-shadow">
-            <div class="card-body">
-              <div class="flex items-start justify-between">
-                <div>
-                  <h2 class="card-title text-lg">
-                    <a href={~p"/packages/#{package.name}"} class="link link-primary">
-                      {package.name}
-                    </a>
+
+      <!-- Package Results -->
+      <%= if Enum.empty?(@packages) do %>
+        <div class="text-center py-16">
+          <div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-4">
+            <.dm_mdi name="package-variant" class="w-8 h-8" color="var(--color-on-surface-variant)" />
+          </div>
+          <h3 class="text-xl font-semibold text-on-surface mb-2">No packages found</h3>
+          <p class="text-on-surface-variant mb-6">
+            <%= if @search do %>
+              No packages match "{@search}". Try a different search term.
+            <% else %>
+              No packages starting with "{@letter}".
+            <% end %>
+          </p>
+          <a href="/packages" class="btn btn-primary">Clear Filters</a>
+        </div>
+      <% else %>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <%= for package <- @packages do %>
+            <a
+              href={~p"/packages/#{package.name}"}
+              class="card bg-surface border border-outline-variant hover:border-primary/50 hover:shadow-lg transition-all group"
+            >
+              <div class="card-body p-5">
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <h2 class="font-semibold text-on-surface group-hover:text-primary transition-colors truncate">
+                    {package.name}
                   </h2>
-                </div>
-                <div class="flex flex-col items-end gap-1">
-                  <span class="badge badge-primary badge-sm">v{package.latest_version}</span>
-                  <span class="badge badge-outline badge-sm">
-                    {format_downloads(package.downloads || 0)}
+                  <span class="badge badge-primary badge-sm shrink-0">
+                    v{package.latest_version}
                   </span>
                 </div>
-              </div>
 
-              <p class="text-sm text-on-surface-variant">
-                {format_description(package.meta["description"] || "No description available")}
-              </p>
+                <p class="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-2">
+                  {format_description(package.meta["description"] || "No description available")}
+                </p>
 
-              <div class="flex items-center justify-between text-xs text-on-surface-variant mt-4">
-                <span>Updated {format_relative_time(package.updated_at)}</span>
-                <span class="badge badge-outline badge-sm">
-                  {package.repository_name || "hexpm"}
-                </span>
+                <div class="flex items-center justify-between text-xs text-on-surface-variant pt-3 border-t border-outline-variant">
+                  <span>Updated {format_relative_time(package.updated_at)}</span>
+                  <div class="flex items-center gap-1">
+                    <.dm_mdi name="download" class="w-3.5 h-3.5" />
+                    {format_downloads(package.downloads || 0)}
+                  </div>
+                </div>
               </div>
-            </div>
+            </a>
+          <% end %>
+        </div>
+
+        <!-- Pagination -->
+        <%= if @total_pages > 1 do %>
+          <div class="flex justify-center mt-10">
+            <.dm_pagination
+              page_num={@page}
+              page_size={@per_page}
+              total={@total_count}
+              page_url={pagination_url_pattern(assigns)}
+              page_link_type="href"
+              el_color="primary"
+            />
           </div>
         <% end %>
-      </div>
-      
-<!-- Pagination -->
-      <%= if @total_pages > 1 do %>
-        <div class="flex justify-center mt-8">
-          <div class="join">
-            <%= if @page > 1 do %>
-              <a href={pagination_link(assigns, @page - 1)} class="join-item btn btn-sm">«</a>
-            <% else %>
-              <button class="join-item btn btn-sm" disabled>«</button>
-            <% end %>
-
-            <%= for page_num <- page_range(@page, @total_pages) do %>
-              <%= if page_num == @page do %>
-                <button class="join-item btn btn-sm btn-active">{page_num}</button>
-              <% else %>
-                <a href={pagination_link(assigns, page_num)} class="join-item btn btn-sm">
-                  {page_num}
+      <% end %>
+    <% else %>
+      <!-- Discovery Section (default, no search) -->
+      <div class="space-y-10">
+        <!-- Most Downloaded -->
+        <%= if @most_downloaded != [] do %>
+          <section>
+            <div class="flex items-center gap-2 mb-4">
+              <.dm_mdi name="trending-up" class="w-5 h-5" color="var(--color-primary)" />
+              <h2 class="text-lg font-semibold text-on-surface">Most Downloaded</h2>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <%= for package <- @most_downloaded do %>
+                <a
+                  href={~p"/packages/#{package.name}"}
+                  class="card bg-surface border border-outline-variant hover:border-primary/50 hover:shadow-md transition-all group"
+                >
+                  <div class="card-body p-3">
+                    <h4 class="font-semibold text-sm truncate text-on-surface group-hover:text-primary transition-colors">
+                      {package.name}
+                    </h4>
+                    <div class="flex justify-between items-center text-xs text-on-surface-variant mt-1">
+                      <span class="font-mono">v{package.latest_version}</span>
+                      <div class="flex items-center gap-0.5">
+                        <.dm_mdi name="download" class="w-3 h-3" />
+                        {format_downloads(package.downloads)}
+                      </div>
+                    </div>
+                  </div>
                 </a>
               <% end %>
-            <% end %>
+            </div>
+          </section>
+        <% end %>
 
-            <%= if @page < @total_pages do %>
-              <a href={pagination_link(assigns, @page + 1)} class="join-item btn btn-sm">»</a>
-            <% else %>
-              <button class="join-item btn btn-sm" disabled>»</button>
+        <!-- Recently Updated -->
+        <%= if @recently_updated != [] do %>
+          <section>
+            <div class="flex items-center gap-2 mb-4">
+              <.dm_mdi name="update" class="w-5 h-5" color="var(--color-secondary)" />
+              <h2 class="text-lg font-semibold text-on-surface">Recently Updated</h2>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <%= for package <- @recently_updated do %>
+                <a
+                  href={~p"/packages/#{package.name}"}
+                  class="card bg-surface border border-outline-variant hover:border-secondary/50 hover:shadow-md transition-all group"
+                >
+                  <div class="card-body p-3">
+                    <h4 class="font-semibold text-sm truncate text-on-surface group-hover:text-secondary transition-colors">
+                      {package.name}
+                    </h4>
+                    <div class="flex justify-between items-center text-xs text-on-surface-variant mt-1">
+                      <span class="font-mono">v{package.latest_version}</span>
+                      <span>{format_relative_time(package.updated_at)}</span>
+                    </div>
+                  </div>
+                </a>
+              <% end %>
+            </div>
+          </section>
+        <% end %>
+
+        <!-- New Packages -->
+        <%= if @new_packages != [] do %>
+          <section>
+            <div class="flex items-center gap-2 mb-4">
+              <.dm_mdi name="star-four-points" class="w-5 h-5" color="var(--color-tertiary)" />
+              <h2 class="text-lg font-semibold text-on-surface">New Packages</h2>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <%= for package <- @new_packages do %>
+                <a
+                  href={~p"/packages/#{package.name}"}
+                  class="card bg-surface border border-outline-variant hover:border-tertiary/50 hover:shadow-md transition-all group"
+                >
+                  <div class="card-body p-3">
+                    <h4 class="font-semibold text-sm truncate text-on-surface group-hover:text-tertiary transition-colors">
+                      {package.name}
+                    </h4>
+                    <div class="flex justify-between items-center text-xs text-on-surface-variant mt-1">
+                      <span class="font-mono">v{package.latest_version}</span>
+                      <span>{format_relative_time(package.inserted_at)}</span>
+                    </div>
+                  </div>
+                </a>
+              <% end %>
+            </div>
+          </section>
+        <% end %>
+
+        <!-- Browse by Letter -->
+        <section>
+          <div class="flex items-center gap-2 mb-4">
+            <.dm_mdi name="alphabetical-variant" class="w-5 h-5" color="var(--color-on-surface-variant)" />
+            <h2 class="text-lg font-semibold text-on-surface">Browse by Letter</h2>
+          </div>
+          <div class="flex flex-wrap gap-1.5 justify-center bg-surface-container-low rounded-xl border border-outline-variant p-4">
+            <%= for letter <- ?A..?Z do %>
+              <a
+                href={"/packages?letter=#{<<letter>>}"}
+                class="btn btn-sm btn-ghost font-mono"
+              >
+                {<<letter>>}
+              </a>
             <% end %>
           </div>
-        </div>
-      <% end %>
+        </section>
+      </div>
     <% end %>
   </div>
 </Layouts.app>

@@ -142,4 +142,13 @@ defmodule HexHubWeb.PackageHTML do
       _ -> "Recent Downloads"
     end
   end
+
+  @doc """
+  Build URL pattern for dm_pagination component.
+  Uses {page} as the placeholder that dm_pagination replaces with the actual page number.
+  """
+  def pagination_url_pattern(assigns) do
+    query_params = preserve_params(assigns, %{page: "{page}"})
+    "/packages?" <> URI.encode_query(query_params)
+  end
 end
