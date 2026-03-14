@@ -1,0 +1,94 @@
+<Layouts.app flash={@flash}>
+  <div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">MCP Logs</h1>
+      <%= if @enabled and @total > 0 do %>
+        <form action={~p"/mcp/logs/clear"} method="post">
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+          <input type="hidden" name="_method" value="delete" />
+          <button type="submit" class="btn btn-error btn-sm" onclick="return confirm('Clear all MCP logs?')">
+            <.dm_mdi name="delete" class="h-4 w-4" /> Clear Logs
+          </button>
+        </form>
+      <% end %>
+    </div>
+
+    <%= if not @enabled do %>
+      <div class="alert alert-warning mb-6">
+        <.dm_mdi name="alert" class="w-5 h-5" />
+        <span>MCP server is disabled. No logs are being collected.</span>
+      </div>
+    <% end %>
+
+    <!-- Summary -->
+    <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Total Log Entries</span>
+          <.dm_mdi name="format-list-bulleted" class="w-8 h-8 text-primary" />
+        </div>
+        <div class="text-2xl font-bold text-primary">{@total}</div>
+      </div>
+    </div>
+
+    <!-- Log Table -->
+    <div class="card bg-surface shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Recent Requests</h2>
+        <%= if length(@logs) > 0 do %>
+          <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Timestamp</th>
+                  <th>Method</th>
+                  <th>Status</th>
+                  <th>Duration</th>
+                  <th>Request ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= for log <- @logs do %>
+                  <tr>
+                    <td class="text-xs text-on-surface-variant">{log.id}</td>
+                    <td class="text-sm font-mono">
+                      {Calendar.strftime(log.timestamp, "%Y-%m-%d %H:%M:%S")}
+                    </td>
+                    <td class="font-mono text-sm">{log.method}</td>
+                    <td>
+                      <span class={"badge badge-sm #{if log.status == "success", do: "badge-success", else: "badge-error"}"}>
+                        {log.status}
+                      </span>
+                    </td>
+                    <td class="text-sm">{log.duration_ms}ms</td>
+                    <td class="text-xs font-mono text-on-surface-variant">
+                      {log[:request_id] || "-"}
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <%= if @total_pages > 1 do %>
+            <div class="flex justify-center mt-4 gap-2">
+              <%= if @page > 1 do %>
+                <a href={~p"/mcp/logs?page=#{@page - 1}"} class="btn btn-sm">Previous</a>
+              <% end %>
+              <span class="btn btn-sm btn-disabled">
+                Page {@page} of {@total_pages}
+              </span>
+              <%= if @page < @total_pages do %>
+                <a href={~p"/mcp/logs?page=#{@page + 1}"} class="btn btn-sm">Next</a>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-on-surface-variant">No MCP request logs yet.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</Layouts.app>

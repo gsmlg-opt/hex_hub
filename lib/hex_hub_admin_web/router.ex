@@ -50,6 +50,11 @@ defmodule HexHubAdminWeb.Router do
     put "/users/:username", UserController, :update
     delete "/users/:username", UserController, :delete
 
+    # Token management
+    get "/tokens", TokenController, :index
+    post "/users/:username/tokens", TokenController, :create
+    delete "/users/:username/tokens/:name", TokenController, :revoke
+
     get "/upstream", UpstreamController, :index
     get "/upstream/edit", UpstreamController, :edit
     put "/upstream", UpstreamController, :update
@@ -69,6 +74,13 @@ defmodule HexHubAdminWeb.Router do
 
     resources "/cached-packages", CachedPackageController, only: [:index, :show, :delete]
     delete "/cached-packages", CachedPackageController, :clear_all
+
+    # MCP management
+    get "/mcp", MCPController, :info
+    put "/mcp/auth", MCPController, :toggle_auth
+    get "/mcp/clients", MCPController, :clients
+    get "/mcp/logs", MCPController, :logs
+    delete "/mcp/logs/clear", MCPController, :clear_logs
 
     # Backup management
     get "/backups", BackupController, :index

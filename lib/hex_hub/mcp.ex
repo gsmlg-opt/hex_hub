@@ -18,6 +18,8 @@ defmodule HexHub.MCP do
       children = [
         {Phoenix.PubSub, name: HexHub.MCP.PubSub},
         {HexHub.MCP.DynamicSupervisor, []},
+        # Start the MCP log store
+        {HexHub.MCP.LogStore, []},
         # Start the MCP server
         %{
           id: HexHub.MCP.Server,

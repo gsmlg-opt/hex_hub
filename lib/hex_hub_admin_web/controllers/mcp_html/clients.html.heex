@@ -1,0 +1,94 @@
+<Layouts.app flash={@flash}>
+  <div class="p-6">
+    <h1 class="text-3xl font-bold mb-6">MCP Clients</h1>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Active Connections</span>
+          <.dm_mdi name="connection" class="w-8 h-8 text-primary" />
+        </div>
+        <div class="text-2xl font-bold text-primary">{@stats.active_connections}</div>
+      </div>
+
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Total Requests</span>
+          <.dm_mdi name="swap-horizontal" class="w-8 h-8 text-secondary" />
+        </div>
+        <div class="text-2xl font-bold text-secondary">{@stats.total_requests}</div>
+      </div>
+
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Success Rate</span>
+          <.dm_mdi name="check-circle" class="w-8 h-8 text-success" />
+        </div>
+        <div class="text-2xl font-bold text-success">
+          {Float.round(@stats.success_rate * 100, 1)}%
+        </div>
+      </div>
+
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Avg Response Time</span>
+          <.dm_mdi name="timer" class="w-8 h-8 text-tertiary" />
+        </div>
+        <div class="text-2xl font-bold text-tertiary">{@stats.avg_response_time}ms</div>
+      </div>
+    </div>
+
+    <div class="grid gap-6">
+      <!-- Connection Info -->
+      <div class="card bg-surface shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Client Connection Info</h2>
+          <%= if @enabled do %>
+            <div class="max-w-none space-y-3">
+              <p class="text-sm">
+                MCP clients connect via HTTP POST to <code class="bg-surface-variant px-1 rounded">/mcp</code> using JSON-RPC 2.0 protocol.
+              </p>
+              <p class="text-sm">
+                <strong>Authentication:</strong> Clients must provide an API key via
+                <code class="bg-surface-variant px-1 rounded">Authorization: Bearer &lt;key&gt;</code> header,
+                Basic auth with <code class="bg-surface-variant px-1 rounded">mcp:&lt;key&gt;</code>, or
+                <code class="bg-surface-variant px-1 rounded">?api_key=&lt;key&gt;</code> query parameter.
+              </p>
+              <p class="text-sm">
+                <strong>Rate Limiting:</strong> Clients are limited based on IP address. Current limit is configured in the MCP settings.
+              </p>
+            </div>
+          <% else %>
+            <div class="alert alert-warning">
+              <.dm_mdi name="alert" class="w-5 h-5" />
+              <span>MCP server is disabled. Enable it via the <code>MCP_ENABLED=true</code> environment variable.</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Usage Example -->
+      <div class="card bg-surface shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Usage Example</h2>
+          <div class="mockup-code">
+            <pre><code><%= raw("""
+curl -X POST /mcp \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call/search_packages",
+    "params": {
+      "arguments": {"query": "phoenix"}
+    }
+  }'
+""") %></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layouts.app>

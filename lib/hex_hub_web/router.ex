@@ -14,6 +14,10 @@ defmodule HexHubWeb.Router do
     plug :accepts, ["json", "hex+erlang"]
   end
 
+  pipeline :docs_assets do
+    plug :accepts, ~w(*)
+  end
+
   pipeline :api_cached do
     plug :accepts, ["json", "hex+erlang"]
     plug HexHubWeb.Plugs.ETag
@@ -56,15 +60,26 @@ defmodule HexHubWeb.Router do
     get "/docs/getting-started", DocsController, :getting_started
     get "/docs/publishing", DocsController, :publishing
     get "/docs/api-reference", DocsController, :api_reference
+    get "/docs/mcp", DocsController, :mcp
 
     # Package browsing routes (HTML interface)
     get "/packages", PackageController, :index
     get "/packages/:name", PackageController, :show
     get "/packages/:name/docs", PackageController, :docs
+    get "/packages/:name/:version/docs", PackageController, :docs
 
     # Legacy redirects for backward compatibility
     get "/browse", PackageController, :redirect_to_packages
     get "/package/:name", PackageController, :redirect_to_package
+  end
+
+  # Package documentation asset routes (JS, CSS, images, etc.)
+  # These need their own scope without the browser pipeline's content-type restrictions
+  scope "/", HexHubWeb do
+    pipe_through :docs_assets
+
+    get "/packages/:name/docs/*page", PackageController, :docs
+    get "/packages/:name/:version/docs/*page", PackageController, :docs
   end
 
   # Hex registry endpoints for HEX_MIRROR compatibility
