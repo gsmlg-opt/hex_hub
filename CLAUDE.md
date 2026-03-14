@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 HexHub is a **private hex package manager and hexdocs server** — a drop-in replacement for hex.pm. Built with Phoenix 1.8 and Elixir 1.15+, it uses Mnesia (no external database) and supports clustering for high availability.
 
-**Status**: In active development (not yet published). No data migrations are needed — recreate data from scratch when schemas change.
+**Status**: Preparing for first release. Data migrations are now **required** — existing Mnesia data must be preserved across schema changes.
 
 ## Commands
 
@@ -67,6 +67,21 @@ Key plug pipelines to understand when adding routes:
 - Tables auto-initialize on first run; tests reset via `HexHub.Mnesia.reset_tables()`
 - Dev data: `priv/mnesia/dev/`, Test data: `priv/mnesia/test/`
 - Debug in IEx: `:mnesia.info()`, `:mnesia.table_info(:users, :all)`
+
+### Mnesia Data Migrations
+
+Since the first release, **schema changes require migrations** — never recreate tables with existing data. Mnesia has no built-in migration framework, so migrations are manual functions in `lib/hex_hub/mnesia.ex`.
+
+**Existing pattern**: `migrate_package_source_field/0` shows the approach — check `tuple_size` of existing records, transform in a transaction, write back the new tuple. Migrations run in `init/0` after table creation.
+
+**When adding a field to a Mnesia table**:
+1. Add the new attribute to the table definition in `create_tables/0`
+2. Write a migration function that transforms existing records (old tuple size → new tuple with default value)
+3. Call the migration from `init/0` after `create_tables()` and before `wait_for_tables()`
+4. Use `:mnesia.transform_table/3` for attribute list changes, or manual foldl+rewrite for data transforms
+5. Test both fresh creation and migration from the previous schema
+
+**Important**: Mnesia tables are tuples keyed by `{table_name, key, ...attributes}`. When you add a field, existing records keep the old tuple size. Always check `tuple_size` to detect records needing migration.
 
 ### Storage Abstraction
 

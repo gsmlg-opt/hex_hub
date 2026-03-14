@@ -37,7 +37,11 @@ defmodule HexHubWeb.API.DocsController do
         {:ok, body}
 
       _ ->
-        case Plug.Conn.read_body(conn, length: 100_000_000, read_length: 1_000_000, read_timeout: 120_000) do
+        case Plug.Conn.read_body(conn,
+               length: 100_000_000,
+               read_length: 1_000_000,
+               read_timeout: 120_000
+             ) do
           {:ok, body, _conn} -> {:ok, body}
           {:more, _partial, _conn} -> {:error, "Body too large"}
           {:error, reason} -> {:error, "Failed to read body: #{inspect(reason)}"}

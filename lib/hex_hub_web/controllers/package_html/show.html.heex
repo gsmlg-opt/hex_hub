@@ -1,66 +1,44 @@
 <Layouts.app flash={@flash}>
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
     <!-- Breadcrumb -->
-    <div class="text-sm breadcrumbs mb-6">
-      <ul>
-        <li><a href="/packages">Packages</a></li>
-        <li>{@package.name}</li>
-      </ul>
-    </div>
+    <.dm_breadcrumb class="mb-6">
+      <:crumb to="/packages">Packages</:crumb>
+      <:crumb>{@package.name}</:crumb>
+    </.dm_breadcrumb>
     
-<!-- Header Section -->
+<!-- Header -->
     <div class="flex flex-col lg:flex-row justify-between gap-6 mb-8">
-      <div class="flex-1">
-        <h1 class="text-3xl font-bold mb-2">{@package.name}</h1>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <span class="badge badge-lg badge-primary">v{@latest_version}</span>
-          <span class="badge badge-lg badge-outline">{license_name(@package)}</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-3 mb-3">
+          <h1 class="text-2xl sm:text-3xl font-bold text-on-surface truncate">{@package.name}</h1>
+          <span class="badge badge-primary shrink-0">v{@latest_version}</span>
         </div>
-        <p class="text-lg text-on-surface-variant mb-4">
+        <p class="text-on-surface-variant leading-relaxed mb-4">
           {@package.meta["description"] || "No description available"}
         </p>
         
-<!-- External Links -->
-        <div class="flex flex-wrap gap-4">
+<!-- Links -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="chip chip-primary">
+            <.dm_mdi name="license" class="w-4 h-4 mr-1" />
+            {license_name(@package)}
+          </span>
           <%= if @package.docs_html_url do %>
             <a
               href={@package.docs_html_url}
               target="_blank"
-              class="link link-primary flex items-center gap-1"
+              class="chip hover:bg-surface-container-high transition-colors"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-4 h-4"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-                />
-              </svg>
-              Documentation
+              <.dm_mdi name="file-document" class="w-4 h-4 mr-1" /> Docs
             </a>
           <% end %>
           <%= for {name, url} <- @package.meta["links"] || %{} do %>
-            <a href={url} target="_blank" class="link link-secondary flex items-center gap-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-4 h-4"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
-                />
-              </svg>
+            <a
+              href={url}
+              target="_blank"
+              class="chip hover:bg-surface-container-high transition-colors"
+            >
+              <.dm_mdi name="link-variant" class="w-4 h-4 mr-1" />
               {name}
             </a>
           <% end %>
@@ -68,19 +46,21 @@
       </div>
       
 <!-- Download Stats -->
-      <div class="flex gap-4">
-        <div class="card shadow bg-surface">
-          <div class="card-body p-4">
-            <div class="text-sm opacity-70">Total Downloads</div>
-            <div class="text-2xl font-bold text-primary">
+      <div class="flex gap-3 shrink-0">
+        <div class="card bg-surface-container-low border border-outline-variant">
+          <div class="card-body p-4 text-center">
+            <div class="text-xs text-on-surface-variant uppercase tracking-wider mb-1">Total</div>
+            <div class="text-xl font-bold text-primary tabular-nums">
               {format_downloads(@download_stats.total)}
             </div>
           </div>
         </div>
-        <div class="card shadow bg-surface">
-          <div class="card-body p-4">
-            <div class="text-sm opacity-70">Recent</div>
-            <div class="text-2xl font-bold text-secondary">
+        <div class="card bg-surface-container-low border border-outline-variant">
+          <div class="card-body p-4 text-center">
+            <div class="text-xs text-on-surface-variant uppercase tracking-wider mb-1">
+              Recent
+            </div>
+            <div class="text-xl font-bold text-secondary tabular-nums">
               {format_downloads(@download_stats.recent)}
             </div>
           </div>
@@ -89,44 +69,56 @@
     </div>
     
 <!-- Installation -->
-    <div class="card bg-surface shadow-xl mb-8">
-      <div class="card-body">
-        <h2 class="card-title text-xl mb-4">Installation</h2>
-        <div class="bg-surface-container-high rounded-lg p-4 font-mono overflow-x-auto">
-          <pre data-prefix="#"><code>mix.exs</code></pre>
-          <pre data-prefix=""><code>{"{:#{@package.name}, \"~> #{@latest_version}\"}"}</code></pre>
+    <div class="card bg-surface-container-low border border-outline-variant mb-8">
+      <div class="card-body p-5">
+        <h2 class="font-semibold text-on-surface mb-3">Installation</h2>
+        <div class="bg-surface-container-high rounded-lg p-4 font-mono text-sm border border-outline-variant">
+          <div class="text-on-surface-variant text-xs mb-1"># mix.exs</div>
+          <code class="text-on-surface">{"{:#{@package.name}, \"~> #{@latest_version}\"}"}</code>
         </div>
       </div>
     </div>
-
-    <div class="grid md:grid-cols-3 gap-6">
-      <!-- Main Content -->
-      <div class="md:col-span-2 space-y-6">
+    
+<!-- Main Content Grid -->
+    <div class="grid lg:grid-cols-3 gap-6">
+      <!-- Left Column: Versions + Dependencies -->
+      <div class="lg:col-span-2 space-y-6">
         <!-- Versions -->
-        <div class="card bg-surface shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title text-xl mb-4">Versions</h2>
-            <div class="overflow-x-auto">
-              <table class="table">
+        <div class="card bg-surface-container-low border border-outline-variant">
+          <div class="card-body p-5">
+            <h2 class="font-semibold text-on-surface mb-4">
+              Versions
+              <span class="text-sm font-normal text-on-surface-variant ml-1">
+                ({length(@releases)})
+              </span>
+            </h2>
+            <div class="overflow-x-auto -mx-5 px-5">
+              <table class="table table-hover w-full">
                 <thead>
-                  <tr>
-                    <th>Version</th>
-                    <th>Released</th>
-                    <th>Status</th>
+                  <tr class="text-xs uppercase tracking-wider text-on-surface-variant">
+                    <th class="font-medium">Version</th>
+                    <th class="font-medium">Released</th>
+                    <th class="font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   <%= for release <- @releases do %>
                     <tr class={if release.retired, do: "opacity-50"}>
-                      <td class="font-mono">{release.version}</td>
-                      <td>{format_relative_time(release.inserted_at)}</td>
+                      <td class="font-mono text-sm">{release.version}</td>
+                      <td class="text-sm text-on-surface-variant">
+                        {format_relative_time(release.inserted_at)}
+                      </td>
                       <td>
-                        <div class="flex gap-2">
+                        <div class="flex gap-1.5">
                           <%= if release.has_docs do %>
-                            <span class="badge badge-success badge-sm">Docs</span>
+                            <span class="badge badge-sm bg-success/15 text-success border-0">
+                              Docs
+                            </span>
                           <% end %>
                           <%= if release.retired do %>
-                            <span class="badge badge-warning badge-sm">Retired</span>
+                            <span class="badge badge-sm bg-warning/15 text-warning border-0">
+                              Retired
+                            </span>
                           <% end %>
                         </div>
                       </td>
@@ -140,25 +132,35 @@
         
 <!-- Dependencies -->
         <%= if map_size(@dependencies) > 0 do %>
-          <div class="card bg-surface shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title text-xl mb-4">Dependencies</h2>
-              <div class="overflow-x-auto">
-                <table class="table">
+          <div class="card bg-surface-container-low border border-outline-variant">
+            <div class="card-body p-5">
+              <h2 class="font-semibold text-on-surface mb-4">
+                Dependencies
+                <span class="text-sm font-normal text-on-surface-variant ml-1">
+                  ({map_size(@dependencies)})
+                </span>
+              </h2>
+              <div class="overflow-x-auto -mx-5 px-5">
+                <table class="table w-full">
                   <thead>
-                    <tr>
-                      <th>Package</th>
-                      <th>Requirement</th>
-                      <th>Optional</th>
+                    <tr class="text-xs uppercase tracking-wider text-on-surface-variant">
+                      <th class="font-medium">Package</th>
+                      <th class="font-medium">Requirement</th>
+                      <th class="font-medium">Optional</th>
                     </tr>
                   </thead>
                   <tbody>
                     <%= for {name, req} <- @dependencies do %>
                       <tr>
                         <td>
-                          <a href={~p"/packages/#{name}"} class="link link-primary">{name}</a>
+                          <a
+                            href={~p"/packages/#{name}"}
+                            class="text-primary hover:underline font-medium"
+                          >
+                            {name}
+                          </a>
                         </td>
-                        <td class="font-mono text-sm">
+                        <td class="font-mono text-sm text-on-surface-variant">
                           <%= case req do %>
                             <% %{"requirement" => r} -> %>
                               {r}
@@ -171,9 +173,9 @@
                         <td>
                           <%= case req do %>
                             <% %{"optional" => true} -> %>
-                              <span class="badge badge-outline badge-sm">Optional</span>
+                              <span class="badge badge-sm badge-outline">Optional</span>
                             <% _ -> %>
-                              -
+                              <span class="text-on-surface-variant">&mdash;</span>
                           <% end %>
                         </td>
                       </tr>
@@ -189,62 +191,67 @@
 <!-- Sidebar -->
       <div class="space-y-6">
         <!-- Package Info -->
-        <div class="card bg-surface shadow-xl">
-          <div class="card-body">
-            <h3 class="font-semibold mb-3">Package Info</h3>
-            <div class="space-y-2 text-sm">
+        <div class="card bg-surface-container-low border border-outline-variant">
+          <div class="card-body p-5">
+            <h3 class="font-semibold text-on-surface mb-4">Package Info</h3>
+            <dl class="space-y-3 text-sm">
               <div class="flex justify-between">
-                <span class="text-on-surface-variant">Name:</span>
-                <span class="font-mono">{@package.name}</span>
+                <dt class="text-on-surface-variant">Name</dt>
+                <dd class="font-mono">{@package.name}</dd>
               </div>
+              <div class="divider my-0"></div>
               <div class="flex justify-between">
-                <span class="text-on-surface-variant">Latest:</span>
-                <span>v{@latest_version}</span>
+                <dt class="text-on-surface-variant">Latest</dt>
+                <dd>v{@latest_version}</dd>
               </div>
+              <div class="divider my-0"></div>
               <div class="flex justify-between">
-                <span class="text-on-surface-variant">License:</span>
-                <span>{license_name(@package)}</span>
+                <dt class="text-on-surface-variant">License</dt>
+                <dd>{license_name(@package)}</dd>
               </div>
+              <div class="divider my-0"></div>
               <div class="flex justify-between">
-                <span class="text-on-surface-variant">Repository:</span>
-                <span>{@package.repository_name || "hexpm"}</span>
+                <dt class="text-on-surface-variant">Repository</dt>
+                <dd>{@package.repository_name || "hexpm"}</dd>
               </div>
+              <div class="divider my-0"></div>
               <div class="flex justify-between">
-                <span class="text-on-surface-variant">Downloads:</span>
-                <span>{@package.downloads || 0}</span>
+                <dt class="text-on-surface-variant">Downloads</dt>
+                <dd class="font-semibold">{@package.downloads || 0}</dd>
               </div>
-            </div>
+            </dl>
           </div>
         </div>
         
 <!-- Maintainers -->
         <%= if @package.meta["maintainers"] && length(@package.meta["maintainers"]) > 0 do %>
-          <div class="card bg-surface shadow-xl">
-            <div class="card-body">
-              <h3 class="font-semibold mb-3">Maintainers</h3>
+          <div class="card bg-surface-container-low border border-outline-variant">
+            <div class="card-body p-5">
+              <h3 class="font-semibold text-on-surface mb-3">Maintainers</h3>
               <div class="flex flex-wrap gap-2">
                 <%= for maintainer <- @package.meta["maintainers"] do %>
-                  <span class="badge badge-outline">{maintainer}</span>
+                  <span class="chip">{maintainer}</span>
                 <% end %>
               </div>
             </div>
           </div>
         <% end %>
         
-<!-- Dates -->
-        <div class="card bg-surface shadow-xl">
-          <div class="card-body">
-            <h3 class="font-semibold mb-3">Timeline</h3>
-            <div class="space-y-2 text-sm">
+<!-- Timeline -->
+        <div class="card bg-surface-container-low border border-outline-variant">
+          <div class="card-body p-5">
+            <h3 class="font-semibold text-on-surface mb-4">Timeline</h3>
+            <dl class="space-y-3 text-sm">
               <div class="flex justify-between">
-                <span class="text-on-surface-variant">Published:</span>
-                <span>{format_date(@package.inserted_at)}</span>
+                <dt class="text-on-surface-variant">Published</dt>
+                <dd>{format_date(@package.inserted_at)}</dd>
               </div>
+              <div class="divider my-0"></div>
               <div class="flex justify-between">
-                <span class="text-on-surface-variant">Updated:</span>
-                <span>{format_date(@package.updated_at)}</span>
+                <dt class="text-on-surface-variant">Updated</dt>
+                <dd>{format_date(@package.updated_at)}</dd>
               </div>
-            </div>
+            </dl>
           </div>
         </div>
       </div>

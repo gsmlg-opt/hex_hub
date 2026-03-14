@@ -1,318 +1,181 @@
 <Layouts.app flash={@flash}>
-  <div class="min-h-screen bg-gradient-to-br from-surface to-surface-container">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      
-<!-- Hero Section -->
-      <div class="text-center mb-12">
-        <h1 class="text-5xl font-bold text-on-surface mb-4">
-          Welcome to HexHub
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-surface to-secondary/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-on-surface mb-6">
+          Your Private <span class="text-primary">Hex Registry</span>
         </h1>
-        <p class="text-xl text-on-surface-variant max-w-2xl mx-auto mb-8">
-          A private hex package manager and hexdocs server. Discover, publish, and manage Elixir packages with ease.
+        <p class="text-lg sm:text-xl text-on-surface-variant leading-relaxed mb-10">
+          Host, publish, and manage Elixir packages on your own infrastructure.
+          A drop-in replacement for hex.pm with upstream proxy support.
         </p>
-
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/packages" class="btn btn-primary btn-lg">
+          <a href="/packages" class="btn btn-primary">
+            <.dm_mdi name="package-variant-closed" class="w-5 h-5 mr-2" color="white" />
             Browse Packages
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 ml-2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-              />
-            </svg>
           </a>
-
-          <a href="/docs" class="btn btn-outline btn-lg">
-            API Documentation
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 ml-2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
-              />
-            </svg>
+          <a href="/docs/getting-started" class="btn btn-outline">
+            <.dm_mdi name="book-open-page-variant" class="w-5 h-5 mr-2" /> Get Started
           </a>
-        </div>
-      </div>
-      
-<!-- Features Grid -->
-      <div class="grid md:grid-cols-3 gap-8 mb-12">
-        <div class="card bg-surface shadow-xl">
-          <div class="card-body">
-            <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="white"
-                class="w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125V6.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.001c0 .621.504 1.125 1.125 1.125z"
-                />
-              </svg>
-            </div>
-            <h2 class="card-title">Package Management</h2>
-            <p>
-              Publish, version, and manage your Elixir packages with a complete hex registry implementation.
-            </p>
-          </div>
-        </div>
-
-        <div class="card bg-surface shadow-xl">
-          <div class="card-body">
-            <div class="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="white"
-                class="w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-                />
-              </svg>
-            </div>
-            <h2 class="card-title">Documentation</h2>
-            <p>
-              Host comprehensive documentation for your packages with automatic hexdocs generation and serving.
-            </p>
-          </div>
-        </div>
-
-        <div class="card bg-surface shadow-xl">
-          <div class="card-body">
-            <div class="w-12 h-12 bg-tertiary rounded-lg flex items-center justify-center mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="white"
-                class="w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
-                />
-              </svg>
-            </div>
-            <h2 class="card-title">Monitoring</h2>
-            <p>
-              Track package downloads, API usage, and system health with comprehensive telemetry and monitoring.
-            </p>
-          </div>
-        </div>
-      </div>
-      
-<!-- Upstream Section -->
-      <div class="mb-12">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-on-surface mb-4">
-            Upstream Package Fetching
-          </h2>
-          <p class="text-lg text-on-surface-variant max-w-2xl mx-auto">
-            HexHub automatically fetches packages from upstream repositories when they're not available locally, providing transparent caching and fallback functionality.
-          </p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-8">
-          <div class="card bg-surface shadow-xl">
-            <div class="card-body">
-              <h3 class="card-title text-lg mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="w-6 h-6 mr-2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.09m0-2.186a2.25 2.25 0 10-2.247 2.186M12 9a2.25 2.25 0 100 4.5m2.25-4.5a2.25 2.25 0 10-2.247 2.186M15 9.75a2.25 2.25 0 00-2.247 2.186m2.247-2.186A2.25 2.25 0 1015 12m0 0v.003"
-                  />
-                </svg>
-                Transparent Caching
-              </h3>
-              <p class="text-sm text-on-surface-variant mb-4">
-                Automatically fetches packages from upstream repositories like hex.pm when they're not found locally. Once fetched, packages are cached permanently for fast access.
-              </p>
-              <div class="badge badge-outline badge-primary">Enabled by default</div>
-            </div>
-          </div>
-
-          <div class="card bg-surface shadow-xl">
-            <div class="card-body">
-              <h3 class="card-title text-lg mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="w-6 h-6 mr-2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-                  />
-                </svg>
-                Configurable Upstream
-              </h3>
-              <p class="text-sm text-on-surface-variant mb-4">
-                Support for any hex-compatible repository with configurable retry logic, timeout settings, and comprehensive telemetry monitoring for performance tracking.
-              </p>
-              <div class="badge badge-outline badge-secondary">Hex.pm compatible</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="alert alert-info mt-8">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            class="stroke-current shrink-0 w-6 h-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            >
-            </path>
-          </svg>
-          <div>
-            <h3 class="font-bold">How It Works</h3>
-            <div class="text-xs">
-              When you request a package that doesn't exist locally, HexHub automatically fetches it from the configured upstream repository, caches it locally, and serves it to you. Subsequent requests for the same package will be served from the local cache for maximum performance.
-            </div>
-          </div>
-        </div>
-      </div>
-      
-<!-- Quick Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-        <div class="card shadow bg-surface">
-          <div class="card-body flex-row items-center justify-between">
-            <div>
-              <div class="text-sm opacity-70">Packages</div>
-              <div class="text-3xl font-bold text-primary">
-                {case HexHub.Packages.list_packages() do
-                  {:ok, packages, _} -> length(packages)
-                  _ -> 0
-                end}
-              </div>
-            </div>
-            <div class="text-primary">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-8 h-8"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125V6.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.001c0 .621.504 1.125 1.125 1.125z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="card shadow bg-surface">
-          <div class="card-body flex-row items-center justify-between">
-            <div>
-              <div class="text-sm opacity-70">Releases</div>
-              <div class="text-3xl font-bold text-secondary">
-                {case HexHub.Packages.list_packages() do
-                  {:ok, packages, _} ->
-                    Enum.reduce(packages, 0, fn pkg, acc ->
-                      {:ok, releases} = HexHub.Packages.list_releases(pkg.name)
-                      acc + length(releases)
-                    end)
-
-                  _ ->
-                    0
-                end}
-              </div>
-            </div>
-            <div class="text-secondary">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-8 h-8"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="card shadow bg-surface">
-          <div class="card-body flex-row items-center justify-between">
-            <div>
-              <div class="text-sm opacity-70">Users</div>
-              <div class="text-3xl font-bold text-tertiary">
-                {{:ok, users} = HexHub.Users.list_users()
-                length(users)}
-              </div>
-            </div>
-            <div class="text-tertiary">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-8 h-8"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                />
-              </svg>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-  </div>
+    <!-- Decorative gradient orbs -->
+    <div class="absolute top-0 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl -translate-y-1/2">
+    </div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl translate-y-1/2">
+    </div>
+  </section>
+  
+<!-- Stats Strip -->
+  <section class="border-y border-outline-variant bg-surface-container-low">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-3 divide-x divide-outline-variant">
+        <div class="py-6 sm:py-8 text-center">
+          <div class="text-2xl sm:text-3xl font-bold text-primary tabular-nums">
+            {case HexHub.Packages.list_packages() do
+              {:ok, packages, _} -> length(packages)
+              _ -> 0
+            end}
+          </div>
+          <div class="text-xs sm:text-sm text-on-surface-variant mt-1">Packages</div>
+        </div>
+        <div class="py-6 sm:py-8 text-center">
+          <div class="text-2xl sm:text-3xl font-bold text-secondary tabular-nums">
+            {case HexHub.Packages.list_packages() do
+              {:ok, packages, _} ->
+                Enum.reduce(packages, 0, fn pkg, acc ->
+                  {:ok, releases} = HexHub.Packages.list_releases(pkg.name)
+                  acc + length(releases)
+                end)
+
+              _ ->
+                0
+            end}
+          </div>
+          <div class="text-xs sm:text-sm text-on-surface-variant mt-1">Releases</div>
+        </div>
+        <div class="py-6 sm:py-8 text-center">
+          <div class="text-2xl sm:text-3xl font-bold text-tertiary tabular-nums">
+            {{:ok, users} = HexHub.Users.list_users()
+            length(users)}
+          </div>
+          <div class="text-xs sm:text-sm text-on-surface-variant mt-1">Users</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+<!-- Features -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+    <div class="text-center mb-12">
+      <h2 class="text-2xl sm:text-3xl font-bold text-on-surface mb-3">
+        Everything you need
+      </h2>
+      <p class="text-on-surface-variant max-w-xl mx-auto">
+        A complete hex registry with documentation hosting, upstream caching, and full API compatibility.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card bg-surface-container-low border border-outline-variant">
+        <div class="card-body">
+          <div class="w-11 h-11 bg-primary/15 rounded-xl flex items-center justify-center mb-4">
+            <.dm_mdi name="package-variant-closed" class="w-6 h-6" color="var(--color-primary)" />
+          </div>
+          <h3 class="card-title text-lg font-semibold mb-2">Package Registry</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Publish, version, and manage Elixir packages. Full compatibility with <code class="text-xs bg-surface-container-high px-1.5 py-0.5 rounded">mix hex.publish</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-surface-container-low border border-outline-variant">
+        <div class="card-body">
+          <div class="w-11 h-11 bg-secondary/15 rounded-xl flex items-center justify-center mb-4">
+            <.dm_mdi name="file-document-multiple" class="w-6 h-6" color="var(--color-secondary)" />
+          </div>
+          <h3 class="card-title text-lg font-semibold mb-2">Docs Hosting</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Automatic hexdocs generation and serving. Browse documentation directly from your private registry.
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-surface-container-low border border-outline-variant">
+        <div class="card-body">
+          <div class="w-11 h-11 bg-tertiary/15 rounded-xl flex items-center justify-center mb-4">
+            <.dm_mdi name="cloud-sync" class="w-6 h-6" color="var(--color-tertiary)" />
+          </div>
+          <h3 class="card-title text-lg font-semibold mb-2">Upstream Proxy</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Transparently fetch and cache packages from hex.pm. Acts as a caching proxy for your team.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+<!-- Quick Start -->
+  <section class="bg-surface-container-low border-t border-outline-variant">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-10">
+          <h2 class="text-2xl sm:text-3xl font-bold text-on-surface mb-3">
+            Quick Start
+          </h2>
+          <p class="text-on-surface-variant">
+            Point your Mix project to HexHub in three steps.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-sm font-bold text-on-primary">
+              1
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-on-surface mb-2">Configure your hex repo</h3>
+              <div class="bg-surface-container-high rounded-lg p-4 font-mono text-sm overflow-x-auto border border-outline-variant">
+                <code class="text-on-surface">
+                  mix hex.repo add myrepo --url http://your-hexhub-host:4360
+                </code>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-sm font-bold text-on-primary">
+              2
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-on-surface mb-2">Add packages from HexHub</h3>
+              <div class="bg-surface-container-high rounded-lg p-4 font-mono text-sm overflow-x-auto border border-outline-variant">
+                <code class="text-on-surface">{"{:my_package, \"~> 1.0\", repo: :myrepo}"}</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-sm font-bold text-on-primary">
+              3
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-on-surface mb-2">Publish your own packages</h3>
+              <div class="bg-surface-container-high rounded-lg p-4 font-mono text-sm overflow-x-auto border border-outline-variant">
+                <code class="text-on-surface">mix hex.publish --repo myrepo</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-10">
+          <a href="/docs/getting-started" class="btn btn-outline">
+            Read the full guide <.dm_mdi name="arrow-right" class="w-5 h-5 ml-1" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 </Layouts.app>
