@@ -187,9 +187,11 @@ defmodule HexHub.Mnesia do
          attributes: [
            :name,
            :username,
+           :secret,
            :secret_hash,
            :permissions,
            :revoked_at,
+           :last_accessed_at,
            :inserted_at,
            :updated_at
          ],

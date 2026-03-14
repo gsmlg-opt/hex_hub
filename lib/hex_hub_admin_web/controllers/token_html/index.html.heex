@@ -1,0 +1,118 @@
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-3xl font-bold text-on-surface">API Tokens</h1>
+    <p class="text-on-surface-variant mt-1">All API tokens across all users</p>
+  </div>
+</div>
+
+<div class="card bg-surface shadow-lg">
+  <div class="card-body">
+    <%= if length(@tokens) > 0 do %>
+      <.dm_table data={@tokens}>
+        <:col :let={token} label="Name">
+          <span class="font-mono">{token.name}</span>
+        </:col>
+        <:col :let={token} label="Owner">
+          <a href={~p"/users/#{token.username}"} class="link link-primary">
+            {token.username}
+          </a>
+        </:col>
+        <:col :let={token} label="Secret Key">
+          <div class="flex items-center gap-2">
+            <code
+              id={"token-key-#{token.name}"}
+              class="text-xs bg-surface-variant px-2 py-1 rounded select-all break-all hidden"
+            >
+              {token.secret}
+            </code>
+            <span
+              id={"token-mask-#{token.name}"}
+              class="text-on-surface-variant text-sm"
+            >
+              ••••••••
+            </span>
+            <button
+              type="button"
+              class="btn btn-xs btn-ghost"
+              onclick={"
+                var key = document.getElementById('token-key-#{token.name}');
+                var mask = document.getElementById('token-mask-#{token.name}');
+                if (key.classList.contains('hidden')) {
+                  key.classList.remove('hidden');
+                  mask.classList.add('hidden');
+                  this.textContent = 'Hide';
+                } else {
+                  key.classList.add('hidden');
+                  mask.classList.remove('hidden');
+                  this.textContent = 'Show';
+                }
+              "}
+            >
+              Show
+            </button>
+            <button
+              type="button"
+              class="btn btn-xs btn-ghost"
+              onclick={"navigator.clipboard.writeText(document.getElementById('token-key-#{token.name}').textContent).then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000); })"}
+            >
+              Copy
+            </button>
+          </div>
+        </:col>
+        <:col :let={token} label="Permissions">
+          <div class="flex gap-1">
+            <%= for perm <- token.permissions do %>
+              <span class="badge badge-sm badge-outline">{perm}</span>
+            <% end %>
+          </div>
+        </:col>
+        <:col :let={token} label="Status">
+          <%= if token.revoked_at do %>
+            <span class="badge badge-error badge-sm">Revoked</span>
+          <% else %>
+            <span class="badge badge-success badge-sm">Active</span>
+          <% end %>
+        </:col>
+        <:col :let={token} label="Last Accessed">
+          <%= if token.last_accessed_at do %>
+            {DateTime.to_iso8601(token.last_accessed_at)}
+          <% else %>
+            <span class="text-on-surface-variant text-sm">Never</span>
+          <% end %>
+        </:col>
+        <:col :let={token} label="Created">
+          {DateTime.to_iso8601(token.inserted_at)}
+        </:col>
+        <:col :let={token} label="Actions">
+          <%= if is_nil(token.revoked_at) do %>
+            <form
+              action={~p"/users/#{token.username}/tokens/#{token.name}"}
+              method="post"
+              class="inline"
+            >
+              <input type="hidden" name="_method" value="delete" />
+              <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+              <.dm_btn
+                type="submit"
+                class="btn btn-sm btn-ghost btn-error"
+                onclick="return confirm('Are you sure you want to revoke this token?')"
+              >
+                Revoke
+              </.dm_btn>
+            </form>
+          <% else %>
+            <span class="text-on-surface-variant text-sm">—</span>
+          <% end %>
+        </:col>
+      </.dm_table>
+    <% else %>
+      <div class="text-center py-12">
+        <.dm_mdi name="key-variant" class="w-16 h-16 mx-auto text-on-surface-variant opacity-50" />
+        <h3 class="mt-4 text-lg font-semibold text-on-surface">No tokens</h3>
+        <p class="text-on-surface-variant mt-2">
+          No API tokens have been created yet. Create tokens from individual user pages.
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
