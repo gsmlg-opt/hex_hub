@@ -240,20 +240,39 @@ defmodule HexHub.MCP.Handler do
   defp get_request_id(_), do: nil
 
   defp log_request_result(request, result, duration) do
-    case result do
-      {:ok, _response} ->
+    method = get_method(request)
+
+    {status, error_code} =
+      case result do
+        {:ok, _response} -> {"success", nil}
+        {:error, response} -> {"error", get_error_code(response)}
+      end
+
+    # Store in MCP log buffer for admin dashboard
+    if Process.whereis(HexHub.MCP.LogStore) do
+      HexHub.MCP.LogStore.log_request(%{
+        method: method,
+        duration_ms: duration,
+        status: status,
+        error_code: error_code,
+        request_id: get_request_id(request)
+      })
+    end
+
+    case status do
+      "success" ->
         Telemetry.log(:info, :mcp, "MCP request completed", %{
-          method: get_method(request),
+          method: method,
           duration_ms: duration,
-          status: "success"
+          status: status
         })
 
-      {:error, response} ->
+      "error" ->
         Telemetry.log(:warning, :mcp, "MCP request failed", %{
-          method: get_method(request),
+          method: method,
           duration_ms: duration,
-          status: "error",
-          error_code: get_error_code(response)
+          status: status,
+          error_code: error_code
         })
     end
   end
@@ -398,9 +417,15 @@ defmodule HexHub.MCP.Handler do
           description =
             if is_map(tool), do: tool["description"] || Map.get(tool, :description), else: nil
 
+          input_schema =
+            if is_map(tool),
+              do: tool["inputSchema"] || Map.get(tool, :input_schema),
+              else: nil
+
           %{
             name: name,
             description: description,
+            input_schema: input_schema,
             # All tools are enabled by default
             enabled: true,
             # Would need to track tool usage

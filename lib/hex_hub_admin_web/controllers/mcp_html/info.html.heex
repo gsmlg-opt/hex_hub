@@ -1,0 +1,292 @@
+<Layouts.app flash={@flash}>
+  <div class="p-6">
+    <h1 class="text-3xl font-bold mb-6">MCP Server</h1>
+
+    <!-- Status Cards -->
+    <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Status</span>
+          <.dm_mdi name="server-network" class="w-8 h-8 text-primary" />
+        </div>
+        <div class={"text-2xl font-bold #{if @enabled, do: "text-success", else: "text-error"}"}>
+          {if @enabled, do: "Enabled", else: "Disabled"}
+        </div>
+      </div>
+
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Server Process</span>
+          <.dm_mdi name="chip" class="w-8 h-8 text-secondary" />
+        </div>
+        <div class={"text-2xl font-bold #{if @server_status[:server_status] == "running" || @server_status.status == "healthy", do: "text-success", else: "text-warning"}"}>
+          {if @enabled, do: @server_status[:server_status] || @server_status.status, else: "Stopped"}
+        </div>
+      </div>
+
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Tools</span>
+          <.dm_mdi name="wrench" class="w-8 h-8 text-tertiary" />
+        </div>
+        <div class="text-2xl font-bold text-tertiary">
+          {length(@tools)}
+        </div>
+      </div>
+
+      <div class="card bg-surface shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-on-surface-variant text-sm">Auth Required</span>
+          <.dm_mdi name="shield-lock" class="w-8 h-8 text-info" />
+        </div>
+        <div class="text-2xl font-bold text-info">
+          {if @config[:require_auth] != false, do: "Yes", else: "No"}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6">
+      <!-- Authentication Card -->
+      <div class="card bg-surface shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Authentication</h2>
+
+          <!-- Auth Toggle -->
+          <div class="flex items-center justify-between py-2">
+            <div>
+              <div class="font-medium">Require Authentication</div>
+              <div class="text-sm text-on-surface-variant">
+                When enabled, MCP clients must provide a valid API key to access the server.
+              </div>
+            </div>
+            <form action={~p"/mcp/auth"} method="post">
+              <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+              <input type="hidden" name="_method" value="put" />
+              <%= if @config[:require_auth] != false do %>
+                <input type="hidden" name="require_auth" value="false" />
+                <button type="submit" class="btn btn-sm btn-success">
+                  <.dm_mdi name="shield-lock" class="h-4 w-4" /> Enabled
+                </button>
+              <% else %>
+                <input type="hidden" name="require_auth" value="true" />
+                <button type="submit" class="btn btn-sm btn-outline">
+                  <.dm_mdi name="shield-off" class="h-4 w-4" /> Disabled
+                </button>
+              <% end %>
+            </form>
+          </div>
+
+          <!-- Token / Header info when auth is enabled -->
+          <%= if @config[:require_auth] != false do %>
+            <div class="divider"></div>
+            <div>
+              <div class="font-medium mb-2">Authorization Header</div>
+              <div class="text-sm text-on-surface-variant mb-3">
+                Select a token to use as the MCP authorization header.
+              </div>
+
+              <%= if length(@tokens) > 0 do %>
+                <div class="space-y-3">
+                  <%= for token <- @tokens do %>
+                    <%= if is_nil(token.revoked_at) do %>
+                      <div class="flex items-center gap-3 p-3 bg-surface-variant rounded-lg">
+                        <div class="flex-1">
+                          <div class="font-mono text-sm font-medium">{token.name}</div>
+                          <div class="text-xs text-on-surface-variant">User: {token.username}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <code
+                            class="text-xs bg-surface px-2 py-1 rounded select-all cursor-pointer"
+                            title="Click to select"
+                          >
+                            Authorization: Bearer {token.secret}
+                          </code>
+                          <button
+                            type="button"
+                            class="btn btn-xs btn-ghost"
+                            onclick={"navigator.clipboard.writeText('Authorization: Bearer #{token.secret}')"}
+                            title="Copy header"
+                          >
+                            <.dm_mdi name="content-copy" class="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="alert alert-info">
+                  <.dm_mdi name="information" class="w-5 h-5" />
+                  <span>No API tokens found. <a href={~p"/tokens"} class="link">Create one</a> to use with MCP clients.</span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Configuration Card -->
+      <div class="card bg-surface shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Configuration</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Enabled</label>
+              <span class={"badge #{if @enabled, do: "badge-success", else: "badge-error"}"}>
+                {if @enabled, do: "Yes", else: "No"}
+              </span>
+            </div>
+            <div>
+              <label class="label">WebSocket Path</label>
+              <input type="text" class="input" value={@config[:websocket_path] || "/mcp/ws"} readonly />
+            </div>
+            <div>
+              <label class="label">Rate Limit (req/hr)</label>
+              <input type="text" class="input" value={@config[:rate_limit] || 1000} readonly />
+            </div>
+            <div>
+              <label class="label">WebSocket Heartbeat</label>
+              <span class={"badge #{if @config[:websocket_heartbeat] != false, do: "badge-success", else: "badge-outline"}"}>
+                {if @config[:websocket_heartbeat] != false, do: "Enabled", else: "Disabled"}
+              </span>
+            </div>
+            <div>
+              <label class="label">Heartbeat Interval (ms)</label>
+              <input type="text" class="input" value={@config[:heartbeat_interval] || 30000} readonly />
+            </div>
+            <div>
+              <label class="label">Debug Mode</label>
+              <span class={"badge #{if @config[:debug], do: "badge-warning", else: "badge-outline"}"}>
+                {if @config[:debug], do: "On", else: "Off"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tools Card -->
+      <div class="card bg-surface shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Available Tools ({length(@tools)})</h2>
+          <%= if length(@tools) > 0 do %>
+            <div class="space-y-3">
+              <%= for tool <- @tools do %>
+                <div class="collapse collapse-arrow bg-surface-container-low border border-outline-variant rounded-xl">
+                  <input type="checkbox" />
+                  <div class="collapse-title pr-12">
+                    <div class="flex items-center gap-3">
+                      <code class="font-mono text-sm font-semibold text-primary">{tool.name}</code>
+                      <span class={"badge #{if tool.enabled, do: "badge-success", else: "badge-error"} badge-sm"}>
+                        {if tool.enabled, do: "Enabled", else: "Disabled"}
+                      </span>
+                    </div>
+                    <p class="text-sm text-on-surface-variant mt-1">{tool.description}</p>
+                  </div>
+                  <div class="collapse-content">
+                    <div class="pt-2 space-y-4">
+                      <!-- Input Parameters -->
+                      <%= if tool.input_schema do %>
+                        <div>
+                          <h4 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
+                            <.dm_mdi name="arrow-right-bold" class="w-4 h-4" color="var(--color-primary)" />
+                            Input Parameters
+                          </h4>
+                          <%= if tool.input_schema["properties"] && map_size(tool.input_schema["properties"]) > 0 do %>
+                            <div class="overflow-x-auto">
+                              <table class="table table-sm w-full">
+                                <thead>
+                                  <tr class="text-xs text-on-surface-variant">
+                                    <th class="font-medium">Parameter</th>
+                                    <th class="font-medium">Type</th>
+                                    <th class="font-medium">Required</th>
+                                    <th class="font-medium">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <%= for {param_name, param_spec} <- Enum.sort_by(tool.input_schema["properties"], fn {name, _} ->
+                                    if name in (tool.input_schema["required"] || []), do: "0_#{name}", else: "1_#{name}"
+                                  end) do %>
+                                    <tr>
+                                      <td>
+                                        <code class="font-mono text-sm text-on-surface">{param_name}</code>
+                                      </td>
+                                      <td>
+                                        <span class="badge badge-outline badge-sm font-mono">
+                                          {param_spec["type"]}
+                                        </span>
+                                      </td>
+                                      <td>
+                                        <%= if param_name in (tool.input_schema["required"] || []) do %>
+                                          <span class="badge badge-warning badge-sm">required</span>
+                                        <% else %>
+                                          <span class="text-xs text-on-surface-variant">optional</span>
+                                        <% end %>
+                                      </td>
+                                      <td class="text-sm text-on-surface-variant">
+                                        {param_spec["description"]}
+                                      </td>
+                                    </tr>
+                                  <% end %>
+                                </tbody>
+                              </table>
+                            </div>
+                          <% else %>
+                            <p class="text-sm text-on-surface-variant italic">No parameters required</p>
+                          <% end %>
+                        </div>
+                      <% end %>
+
+                      <!-- JSON Schema Preview -->
+                      <%= if tool.input_schema do %>
+                        <div>
+                          <h4 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
+                            <.dm_mdi name="code-json" class="w-4 h-4" color="var(--color-secondary)" />
+                            JSON Schema
+                          </h4>
+                          <div class="bg-surface-container-high rounded-lg p-3 overflow-x-auto border border-outline-variant">
+                            <pre class="text-xs font-mono text-on-surface whitespace-pre">{Jason.encode!(tool.input_schema, pretty: true)}</pre>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-on-surface-variant">No tools available. MCP server may be disabled.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Endpoints Card -->
+      <div class="card bg-surface shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Endpoints</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">HTTP JSON-RPC</label>
+              <code class="text-sm bg-surface-variant px-2 py-1 rounded">POST /mcp</code>
+            </div>
+            <div>
+              <label class="label">Tools List</label>
+              <code class="text-sm bg-surface-variant px-2 py-1 rounded">GET /mcp/tools</code>
+            </div>
+            <div>
+              <label class="label">Server Info</label>
+              <code class="text-sm bg-surface-variant px-2 py-1 rounded">GET /mcp/server-info</code>
+            </div>
+            <div>
+              <label class="label">Health Check</label>
+              <code class="text-sm bg-surface-variant px-2 py-1 rounded">GET /mcp/health</code>
+            </div>
+            <div>
+              <label class="label">WebSocket</label>
+              <code class="text-sm bg-surface-variant px-2 py-1 rounded">{@config[:websocket_path] || "/mcp/ws"}</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layouts.app>
