@@ -6,9 +6,11 @@ defmodule HexHub.ApiKeys do
   @type api_key :: %{
           name: String.t(),
           username: String.t(),
+          secret: String.t(),
           secret_hash: String.t(),
           permissions: [String.t()],
           revoked_at: DateTime.t() | nil,
+          last_accessed_at: DateTime.t() | nil,
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
@@ -38,9 +40,12 @@ defmodule HexHub.ApiKeys do
         @table,
         name,
         username,
+        key,
         secret_hash,
         permissions,
         # revoked_at
+        nil,
+        # last_accessed_at
         nil,
         now,
         now
@@ -82,7 +87,10 @@ defmodule HexHub.ApiKeys do
     case :mnesia.transaction(fn ->
            :mnesia.foldl(&check_key_match(key, &1, &2), nil, @table)
          end) do
-      {:atomic, {:ok, %{username: username, permissions: permissions, revoked_at: nil}}} ->
+      {:atomic,
+       {:ok, %{name: name, username: username, permissions: permissions, revoked_at: nil}}} ->
+        # Update last accessed time
+        touch_last_accessed(name)
         # Cache the successful validation
         HexHub.ApiKeyCache.put(key, username, permissions)
         {:ok, %{username: username, permissions: permissions}}
@@ -103,11 +111,12 @@ defmodule HexHub.ApiKeys do
 
   defp check_key_match(
          key,
-         {_, _name, username, secret_hash, permissions, revoked_at, _inserted_at, _updated_at},
+         {_, name, username, _secret, secret_hash, permissions, revoked_at, _last_accessed_at,
+          _inserted_at, _updated_at},
          nil
        ) do
     if Bcrypt.verify_pass(key, secret_hash) do
-      {:ok, %{username: username, permissions: permissions, revoked_at: revoked_at}}
+      {:ok, %{name: name, username: username, permissions: permissions, revoked_at: revoked_at}}
     else
       nil
     end
@@ -120,14 +129,17 @@ defmodule HexHub.ApiKeys do
   def revoke_key(name, username) do
     case :mnesia.transaction(fn ->
            case :mnesia.read(@table, name) do
-             [{@table, name, ^username, secret_hash, permissions, nil, inserted_at, _updated_at}] ->
+             [{@table, name, ^username, secret, secret_hash, permissions, nil, last_accessed_at,
+               inserted_at, _updated_at}] ->
                updated_key = {
                  @table,
                  name,
                  username,
+                 secret,
                  secret_hash,
                  permissions,
                  DateTime.utc_now(),
+                 last_accessed_at,
                  inserted_at,
                  DateTime.utc_now()
                }
@@ -136,8 +148,8 @@ defmodule HexHub.ApiKeys do
                :ok
 
              [
-               {@table, _name, ^username, _secret_hash, _permissions, revoked_at, _inserted_at,
-                _updated_at}
+               {@table, _name, ^username, _secret, _secret_hash, _permissions, revoked_at,
+                _last_accessed_at, _inserted_at, _updated_at}
              ]
              when not is_nil(revoked_at) ->
                {:error, "Key already revoked"}
@@ -146,8 +158,8 @@ defmodule HexHub.ApiKeys do
                {:error, "Key not found"}
 
              [
-               {@table, _name, _other_username, _secret_hash, _permissions, _revoked_at,
-                _inserted_at, _updated_at}
+               {@table, _name, _other_username, _secret, _secret_hash, _permissions, _revoked_at,
+                _last_accessed_at, _inserted_at, _updated_at}
              ] ->
                {:error, "Key does not belong to user"}
            end
@@ -171,7 +183,23 @@ defmodule HexHub.ApiKeys do
   @spec list_keys(String.t()) :: {:ok, [api_key()]} | {:error, String.t()}
   def list_keys(username) do
     case :mnesia.transaction(fn ->
-           :mnesia.match_object({@table, :_, username, :_, :_, :_, :_, :_})
+           :mnesia.match_object({@table, :_, username, :_, :_, :_, :_, :_, :_, :_})
+         end) do
+      {:atomic, keys} ->
+        {:ok, Enum.map(keys, &api_key_to_map/1)}
+
+      {:aborted, reason} ->
+        {:error, "Failed to list keys: #{inspect(reason)}"}
+    end
+  end
+
+  @doc """
+  List all API keys across all users.
+  """
+  @spec list_all_keys() :: {:ok, [api_key()]} | {:error, String.t()}
+  def list_all_keys do
+    case :mnesia.transaction(fn ->
+           :mnesia.match_object({@table, :_, :_, :_, :_, :_, :_, :_, :_, :_})
          end) do
       {:atomic, keys} ->
         {:ok, Enum.map(keys, &api_key_to_map/1)}
@@ -203,15 +231,44 @@ defmodule HexHub.ApiKeys do
     |> Base.encode16(case: :lower)
   end
 
+  defp touch_last_accessed(name) do
+    :mnesia.transaction(fn ->
+      case :mnesia.read(@table, name) do
+        [{@table, name, username, secret, secret_hash, permissions, revoked_at, _last_accessed_at,
+          inserted_at, updated_at}] ->
+          updated = {
+            @table,
+            name,
+            username,
+            secret,
+            secret_hash,
+            permissions,
+            revoked_at,
+            DateTime.utc_now(),
+            inserted_at,
+            updated_at
+          }
+
+          :mnesia.write(updated)
+
+        _ ->
+          :ok
+      end
+    end)
+  end
+
   defp api_key_to_map(
-         {@table, name, username, secret_hash, permissions, revoked_at, inserted_at, updated_at}
+         {@table, name, username, secret, secret_hash, permissions, revoked_at, last_accessed_at,
+          inserted_at, updated_at}
        ) do
     %{
       name: name,
       username: username,
+      secret: secret,
       secret_hash: secret_hash,
       permissions: permissions,
       revoked_at: revoked_at,
+      last_accessed_at: last_accessed_at,
       inserted_at: inserted_at,
       updated_at: updated_at
     }
