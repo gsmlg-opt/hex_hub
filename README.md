@@ -1,9 +1,9 @@
 # HexHub - Private Hex Package Manager
 
-[![CI](https://github.com/gsmlg-dev/hex_hub/actions/workflows/ci.yml/badge.svg)](https://github.com/gsmlg-dev/hex_hub/actions/workflows/ci.yml)
-[![Test](https://github.com/gsmlg-dev/hex_hub/actions/workflows/test.yml/badge.svg)](https://github.com/gsmlg-dev/hex_hub/actions/workflows/test.yml)
-[![E2E Tests](https://github.com/gsmlg-dev/hex_hub/actions/workflows/e2e.yml/badge.svg)](https://github.com/gsmlg-dev/hex_hub/actions/workflows/e2e.yml)
-[![Docker Image](https://ghcr-badge.egpl.dev/gsmlg-dev/hex-hub/latest_tag?trim=major&label=docker&color=blue)](https://github.com/gsmlg-dev/hex_hub/pkgs/container/hex-hub)
+[![CI](https://github.com/gsmlg-opt/hex_hub/actions/workflows/ci.yml/badge.svg)](https://github.com/gsmlg-opt/hex_hub/actions/workflows/ci.yml)
+[![Test](https://github.com/gsmlg-opt/hex_hub/actions/workflows/test.yml/badge.svg)](https://github.com/gsmlg-opt/hex_hub/actions/workflows/test.yml)
+[![E2E Tests](https://github.com/gsmlg-opt/hex_hub/actions/workflows/e2e.yml/badge.svg)](https://github.com/gsmlg-opt/hex_hub/actions/workflows/e2e.yml)
+[![Docker Image](https://ghcr-badge.egpl.dev/gsmlg-dev/hex-hub/latest_tag?trim=major&label=docker&color=blue)](https://github.com/orgs/gsmlg-dev/packages/container/package/hex-hub)
 
 HexHub is a complete implementation of the Hex API specification for managing Elixir packages privately. It provides package hosting, documentation serving, and repository management capabilities.
 
@@ -52,7 +52,7 @@ The application is ready for production use.
 
 ```bash
 # Clone the repository
-git clone https://github.com/gsmlg-dev/hex_hub.git
+git clone https://github.com/gsmlg-opt/hex_hub.git
 cd hex_hub
 
 # Install dependencies
@@ -432,6 +432,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Support
 
-- [GitHub Issues](https://github.com/gsmlg-dev/hex_hub/issues)
+- [GitHub Issues](https://github.com/gsmlg-opt/hex_hub/issues)
 - [Documentation](https://your-docs-site.com)
 - [Community Discord](https://discord.gg/your-server)

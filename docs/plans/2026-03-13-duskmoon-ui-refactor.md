@@ -373,7 +373,7 @@ def app(assigns) do
     <:user_profile>
       <div class="flex items-center">
         <.dm_theme_switcher />
-        <.dm_link href="https://github.com/gsmlg-dev/hex_hub">
+        <.dm_link href="https://github.com/gsmlg-opt/hex_hub">
           <.dm_mdi name="github" class="w-12 h-12" color="white" />
         </.dm_link>
       </div>
@@ -420,7 +420,7 @@ Replace DaisyUI drawer/menu with `dm_drawer` and `dm_left_menu` components. Repl
   <:user_profile>
     <div class="flex items-center">
       <.dm_theme_switcher />
-      <.dm_link href="https://github.com/gsmlg-dev/hex_hub">
+      <.dm_link href="https://github.com/gsmlg-opt/hex_hub">
         <.dm_mdi name="github" class="w-12 h-12" color="white" />
       </.dm_link>
     </div>

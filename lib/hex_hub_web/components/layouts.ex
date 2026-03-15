@@ -63,7 +63,7 @@ defmodule HexHubWeb.Layouts do
           <div class="flex items-center gap-2">
             <.dm_theme_switcher />
             <.dm_link
-              href="https://github.com/gsmlg-dev/hex_hub"
+              href="https://github.com/gsmlg-opt/hex_hub"
               class="p-2 rounded-lg hover:bg-surface-container transition-colors"
             >
               <.dm_mdi name="github" class="w-6 h-6" />
@@ -85,7 +85,7 @@ defmodule HexHubWeb.Layouts do
             <a href="/docs" class="hover:text-on-surface transition-colors">Documentation</a>
             <a href="/docs/api-reference" class="hover:text-on-surface transition-colors">API</a>
             <a
-              href="https://github.com/gsmlg-dev/hex_hub"
+              href="https://github.com/gsmlg-opt/hex_hub"
               class="hover:text-on-surface transition-colors"
             >
               GitHub
