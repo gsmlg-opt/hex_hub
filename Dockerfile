@@ -34,8 +34,8 @@ ARG MIX_ENV=prod
 ARG SECRET_KEY_BASE
 
 # install npm packages
-COPY package.json package.json
-RUN npm install
+COPY package.json bun.lock* ./
+RUN bun install
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
