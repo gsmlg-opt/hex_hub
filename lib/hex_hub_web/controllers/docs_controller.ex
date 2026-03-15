@@ -67,31 +67,51 @@ defmodule HexHubWeb.DocsController do
         name: "Package Management",
         icon: "package-variant",
         color: "primary",
-        tools: Enum.filter(tool_specs, &(&1.name in ~w(search_packages get_package list_packages get_package_metadata)))
+        tools:
+          Enum.filter(
+            tool_specs,
+            &(&1.name in ~w(search_packages get_package list_packages get_package_metadata))
+          )
       },
       %{
         name: "Release Management",
         icon: "source-branch",
         color: "secondary",
-        tools: Enum.filter(tool_specs, &(&1.name in ~w(list_releases get_release download_release compare_releases)))
+        tools:
+          Enum.filter(
+            tool_specs,
+            &(&1.name in ~w(list_releases get_release download_release compare_releases))
+          )
       },
       %{
         name: "Documentation Access",
         icon: "file-document-outline",
         color: "tertiary",
-        tools: Enum.filter(tool_specs, &(&1.name in ~w(get_documentation list_documentation_versions search_documentation)))
+        tools:
+          Enum.filter(
+            tool_specs,
+            &(&1.name in ~w(get_documentation list_documentation_versions search_documentation))
+          )
       },
       %{
         name: "Dependency Resolution",
         icon: "graph-outline",
         color: "info",
-        tools: Enum.filter(tool_specs, &(&1.name in ~w(resolve_dependencies get_dependency_tree check_compatibility)))
+        tools:
+          Enum.filter(
+            tool_specs,
+            &(&1.name in ~w(resolve_dependencies get_dependency_tree check_compatibility))
+          )
       },
       %{
         name: "Repository Management",
         icon: "database-cog-outline",
         color: "warning",
-        tools: Enum.filter(tool_specs, &(&1.name in ~w(list_repositories get_repository_info toggle_package_visibility)))
+        tools:
+          Enum.filter(
+            tool_specs,
+            &(&1.name in ~w(list_repositories get_repository_info toggle_package_visibility))
+          )
       }
     ]
 

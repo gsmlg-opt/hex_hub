@@ -16,21 +16,24 @@
           Fully compatible with the standard Hex client &mdash; a drop-in replacement for hex.pm.
         </p>
       </div>
-
-      <!-- HEX_MIRROR Configuration -->
+      
+<!-- HEX_MIRROR Configuration -->
       <.section_heading id="hex-mirror" level={2}>Configuring HEX_MIRROR</.section_heading>
 
       <p class="text-on-surface-variant mb-6 leading-relaxed">
-        The simplest way to use HexHub is to set the <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">HEX_MIRROR</code> environment variable.
+        The simplest way to use HexHub is to set the
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+          HEX_MIRROR
+        </code>
+        environment variable.
         This tells the Hex client to fetch packages from HexHub instead of hex.pm.
       </p>
-
-      <!-- Shell Configuration -->
+      
+<!-- Shell Configuration -->
       <.section_heading id="shell" level={3}>Shell Configuration</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
-        Add this to your shell configuration file (<code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">~/.bashrc</code>,
-        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">~/.zshrc</code>, etc.):
+        Add this to your shell configuration file (<code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">~/.bashrc</code>, <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">~/.zshrc</code>, etc.):
       </p>
 
       <.code_block label="~/.bashrc or ~/.zshrc">
@@ -40,8 +43,8 @@
 <span class="text-on-surface-variant"># Then reload your shell or run:</span>
 <span class="text-success font-semibold">source</span> ~/.bashrc</code></pre>
       </.code_block>
-
-      <!-- Mix Configuration -->
+      
+<!-- Mix Configuration -->
       <.section_heading id="mix-config" level={3}>Mix Configuration</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -53,8 +56,8 @@
 <span class="text-info">config</span> <span class="text-primary">:hex</span>,
   cdn_url: "<%= @hex_hub_url %>"</code></pre>
       </.code_block>
-
-      <!-- Docker Configuration -->
+      
+<!-- Docker Configuration -->
       <.section_heading id="docker" level={3}>Docker Configuration</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -69,8 +72,8 @@
         <pre class="text-on-surface"><code><span class="text-info">environment</span>:
   - HEX_MIRROR=<%= @hex_hub_url %></code></pre>
       </.code_block>
-
-      <!-- CI/CD Configuration -->
+      
+<!-- CI/CD Configuration -->
       <.section_heading id="ci-cd" level={2}>CI/CD Configuration</.section_heading>
 
       <p class="text-on-surface-variant mb-6 leading-relaxed">
@@ -106,8 +109,8 @@
     - mix deps.get
     - mix test</code></pre>
       </.code_block>
-
-      <!-- Verification -->
+      
+<!-- Verification -->
       <.section_heading id="verification" level={2}>Verification</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -121,8 +124,8 @@
       <p class="text-on-surface-variant mb-6 leading-relaxed">
         You should see the HexHub URL in the configuration output.
       </p>
-
-      <!-- Upstream -->
+      
+<!-- Upstream -->
       <.section_heading id="upstream" level={2}>Upstream Package Fetching</.section_heading>
 
       <.callout type="info" title="Transparent Caching">
@@ -130,8 +133,8 @@
         not available locally. Once fetched, packages are cached permanently for faster subsequent
         access. You don't need to publish all your dependencies to HexHub.
       </.callout>
-
-      <!-- Next Steps -->
+      
+<!-- Next Steps -->
       <.section_heading id="next-steps" level={2}>Next Steps</.section_heading>
 
       <div class="space-y-3">
@@ -140,13 +143,22 @@
           class="group flex items-center gap-3 p-3 rounded-xl border border-outline-variant/40 hover:border-primary/30 hover:bg-primary/3 transition-all"
         >
           <div class="w-9 h-9 rounded-lg bg-secondary/12 flex items-center justify-center shrink-0">
-            <.dm_mdi name="package-variant-closed-plus" class="w-5 h-5" color="var(--color-secondary)" />
+            <.dm_mdi
+              name="package-variant-closed-plus"
+              class="w-5 h-5"
+              color="var(--color-secondary)"
+            />
           </div>
           <div class="flex-1 min-w-0">
             <span class="font-semibold text-sm text-on-surface">Publishing Packages</span>
-            <p class="text-xs text-on-surface-variant">Learn how to publish your own packages to HexHub</p>
+            <p class="text-xs text-on-surface-variant">
+              Learn how to publish your own packages to HexHub
+            </p>
           </div>
-          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+          <.dm_mdi
+            name="chevron-right"
+            class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors"
+          />
         </a>
         <a
           href="/docs/api-reference"
@@ -157,9 +169,14 @@
           </div>
           <div class="flex-1 min-w-0">
             <span class="font-semibold text-sm text-on-surface">API Reference</span>
-            <p class="text-xs text-on-surface-variant">Explore the complete HexHub API documentation</p>
+            <p class="text-xs text-on-surface-variant">
+              Explore the complete HexHub API documentation
+            </p>
           </div>
-          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+          <.dm_mdi
+            name="chevron-right"
+            class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors"
+          />
         </a>
       </div>
     </div>

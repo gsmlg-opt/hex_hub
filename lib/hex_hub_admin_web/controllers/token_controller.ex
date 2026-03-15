@@ -43,7 +43,10 @@ defmodule HexHubAdminWeb.TokenController do
   defp parse_permissions(params) do
     permissions = []
     permissions = if params["perm_read"] == "true", do: ["read" | permissions], else: permissions
-    permissions = if params["perm_write"] == "true", do: ["write" | permissions], else: permissions
+
+    permissions =
+      if params["perm_write"] == "true", do: ["write" | permissions], else: permissions
+
     if permissions == [], do: ["read"], else: permissions
   end
 end

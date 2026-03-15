@@ -73,7 +73,8 @@ defmodule HexHubWeb.DocsHTML do
   Returns CSS classes for HTTP method badge styling.
   """
   def method_badge_class(method) do
-    base = "inline-flex items-center px-2.5 py-1 rounded font-mono text-xs font-bold tracking-wider uppercase"
+    base =
+      "inline-flex items-center px-2.5 py-1 rounded font-mono text-xs font-bold tracking-wider uppercase"
 
     color =
       case String.downcase(method) do
@@ -168,9 +169,24 @@ defmodule HexHubWeb.DocsHTML do
   def nav_items do
     [
       %{page: :index, path: "/docs", label: "Overview", icon: "view-dashboard-outline"},
-      %{page: :getting_started, path: "/docs/getting-started", label: "Getting Started", icon: "rocket-launch-outline"},
-      %{page: :publishing, path: "/docs/publishing", label: "Publishing", icon: "package-variant-closed-plus"},
-      %{page: :api_reference, path: "/docs/api-reference", label: "API Reference", icon: "code-braces"},
+      %{
+        page: :getting_started,
+        path: "/docs/getting-started",
+        label: "Getting Started",
+        icon: "rocket-launch-outline"
+      },
+      %{
+        page: :publishing,
+        path: "/docs/publishing",
+        label: "Publishing",
+        icon: "package-variant-closed-plus"
+      },
+      %{
+        page: :api_reference,
+        path: "/docs/api-reference",
+        label: "API Reference",
+        icon: "code-braces"
+      },
       %{page: :mcp, path: "/docs/mcp", label: "MCP Integration", icon: "robot-outline"}
     ]
   end
@@ -216,14 +232,17 @@ defmodule HexHubWeb.DocsHTML do
                 "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200",
                 if(@current_page == item.page,
                   do: "bg-primary/12 text-primary font-semibold shadow-sm shadow-primary/5",
-                  else: "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                  else:
+                    "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
                 )
               ]}
             >
               <.dm_mdi
                 name={item.icon}
                 class="w-[18px] h-[18px] shrink-0"
-                color={if(@current_page == item.page, do: "var(--color-primary)", else: "currentColor")}
+                color={
+                  if(@current_page == item.page, do: "var(--color-primary)", else: "currentColor")
+                }
               />
               <span>{item.label}</span>
               <%= if @current_page == item.page do %>
@@ -289,7 +308,10 @@ defmodule HexHubWeb.DocsHTML do
 
   def code_block(assigns) do
     ~H"""
-    <div class={["group relative rounded-xl overflow-hidden border border-outline-variant/40 mb-6", @class]}>
+    <div class={[
+      "group relative rounded-xl overflow-hidden border border-outline-variant/40 mb-6",
+      @class
+    ]}>
       <%= if @label do %>
         <div class="flex items-center gap-2 px-4 py-2 bg-surface-container-high/60 border-b border-outline-variant/30">
           <.dm_mdi name="file-code-outline" class="w-3.5 h-3.5 text-on-surface-variant/60" />
@@ -331,11 +353,13 @@ defmodule HexHubWeb.DocsHTML do
         <.dm_mdi
           name={@icon}
           class="w-5 h-5"
-          color={case @type do
-            "warning" -> "var(--color-warning)"
-            "error" -> "var(--color-error)"
-            _ -> "var(--color-info)"
-          end}
+          color={
+            case @type do
+              "warning" -> "var(--color-warning)"
+              "error" -> "var(--color-error)"
+              _ -> "var(--color-info)"
+            end
+          }
         />
       </div>
       <div class="min-w-0">
@@ -363,7 +387,10 @@ defmodule HexHubWeb.DocsHTML do
       class="group text-2xl font-bold text-on-surface mt-12 mb-4 scroll-mt-24 flex items-center gap-2"
     >
       {render_slot(@inner_block)}
-      <a href={"##{@id}"} class="opacity-0 group-hover:opacity-40 transition-opacity text-on-surface-variant">
+      <a
+        href={"##{@id}"}
+        class="opacity-0 group-hover:opacity-40 transition-opacity text-on-surface-variant"
+      >
         <.dm_mdi name="link-variant" class="w-5 h-5" />
       </a>
     </h2>
@@ -373,7 +400,10 @@ defmodule HexHubWeb.DocsHTML do
       class="group text-lg font-semibold text-on-surface mt-8 mb-3 scroll-mt-24 flex items-center gap-2"
     >
       {render_slot(@inner_block)}
-      <a href={"##{@id}"} class="opacity-0 group-hover:opacity-40 transition-opacity text-on-surface-variant">
+      <a
+        href={"##{@id}"}
+        class="opacity-0 group-hover:opacity-40 transition-opacity text-on-surface-variant"
+      >
         <.dm_mdi name="link-variant" class="w-4 h-4" />
       </a>
     </h3>

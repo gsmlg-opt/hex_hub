@@ -16,33 +16,55 @@
           API key generation, and the complete publishing workflow.
         </p>
       </div>
-
-      <!-- Prerequisites -->
+      
+<!-- Prerequisites -->
       <.section_heading id="prerequisites" level={2}>Prerequisites</.section_heading>
 
-      <p class="text-on-surface-variant mb-4 leading-relaxed">Before publishing packages to HexHub, you need:</p>
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        Before publishing packages to HexHub, you need:
+      </p>
 
       <div class="space-y-2 mb-6">
         <div class="flex items-start gap-3">
-          <.dm_mdi name="check-circle-outline" class="w-5 h-5 shrink-0 mt-0.5" color="var(--color-success)" />
+          <.dm_mdi
+            name="check-circle-outline"
+            class="w-5 h-5 shrink-0 mt-0.5"
+            color="var(--color-success)"
+          />
           <span class="text-on-surface-variant">A HexHub user account</span>
         </div>
         <div class="flex items-start gap-3">
-          <.dm_mdi name="check-circle-outline" class="w-5 h-5 shrink-0 mt-0.5" color="var(--color-success)" />
+          <.dm_mdi
+            name="check-circle-outline"
+            class="w-5 h-5 shrink-0 mt-0.5"
+            color="var(--color-success)"
+          />
           <span class="text-on-surface-variant">An API key with write permissions</span>
         </div>
         <div class="flex items-start gap-3">
-          <.dm_mdi name="check-circle-outline" class="w-5 h-5 shrink-0 mt-0.5" color="var(--color-success)" />
-          <span class="text-on-surface-variant">A valid Elixir package with a <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">mix.exs</code> file</span>
+          <.dm_mdi
+            name="check-circle-outline"
+            class="w-5 h-5 shrink-0 mt-0.5"
+            color="var(--color-success)"
+          />
+          <span class="text-on-surface-variant">
+            A valid Elixir package with a
+            <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+              mix.exs
+            </code>
+            file
+          </span>
         </div>
       </div>
-
-      <!-- Account Setup -->
+      
+<!-- Account Setup -->
       <.section_heading id="account-setup" level={2}>Account Setup</.section_heading>
 
       <.section_heading id="creating-account" level={3}>Creating an Account</.section_heading>
 
-      <p class="text-on-surface-variant mb-4 leading-relaxed">Create a new HexHub account using the API:</p>
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        Create a new HexHub account using the API:
+      </p>
 
       <.code_block label="Terminal">
         <pre class="text-on-surface"><code>curl -X POST <%= @hex_hub_api_url %>/users \
@@ -66,14 +88,18 @@
       <.callout type="warning" title="Save Your API Key">
         Store the returned API key securely &mdash; you'll need it for publishing and it cannot be retrieved later.
       </.callout>
-
-      <!-- Publishing -->
+      
+<!-- Publishing -->
       <.section_heading id="publishing" level={2}>Publishing Packages</.section_heading>
 
       <.section_heading id="quick-publish" level={3}>Quick Publish</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
-        Set the <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">HEX_API_URL</code> environment variable
+        Set the
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+          HEX_API_URL
+        </code>
+        environment variable
         and run <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">mix hex.publish</code>:
       </p>
 
@@ -84,7 +110,10 @@
       <.section_heading id="non-interactive" level={3}>Non-Interactive (CI/CD)</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
-        For automated publishing, use both <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">HEX_API_URL</code>
+        For automated publishing, use both
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+          HEX_API_URL
+        </code>
         and <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">HEX_API_KEY</code>:
       </p>
 
@@ -101,14 +130,16 @@ mix hex.publish --yes</code></pre>
 
       <.section_heading id="package-only" level={3}>Package Only (No Docs)</.section_heading>
 
-      <p class="text-on-surface-variant mb-4 leading-relaxed">To publish just the package without documentation:</p>
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        To publish just the package without documentation:
+      </p>
 
       <.code_block label="Terminal">
         <pre class="text-on-surface"><code><span class="text-success font-semibold">HEX_API_URL</span>=<%= @hex_hub_api_url %> \
 mix hex.publish package --yes</code></pre>
       </.code_block>
-
-      <!-- CI/CD Integration -->
+      
+<!-- CI/CD Integration -->
       <.section_heading id="ci-cd" level={2}>CI/CD Integration</.section_heading>
 
       <.section_heading id="ci-github" level={3}>GitHub Actions</.section_heading>
@@ -148,34 +179,62 @@ mix hex.publish package --yes</code></pre>
       - HEX_API_KEY=$&#123;HEX_API_KEY&#125;
     command: mix hex.publish --yes</code></pre>
       </.code_block>
-
-      <!-- Environment Variables Reference -->
-      <.section_heading id="environment-variables" level={2}>Environment Variables</.section_heading>
+      
+<!-- Environment Variables Reference -->
+      <.section_heading id="environment-variables" level={2}>
+        Environment Variables
+      </.section_heading>
 
       <div class="rounded-xl border border-outline-variant/40 overflow-hidden mb-6">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-surface-container-high/50">
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Variable</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Description</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30 hidden sm:table-cell">Example</th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Variable
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Description
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30 hidden sm:table-cell">
+                Example
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-outline-variant/20">
             <tr class="hover:bg-surface-container-low/50 transition-colors">
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">HEX_API_URL</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">
+                  HEX_API_URL
+                </code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">API endpoint for publishing</td>
-              <td class="px-4 py-3 text-on-surface-variant hidden sm:table-cell"><code class="text-xs font-mono">{@hex_hub_api_url}</code></td>
+              <td class="px-4 py-3 text-on-surface-variant hidden sm:table-cell">
+                <code class="text-xs font-mono">{@hex_hub_api_url}</code>
+              </td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">HEX_API_KEY</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">
+                  HEX_API_KEY
+                </code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">API key with write permissions</td>
-              <td class="px-4 py-3 text-on-surface-variant hidden sm:table-cell"><code class="text-xs font-mono">your_api_key_here</code></td>
+              <td class="px-4 py-3 text-on-surface-variant hidden sm:table-cell">
+                <code class="text-xs font-mono">your_api_key_here</code>
+              </td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">HEX_MIRROR</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">
+                  HEX_MIRROR
+                </code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">Mirror URL for fetching deps</td>
-              <td class="px-4 py-3 text-on-surface-variant hidden sm:table-cell"><code class="text-xs font-mono">{String.replace(@hex_hub_api_url, "/api", "")}</code></td>
+              <td class="px-4 py-3 text-on-surface-variant hidden sm:table-cell">
+                <code class="text-xs font-mono">
+                  {String.replace(@hex_hub_api_url, "/api", "")}
+                </code>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -185,13 +244,15 @@ mix hex.publish package --yes</code></pre>
         Never commit API keys to version control. Use environment variables or secrets
         management in your CI/CD platform.
       </.callout>
-
-      <!-- Troubleshooting -->
+      
+<!-- Troubleshooting -->
       <.section_heading id="troubleshooting" level={2}>Troubleshooting</.section_heading>
 
       <.section_heading id="auth-errors" level={3}>Authentication Errors</.section_heading>
 
-      <p class="text-on-surface-variant mb-3 leading-relaxed">If you get a 401 Unauthorized error:</p>
+      <p class="text-on-surface-variant mb-3 leading-relaxed">
+        If you get a 401 Unauthorized error:
+      </p>
 
       <div class="space-y-2 mb-6">
         <div class="flex items-start gap-3">
@@ -204,26 +265,40 @@ mix hex.publish package --yes</code></pre>
         </div>
         <div class="flex items-start gap-3">
           <.dm_mdi name="circle-small" class="w-5 h-5 shrink-0 mt-0.5 text-on-surface-variant" />
-          <span class="text-on-surface-variant">Check that <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">HEX_API_URL</code> is set correctly</span>
+          <span class="text-on-surface-variant">
+            Check that
+            <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+              HEX_API_URL
+            </code>
+            is set correctly
+          </span>
         </div>
       </div>
 
       <.section_heading id="version-conflicts" level={3}>Version Conflicts</.section_heading>
 
-      <p class="text-on-surface-variant mb-3 leading-relaxed">If publishing fails due to version conflicts:</p>
+      <p class="text-on-surface-variant mb-3 leading-relaxed">
+        If publishing fails due to version conflicts:
+      </p>
 
       <div class="space-y-2 mb-6">
         <div class="flex items-start gap-3">
           <.dm_mdi name="circle-small" class="w-5 h-5 shrink-0 mt-0.5 text-on-surface-variant" />
-          <span class="text-on-surface-variant">Ensure the version in <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">mix.exs</code> doesn't already exist on HexHub</span>
+          <span class="text-on-surface-variant">
+            Ensure the version in
+            <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+              mix.exs
+            </code>
+            doesn't already exist on HexHub
+          </span>
         </div>
         <div class="flex items-start gap-3">
           <.dm_mdi name="circle-small" class="w-5 h-5 shrink-0 mt-0.5 text-on-surface-variant" />
           <span class="text-on-surface-variant">Use semantic versioning for new releases</span>
         </div>
       </div>
-
-      <!-- Next Steps -->
+      
+<!-- Next Steps -->
       <.section_heading id="next-steps" level={2}>Next Steps</.section_heading>
 
       <div class="space-y-3">
@@ -236,9 +311,14 @@ mix hex.publish package --yes</code></pre>
           </div>
           <div class="flex-1 min-w-0">
             <span class="font-semibold text-sm text-on-surface">API Reference</span>
-            <p class="text-xs text-on-surface-variant">Explore the complete HexHub API documentation</p>
+            <p class="text-xs text-on-surface-variant">
+              Explore the complete HexHub API documentation
+            </p>
           </div>
-          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+          <.dm_mdi
+            name="chevron-right"
+            class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors"
+          />
         </a>
         <a
           href="/docs/getting-started"
@@ -249,9 +329,14 @@ mix hex.publish package --yes</code></pre>
           </div>
           <div class="flex-1 min-w-0">
             <span class="font-semibold text-sm text-on-surface">Getting Started</span>
-            <p class="text-xs text-on-surface-variant">Configure mix to fetch packages from HexHub</p>
+            <p class="text-xs text-on-surface-variant">
+              Configure mix to fetch packages from HexHub
+            </p>
           </div>
-          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+          <.dm_mdi
+            name="chevron-right"
+            class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors"
+          />
         </a>
       </div>
     </div>

@@ -1,8 +1,8 @@
 <Layouts.app flash={@flash}>
   <div class="p-6">
     <h1 class="text-3xl font-bold mb-6">MCP Clients</h1>
-
-    <!-- Stats Cards -->
+    
+<!-- Stats Cards -->
     <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
       <div class="card bg-surface shadow p-4">
         <div class="flex items-center justify-between mb-2">
@@ -47,28 +47,39 @@
           <%= if @enabled do %>
             <div class="max-w-none space-y-3">
               <p class="text-sm">
-                MCP clients connect via HTTP POST to <code class="bg-surface-variant px-1 rounded">/mcp</code> using JSON-RPC 2.0 protocol.
+                MCP clients connect via HTTP POST to
+                <code class="bg-surface-variant px-1 rounded">/mcp</code>
+                using JSON-RPC 2.0 protocol.
               </p>
               <p class="text-sm">
-                <strong>Authentication:</strong> Clients must provide an API key via
-                <code class="bg-surface-variant px-1 rounded">Authorization: Bearer &lt;key&gt;</code> header,
+                <strong>Authentication:</strong>
+                Clients must provide an API key via
+                <code class="bg-surface-variant px-1 rounded">
+                  Authorization: Bearer &lt;key&gt;
+                </code>
+                header,
                 Basic auth with <code class="bg-surface-variant px-1 rounded">mcp:&lt;key&gt;</code>, or
-                <code class="bg-surface-variant px-1 rounded">?api_key=&lt;key&gt;</code> query parameter.
+                <code class="bg-surface-variant px-1 rounded">?api_key=&lt;key&gt;</code>
+                query parameter.
               </p>
               <p class="text-sm">
-                <strong>Rate Limiting:</strong> Clients are limited based on IP address. Current limit is configured in the MCP settings.
+                <strong>Rate Limiting:</strong>
+                Clients are limited based on IP address. Current limit is configured in the MCP settings.
               </p>
             </div>
           <% else %>
             <div class="alert alert-warning">
               <.dm_mdi name="alert" class="w-5 h-5" />
-              <span>MCP server is disabled. Enable it via the <code>MCP_ENABLED=true</code> environment variable.</span>
+              <span>
+                MCP server is disabled. Enable it via the <code>MCP_ENABLED=true</code>
+                environment variable.
+              </span>
             </div>
           <% end %>
         </div>
       </div>
-
-      <!-- Usage Example -->
+      
+<!-- Usage Example -->
       <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Usage Example</h2>

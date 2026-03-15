@@ -129,8 +129,10 @@ defmodule HexHub.ApiKeys do
   def revoke_key(name, username) do
     case :mnesia.transaction(fn ->
            case :mnesia.read(@table, name) do
-             [{@table, name, ^username, secret, secret_hash, permissions, nil, last_accessed_at,
-               inserted_at, _updated_at}] ->
+             [
+               {@table, name, ^username, secret, secret_hash, permissions, nil, last_accessed_at,
+                inserted_at, _updated_at}
+             ] ->
                updated_key = {
                  @table,
                  name,
@@ -234,8 +236,10 @@ defmodule HexHub.ApiKeys do
   defp touch_last_accessed(name) do
     :mnesia.transaction(fn ->
       case :mnesia.read(@table, name) do
-        [{@table, name, username, secret, secret_hash, permissions, revoked_at, _last_accessed_at,
-          inserted_at, updated_at}] ->
+        [
+          {@table, name, username, secret, secret_hash, permissions, revoked_at,
+           _last_accessed_at, inserted_at, updated_at}
+        ] ->
           updated = {
             @table,
             name,

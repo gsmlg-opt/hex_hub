@@ -6,7 +6,11 @@
         <form action={~p"/mcp/logs/clear"} method="post">
           <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
           <input type="hidden" name="_method" value="delete" />
-          <button type="submit" class="btn btn-error btn-sm" onclick="return confirm('Clear all MCP logs?')">
+          <button
+            type="submit"
+            class="btn btn-error btn-sm"
+            onclick="return confirm('Clear all MCP logs?')"
+          >
             <.dm_mdi name="delete" class="h-4 w-4" /> Clear Logs
           </button>
         </form>
@@ -19,8 +23,8 @@
         <span>MCP server is disabled. No logs are being collected.</span>
       </div>
     <% end %>
-
-    <!-- Summary -->
+    
+<!-- Summary -->
     <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
       <div class="card bg-surface shadow p-4">
         <div class="flex items-center justify-between mb-2">
@@ -30,8 +34,8 @@
         <div class="text-2xl font-bold text-primary">{@total}</div>
       </div>
     </div>
-
-    <!-- Log Table -->
+    
+<!-- Log Table -->
     <div class="card bg-surface shadow-xl">
       <div class="card-body">
         <h2 class="card-title">Recent Requests</h2>
@@ -70,8 +74,8 @@
               </tbody>
             </table>
           </div>
-
-          <!-- Pagination -->
+          
+<!-- Pagination -->
           <%= if @total_pages > 1 do %>
             <div class="flex justify-center mt-4 gap-2">
               <%= if @page > 1 do %>

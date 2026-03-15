@@ -1,8 +1,8 @@
 <Layouts.app flash={@flash}>
   <div class="p-6">
     <h1 class="text-3xl font-bold mb-6">MCP Server</h1>
-
-    <!-- Status Cards -->
+    
+<!-- Status Cards -->
     <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
       <div class="card bg-surface shadow p-4">
         <div class="flex items-center justify-between mb-2">
@@ -20,7 +20,9 @@
           <.dm_mdi name="chip" class="w-8 h-8 text-secondary" />
         </div>
         <div class={"text-2xl font-bold #{if @server_status[:server_status] == "running" || @server_status.status == "healthy", do: "text-success", else: "text-warning"}"}>
-          {if @enabled, do: @server_status[:server_status] || @server_status.status, else: "Stopped"}
+          {if @enabled,
+            do: @server_status[:server_status] || @server_status.status,
+            else: "Stopped"}
         </div>
       </div>
 
@@ -50,8 +52,8 @@
       <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Authentication</h2>
-
-          <!-- Auth Toggle -->
+          
+<!-- Auth Toggle -->
           <div class="flex items-center justify-between py-2">
             <div>
               <div class="font-medium">Require Authentication</div>
@@ -60,7 +62,11 @@
               </div>
             </div>
             <form action={~p"/mcp/auth"} method="post">
-              <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+              <input
+                type="hidden"
+                name="_csrf_token"
+                value={Plug.CSRFProtection.get_csrf_token()}
+              />
               <input type="hidden" name="_method" value="put" />
               <%= if @config[:require_auth] != false do %>
                 <input type="hidden" name="require_auth" value="false" />
@@ -75,8 +81,8 @@
               <% end %>
             </form>
           </div>
-
-          <!-- Token / Header info when auth is enabled -->
+          
+<!-- Token / Header info when auth is enabled -->
           <%= if @config[:require_auth] != false do %>
             <div class="divider"></div>
             <div>
@@ -92,7 +98,9 @@
                       <div class="flex items-center gap-3 p-3 bg-surface-variant rounded-lg">
                         <div class="flex-1">
                           <div class="font-mono text-sm font-medium">{token.name}</div>
-                          <div class="text-xs text-on-surface-variant">User: {token.username}</div>
+                          <div class="text-xs text-on-surface-variant">
+                            User: {token.username}
+                          </div>
                         </div>
                         <div class="flex items-center gap-2">
                           <code
@@ -117,15 +125,18 @@
               <% else %>
                 <div class="alert alert-info">
                   <.dm_mdi name="information" class="w-5 h-5" />
-                  <span>No API tokens found. <a href={~p"/tokens"} class="link">Create one</a> to use with MCP clients.</span>
+                  <span>
+                    No API tokens found. <a href={~p"/tokens"} class="link">Create one</a>
+                    to use with MCP clients.
+                  </span>
                 </div>
               <% end %>
             </div>
           <% end %>
         </div>
       </div>
-
-      <!-- Configuration Card -->
+      
+<!-- Configuration Card -->
       <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Configuration</h2>
@@ -138,7 +149,12 @@
             </div>
             <div>
               <label class="label">WebSocket Path</label>
-              <input type="text" class="input" value={@config[:websocket_path] || "/mcp/ws"} readonly />
+              <input
+                type="text"
+                class="input"
+                value={@config[:websocket_path] || "/mcp/ws"}
+                readonly
+              />
             </div>
             <div>
               <label class="label">Rate Limit (req/hr)</label>
@@ -152,7 +168,12 @@
             </div>
             <div>
               <label class="label">Heartbeat Interval (ms)</label>
-              <input type="text" class="input" value={@config[:heartbeat_interval] || 30000} readonly />
+              <input
+                type="text"
+                class="input"
+                value={@config[:heartbeat_interval] || 30000}
+                readonly
+              />
             </div>
             <div>
               <label class="label">Debug Mode</label>
@@ -163,8 +184,8 @@
           </div>
         </div>
       </div>
-
-      <!-- Tools Card -->
+      
+<!-- Tools Card -->
       <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Available Tools ({length(@tools)})</h2>
@@ -175,7 +196,9 @@
                   <input type="checkbox" />
                   <div class="collapse-title pr-12">
                     <div class="flex items-center gap-3">
-                      <code class="font-mono text-sm font-semibold text-primary">{tool.name}</code>
+                      <code class="font-mono text-sm font-semibold text-primary">
+                        {tool.name}
+                      </code>
                       <span class={"badge #{if tool.enabled, do: "badge-success", else: "badge-error"} badge-sm"}>
                         {if tool.enabled, do: "Enabled", else: "Disabled"}
                       </span>
@@ -188,8 +211,11 @@
                       <%= if tool.input_schema do %>
                         <div>
                           <h4 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
-                            <.dm_mdi name="arrow-right-bold" class="w-4 h-4" color="var(--color-primary)" />
-                            Input Parameters
+                            <.dm_mdi
+                              name="arrow-right-bold"
+                              class="w-4 h-4"
+                              color="var(--color-primary)"
+                            /> Input Parameters
                           </h4>
                           <%= if tool.input_schema["properties"] && map_size(tool.input_schema["properties"]) > 0 do %>
                             <div class="overflow-x-auto">
@@ -208,7 +234,9 @@
                                   end) do %>
                                     <tr>
                                       <td>
-                                        <code class="font-mono text-sm text-on-surface">{param_name}</code>
+                                        <code class="font-mono text-sm text-on-surface">
+                                          {param_name}
+                                        </code>
                                       </td>
                                       <td>
                                         <span class="badge badge-outline badge-sm font-mono">
@@ -217,9 +245,13 @@
                                       </td>
                                       <td>
                                         <%= if param_name in (tool.input_schema["required"] || []) do %>
-                                          <span class="badge badge-warning badge-sm">required</span>
+                                          <span class="badge badge-warning badge-sm">
+                                            required
+                                          </span>
                                         <% else %>
-                                          <span class="text-xs text-on-surface-variant">optional</span>
+                                          <span class="text-xs text-on-surface-variant">
+                                            optional
+                                          </span>
                                         <% end %>
                                       </td>
                                       <td class="text-sm text-on-surface-variant">
@@ -231,17 +263,22 @@
                               </table>
                             </div>
                           <% else %>
-                            <p class="text-sm text-on-surface-variant italic">No parameters required</p>
+                            <p class="text-sm text-on-surface-variant italic">
+                              No parameters required
+                            </p>
                           <% end %>
                         </div>
                       <% end %>
-
-                      <!-- JSON Schema Preview -->
+                      
+<!-- JSON Schema Preview -->
                       <%= if tool.input_schema do %>
                         <div>
                           <h4 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
-                            <.dm_mdi name="code-json" class="w-4 h-4" color="var(--color-secondary)" />
-                            JSON Schema
+                            <.dm_mdi
+                              name="code-json"
+                              class="w-4 h-4"
+                              color="var(--color-secondary)"
+                            /> JSON Schema
                           </h4>
                           <div class="bg-surface-container-high rounded-lg p-3 overflow-x-auto border border-outline-variant">
                             <pre class="text-xs font-mono text-on-surface whitespace-pre">{Jason.encode!(tool.input_schema, pretty: true)}</pre>
@@ -258,8 +295,8 @@
           <% end %>
         </div>
       </div>
-
-      <!-- Endpoints Card -->
+      
+<!-- Endpoints Card -->
       <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Endpoints</h2>
@@ -274,7 +311,9 @@
             </div>
             <div>
               <label class="label">Server Info</label>
-              <code class="text-sm bg-surface-variant px-2 py-1 rounded">GET /mcp/server-info</code>
+              <code class="text-sm bg-surface-variant px-2 py-1 rounded">
+                GET /mcp/server-info
+              </code>
             </div>
             <div>
               <label class="label">Health Check</label>
@@ -282,7 +321,9 @@
             </div>
             <div>
               <label class="label">WebSocket</label>
-              <code class="text-sm bg-surface-variant px-2 py-1 rounded">{@config[:websocket_path] || "/mcp/ws"}</code>
+              <code class="text-sm bg-surface-variant px-2 py-1 rounded">
+                {@config[:websocket_path] || "/mcp/ws"}
+              </code>
             </div>
           </div>
         </div>

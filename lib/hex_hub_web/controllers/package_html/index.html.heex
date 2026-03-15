@@ -88,11 +88,11 @@
 
         <div class="text-sm text-on-surface-variant">
           <span class="font-semibold text-on-surface">{@total_count}</span>
-          <%= if @total_count == 1, do: "result", else: "results" %>
+          {if @total_count == 1, do: "result", else: "results"}
         </div>
       </div>
-
-      <!-- A-Z Filter -->
+      
+<!-- A-Z Filter -->
       <div class="mb-8">
         <div class="flex flex-wrap gap-1 justify-center">
           <a
@@ -111,12 +111,16 @@
           <% end %>
         </div>
       </div>
-
-      <!-- Package Results -->
+      
+<!-- Package Results -->
       <%= if Enum.empty?(@packages) do %>
         <div class="text-center py-16">
           <div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-4">
-            <.dm_mdi name="package-variant" class="w-8 h-8" color="var(--color-on-surface-variant)" />
+            <.dm_mdi
+              name="package-variant"
+              class="w-8 h-8"
+              color="var(--color-on-surface-variant)"
+            />
           </div>
           <h3 class="text-xl font-semibold text-on-surface mb-2">No packages found</h3>
           <p class="text-on-surface-variant mb-6">
@@ -160,8 +164,8 @@
             </a>
           <% end %>
         </div>
-
-        <!-- Pagination -->
+        
+<!-- Pagination -->
         <%= if @total_pages > 1 do %>
           <div class="flex justify-center mt-10">
             <.dm_pagination
@@ -208,8 +212,8 @@
             </div>
           </section>
         <% end %>
-
-        <!-- Recently Updated -->
+        
+<!-- Recently Updated -->
         <%= if @recently_updated != [] do %>
           <section>
             <div class="flex items-center gap-2 mb-4">
@@ -236,8 +240,8 @@
             </div>
           </section>
         <% end %>
-
-        <!-- New Packages -->
+        
+<!-- New Packages -->
         <%= if @new_packages != [] do %>
           <section>
             <div class="flex items-center gap-2 mb-4">
@@ -264,11 +268,15 @@
             </div>
           </section>
         <% end %>
-
-        <!-- Browse by Letter -->
+        
+<!-- Browse by Letter -->
         <section>
           <div class="flex items-center gap-2 mb-4">
-            <.dm_mdi name="alphabetical-variant" class="w-5 h-5" color="var(--color-on-surface-variant)" />
+            <.dm_mdi
+              name="alphabetical-variant"
+              class="w-5 h-5"
+              color="var(--color-on-surface-variant)"
+            />
             <h2 class="text-lg font-semibold text-on-surface">Browse by Letter</h2>
           </div>
           <div class="flex flex-wrap gap-1.5 justify-center bg-surface-container-low rounded-xl border border-outline-variant p-4">

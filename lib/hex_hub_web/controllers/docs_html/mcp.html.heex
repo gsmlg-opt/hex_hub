@@ -12,12 +12,13 @@
           MCP Integration
         </h1>
         <p class="text-lg text-on-surface-variant leading-relaxed max-w-2xl">
-          HexHub exposes a <strong>Model Context Protocol (MCP)</strong> server that allows AI clients
+          HexHub exposes a <strong>Model Context Protocol (MCP)</strong>
+          server that allows AI clients
           to query packages, resolve dependencies, and access documentation programmatically via JSON-RPC 2.0.
         </p>
       </div>
-
-      <!-- Overview -->
+      
+<!-- Overview -->
       <.section_heading id="overview" level={2}>Overview</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -30,8 +31,8 @@
         HexHub implements MCP protocol version <code class="font-mono text-xs">2024-11-05</code>.
         Compatible with Claude, Cursor, and other MCP-enabled clients.
       </.callout>
-
-      <!-- Capabilities -->
+      
+<!-- Capabilities -->
       <.section_heading id="capabilities" level={2}>Capabilities</.section_heading>
 
       <div class="grid sm:grid-cols-2 gap-3 mb-6">
@@ -41,7 +42,9 @@
           </div>
           <div>
             <p class="font-semibold text-sm text-on-surface">Package Management</p>
-            <p class="text-xs text-on-surface-variant mt-0.5">Search, retrieve, and list Hex packages</p>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              Search, retrieve, and list Hex packages
+            </p>
           </div>
         </div>
         <div class="flex items-start gap-3 p-4 rounded-xl border border-outline-variant/40 bg-surface">
@@ -50,7 +53,9 @@
           </div>
           <div>
             <p class="font-semibold text-sm text-on-surface">Release Management</p>
-            <p class="text-xs text-on-surface-variant mt-0.5">List, compare, and download releases</p>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              List, compare, and download releases
+            </p>
           </div>
         </div>
         <div class="flex items-start gap-3 p-4 rounded-xl border border-outline-variant/40 bg-surface">
@@ -59,7 +64,9 @@
           </div>
           <div>
             <p class="font-semibold text-sm text-on-surface">Documentation Access</p>
-            <p class="text-xs text-on-surface-variant mt-0.5">Fetch and search package documentation</p>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              Fetch and search package documentation
+            </p>
           </div>
         </div>
         <div class="flex items-start gap-3 p-4 rounded-xl border border-outline-variant/40 bg-surface">
@@ -68,12 +75,14 @@
           </div>
           <div>
             <p class="font-semibold text-sm text-on-surface">Dependency Resolution</p>
-            <p class="text-xs text-on-surface-variant mt-0.5">Resolve dependencies and check compatibility</p>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              Resolve dependencies and check compatibility
+            </p>
           </div>
         </div>
       </div>
-
-      <!-- Enabling the MCP Server -->
+      
+<!-- Enabling the MCP Server -->
       <.section_heading id="enabling" level={2}>Enabling the MCP Server</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -98,50 +107,80 @@
       <.code_block label="Terminal">
         <pre class="text-on-surface"><code>MCP_ENABLED=true MCP_REQUIRE_AUTH=false ./bin/hex_hub start</code></pre>
       </.code_block>
-
-      <!-- Endpoints -->
+      
+<!-- Endpoints -->
       <.section_heading id="endpoints" level={2}>Endpoints</.section_heading>
 
       <div class="rounded-xl border border-outline-variant/40 overflow-hidden mb-6">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-surface-container-high/50">
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Method</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Path</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Description</th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Method
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Path
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Description
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-outline-variant/20">
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><span class={method_badge_class("post")}>POST</span></td>
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">/mcp</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">
+                  /mcp
+                </code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">JSON-RPC 2.0 request handler</td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><span class={method_badge_class("get")}>GET</span></td>
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">/mcp/tools</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">
+                  /mcp/tools
+                </code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">List available MCP tools</td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><span class={method_badge_class("get")}>GET</span></td>
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">/mcp/server-info</code></td>
-              <td class="px-4 py-3 text-on-surface-variant">Server information and capabilities</td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">
+                  /mcp/server-info
+                </code>
+              </td>
+              <td class="px-4 py-3 text-on-surface-variant">
+                Server information and capabilities
+              </td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><span class={method_badge_class("get")}>GET</span></td>
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">/mcp/health</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded">
+                  /mcp/health
+                </code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">MCP service health check</td>
             </tr>
           </tbody>
         </table>
       </div>
-
-      <!-- Available Tools -->
-      <.section_heading id="available-tools" level={2}>Available Tools ({@tool_count})</.section_heading>
+      
+<!-- Available Tools -->
+      <.section_heading id="available-tools" level={2}>
+        Available Tools ({@tool_count})
+      </.section_heading>
 
       <p class="text-on-surface-variant mb-6 leading-relaxed">
         The MCP server exposes {@tool_count} tools organized into functional groups.
-        Each tool can be called via the <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">tools/call/&lt;tool_name&gt;</code> JSON-RPC method.
+        Each tool can be called via the
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+          tools/call/&lt;tool_name&gt;
+        </code>
+        JSON-RPC method.
       </p>
 
       <%= for group <- @tool_groups do %>
@@ -165,7 +204,9 @@
                 <!-- Tool Header -->
                 <div class="px-4 py-3 bg-surface-container-low/50 border-b border-outline-variant/30">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <code class={"font-mono text-sm font-bold text-#{group.color}"}>{tool.name}</code>
+                    <code class={"font-mono text-sm font-bold text-#{group.color}"}>
+                      {tool.name}
+                    </code>
                     <span class="text-on-surface-variant text-sm">&mdash;</span>
                     <span class="text-sm text-on-surface-variant">{tool.description}</span>
                   </div>
@@ -182,10 +223,18 @@
                         <table class="w-full text-sm">
                           <thead>
                             <tr class="bg-surface-container-high/30">
-                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">Name</th>
-                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">Type</th>
-                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">Required</th>
-                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">Description</th>
+                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">
+                                Name
+                              </th>
+                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">
+                                Type
+                              </th>
+                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">
+                                Required
+                              </th>
+                              <th class="text-left px-3 py-2 text-xs font-semibold text-on-surface-variant border-b border-outline-variant/20">
+                                Description
+                              </th>
                             </tr>
                           </thead>
                           <tbody class="divide-y divide-outline-variant/15">
@@ -194,22 +243,31 @@
                             end) do %>
                               <tr>
                                 <td class="px-3 py-2">
-                                  <code class="font-mono text-xs font-semibold text-on-surface">{param_name}</code>
+                                  <code class="font-mono text-xs font-semibold text-on-surface">
+                                    {param_name}
+                                  </code>
                                 </td>
                                 <td class="px-3 py-2">
-                                  <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">{param_spec["type"]}</code>
+                                  <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
+                                    {param_spec["type"]}
+                                  </code>
                                 </td>
                                 <td class="px-3 py-2">
                                   <%= if param_name in (tool.input_schema["required"] || []) do %>
                                     <span class="inline-flex items-center text-xs font-medium text-warning">
-                                      <.dm_mdi name="check-circle" class="w-3.5 h-3.5 mr-0.5" color="var(--color-warning)" />
-                                      yes
+                                      <.dm_mdi
+                                        name="check-circle"
+                                        class="w-3.5 h-3.5 mr-0.5"
+                                        color="var(--color-warning)"
+                                      /> yes
                                     </span>
                                   <% else %>
                                     <span class="text-xs text-on-surface-variant">no</span>
                                   <% end %>
                                 </td>
-                                <td class="px-3 py-2 text-xs text-on-surface-variant">{param_spec["description"]}</td>
+                                <td class="px-3 py-2 text-xs text-on-surface-variant">
+                                  {param_spec["description"]}
+                                </td>
                               </tr>
                             <% end %>
                           </tbody>
@@ -219,15 +277,18 @@
                       <p class="text-sm text-on-surface-variant italic">No parameters required</p>
                     <% end %>
                   </div>
-
-                  <!-- JSON-RPC Example -->
+                  
+<!-- JSON-RPC Example -->
                   <div>
                     <h4 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
                       Example Request
                     </h4>
                     <div class="rounded-lg border border-outline-variant/30 overflow-hidden">
                       <div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-high/60 border-b border-outline-variant/20">
-                        <.dm_mdi name="file-code-outline" class="w-3.5 h-3.5 text-on-surface-variant/60" />
+                        <.dm_mdi
+                          name="file-code-outline"
+                          class="w-3.5 h-3.5 text-on-surface-variant/60"
+                        />
                         <span class="text-xs font-mono text-on-surface-variant/70">JSON-RPC</span>
                       </div>
                       <div class="p-3 bg-surface-container-high/20 overflow-x-auto">
@@ -235,12 +296,14 @@
                       </div>
                     </div>
                   </div>
-
-                  <!-- Input Schema -->
+                  
+<!-- Input Schema -->
                   <details class="group">
                     <summary class="cursor-pointer text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2 flex items-center gap-1 select-none">
-                      <.dm_mdi name="chevron-right" class="w-4 h-4 group-open:rotate-90 transition-transform" />
-                      Full JSON Schema
+                      <.dm_mdi
+                        name="chevron-right"
+                        class="w-4 h-4 group-open:rotate-90 transition-transform"
+                      /> Full JSON Schema
                     </summary>
                     <div class="rounded-lg border border-outline-variant/30 overflow-hidden mt-2">
                       <div class="p-3 bg-surface-container-high/20 overflow-x-auto">
@@ -254,12 +317,16 @@
           </div>
         </div>
       <% end %>
-
-      <!-- Authentication -->
+      
+<!-- Authentication -->
       <.section_heading id="authentication" level={2}>Authentication</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
-        When <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">MCP_REQUIRE_AUTH=true</code> (the default),
+        When
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+          MCP_REQUIRE_AUTH=true
+        </code>
+        (the default),
         clients must authenticate using one of the following methods:
       </p>
 
@@ -272,7 +339,9 @@
       <.section_heading id="basic-auth" level={3}>Basic Authentication</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
-        Use <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">mcp</code> as the username and your API key as the password:
+        Use
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">mcp</code>
+        as the username and your API key as the password:
       </p>
 
       <.code_block label="HTTP Header">
@@ -289,12 +358,16 @@
         When authentication is disabled (<code class="font-mono text-xs">MCP_REQUIRE_AUTH=false</code>),
         all MCP endpoints are publicly accessible. Only disable authentication in trusted network environments.
       </.callout>
-
-      <!-- JSON-RPC Usage -->
+      
+<!-- JSON-RPC Usage -->
       <.section_heading id="json-rpc" level={2}>JSON-RPC Usage</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
-        The MCP server accepts JSON-RPC 2.0 requests at the <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">POST /mcp</code> endpoint.
+        The MCP server accepts JSON-RPC 2.0 requests at the
+        <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+          POST /mcp
+        </code>
+        endpoint.
       </p>
 
       <.section_heading id="initialize" level={3}>Initialize Connection</.section_heading>
@@ -360,8 +433,8 @@
     &#125;
   &#125;'</code></pre>
       </.code_block>
-
-      <!-- Client Configuration -->
+      
+<!-- Client Configuration -->
       <.section_heading id="client-config" level={2}>Client Configuration</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -406,40 +479,66 @@
   &#125;
 &#125;</code></pre>
       </.code_block>
-
-      <!-- Environment Variables -->
-      <.section_heading id="environment-variables" level={2}>Environment Variables</.section_heading>
+      
+<!-- Environment Variables -->
+      <.section_heading id="environment-variables" level={2}>
+        Environment Variables
+      </.section_heading>
 
       <div class="rounded-xl border border-outline-variant/40 overflow-hidden mb-6">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-surface-container-high/50">
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Variable</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Default</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Description</th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Variable
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Default
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Description
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-outline-variant/20">
             <tr class="hover:bg-surface-container-low/50 transition-colors">
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">MCP_ENABLED</code></td>
-              <td class="px-4 py-3 text-on-surface-variant"><code class="text-xs font-mono">false</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">
+                  MCP_ENABLED
+                </code>
+              </td>
+              <td class="px-4 py-3 text-on-surface-variant">
+                <code class="text-xs font-mono">false</code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">Enable or disable the MCP server</td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">MCP_REQUIRE_AUTH</code></td>
-              <td class="px-4 py-3 text-on-surface-variant"><code class="text-xs font-mono">true</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">
+                  MCP_REQUIRE_AUTH
+                </code>
+              </td>
+              <td class="px-4 py-3 text-on-surface-variant">
+                <code class="text-xs font-mono">true</code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">Require API key authentication</td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
-              <td class="px-4 py-3"><code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">MCP_RATE_LIMIT</code></td>
-              <td class="px-4 py-3 text-on-surface-variant"><code class="text-xs font-mono">1000</code></td>
+              <td class="px-4 py-3">
+                <code class="text-xs font-mono bg-surface-container-high px-1.5 py-0.5 rounded text-info">
+                  MCP_RATE_LIMIT
+                </code>
+              </td>
+              <td class="px-4 py-3 text-on-surface-variant">
+                <code class="text-xs font-mono">1000</code>
+              </td>
               <td class="px-4 py-3 text-on-surface-variant">Requests per hour per IP address</td>
             </tr>
           </tbody>
         </table>
       </div>
-
-      <!-- Error Handling -->
+      
+<!-- Error Handling -->
       <.section_heading id="error-handling" level={2}>Error Handling</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -450,9 +549,15 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-surface-container-high/50">
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Code</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Message</th>
-              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">Description</th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Code
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Message
+              </th>
+              <th class="text-left px-4 py-3 font-semibold text-on-surface border-b border-outline-variant/30">
+                Description
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-outline-variant/20">
@@ -464,12 +569,16 @@
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><code class="text-xs font-mono">-32600</code></td>
               <td class="px-4 py-3 text-on-surface-variant">Invalid Request</td>
-              <td class="px-4 py-3 text-on-surface-variant">Request does not conform to JSON-RPC 2.0</td>
+              <td class="px-4 py-3 text-on-surface-variant">
+                Request does not conform to JSON-RPC 2.0
+              </td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><code class="text-xs font-mono">-32601</code></td>
               <td class="px-4 py-3 text-on-surface-variant">Method not found</td>
-              <td class="px-4 py-3 text-on-surface-variant">Requested method or tool does not exist</td>
+              <td class="px-4 py-3 text-on-surface-variant">
+                Requested method or tool does not exist
+              </td>
             </tr>
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><code class="text-xs font-mono">-32602</code></td>
@@ -484,13 +593,15 @@
             <tr class="hover:bg-surface-container-low/50 transition-colors">
               <td class="px-4 py-3"><code class="text-xs font-mono">-32002</code></td>
               <td class="px-4 py-3 text-on-surface-variant">Rate limited</td>
-              <td class="px-4 py-3 text-on-surface-variant">Too many requests, retry after cooldown</td>
+              <td class="px-4 py-3 text-on-surface-variant">
+                Too many requests, retry after cooldown
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
-
-      <!-- Next Steps -->
+      
+<!-- Next Steps -->
       <.section_heading id="next-steps" level={2}>Next Steps</.section_heading>
 
       <div class="space-y-3">
@@ -503,22 +614,36 @@
           </div>
           <div class="flex-1 min-w-0">
             <span class="font-semibold text-sm text-on-surface">API Reference</span>
-            <p class="text-xs text-on-surface-variant">Explore the complete HexHub REST API documentation</p>
+            <p class="text-xs text-on-surface-variant">
+              Explore the complete HexHub REST API documentation
+            </p>
           </div>
-          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+          <.dm_mdi
+            name="chevron-right"
+            class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors"
+          />
         </a>
         <a
           href="/docs/publishing"
           class="group flex items-center gap-3 p-3 rounded-xl border border-outline-variant/40 hover:border-primary/30 hover:bg-primary/3 transition-all"
         >
           <div class="w-9 h-9 rounded-lg bg-secondary/12 flex items-center justify-center shrink-0">
-            <.dm_mdi name="package-variant-closed-plus" class="w-5 h-5" color="var(--color-secondary)" />
+            <.dm_mdi
+              name="package-variant-closed-plus"
+              class="w-5 h-5"
+              color="var(--color-secondary)"
+            />
           </div>
           <div class="flex-1 min-w-0">
             <span class="font-semibold text-sm text-on-surface">Publishing Packages</span>
-            <p class="text-xs text-on-surface-variant">Publish packages that MCP clients can discover</p>
+            <p class="text-xs text-on-surface-variant">
+              Publish packages that MCP clients can discover
+            </p>
           </div>
-          <.dm_mdi name="chevron-right" class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
+          <.dm_mdi
+            name="chevron-right"
+            class="w-5 h-5 text-on-surface-variant/40 group-hover:text-primary transition-colors"
+          />
         </a>
       </div>
     </div>
