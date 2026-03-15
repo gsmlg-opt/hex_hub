@@ -1,8 +1,8 @@
 defmodule HexHubAdminWeb.UserController do
   use HexHubAdminWeb, :controller
 
-  alias HexHub.Users
   alias HexHub.ApiKeys
+  alias HexHub.Users
 
   def index(conn, params) do
     page = String.to_integer(params["page"] || "1")
