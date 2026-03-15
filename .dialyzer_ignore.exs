@@ -11,12 +11,16 @@
   ~r/lib\/mix\/tasks\/test\.e2e\.ex.*callback_info_missing/,
   # Ignore mix task no_return warning (expected for task that runs tests)
   ~r/lib\/mix\/tasks\/test\.e2e\.ex.*no_return/,
-  # Ignore Mix.shell/0 and ExUnit functions in mix task and test support
+  # Ignore Mix.shell/0 and ExUnit functions in mix task
   # These are available at runtime but not during dialyzer analysis
   ~r/lib\/mix\/tasks\/test\.e2e\.ex.*unknown_function/,
-  ~r/test\/support\/conn_case\.ex.*unknown_function/,
-  ~r/test\/support\/admin_conn_case\.ex.*unknown_function/,
   # Ignore pattern match coverage warning in packages.ex normalize_meta/1
   # This is a defensive clause for handling non-map meta values at runtime
-  ~r/lib\/hex_hub\/mcp\/tools\/packages\.ex.*pattern_match_cov/
+  ~r/lib\/hex_hub\/mcp\/tools\/packages\.ex.*pattern_match_cov/,
+  # Ignore contract_supertype in storage_config.ex config/0
+  # The map() spec is intentionally broad for flexibility
+  ~r/lib\/hex_hub\/storage_config\.ex.*contract_supertype/,
+  # Ignore pattern match warning in package_controller.ex resolve_docs_version/2
+  # Defensive clause for list_releases error (Mnesia transaction can fail at runtime)
+  ~r/lib\/hex_hub_web\/controllers\/package_controller\.ex.*pattern_match/
 ]
