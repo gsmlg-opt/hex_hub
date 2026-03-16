@@ -18,6 +18,12 @@
         <.dm_link navigate={~p"/cached-packages"} class="btn btn-ghost">
           Back to Cached Packages
         </.dm_link>
+        <form action={~p"/cached-packages/#{@package.name}/refresh"} method="post" class="inline">
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+          <.dm_btn type="submit" variant="primary">
+            <.dm_mdi name="refresh" class="h-4 w-4" /> Refresh
+          </.dm_btn>
+        </form>
         <form action={~p"/cached-packages/#{@package.name}"} method="post" class="inline">
           <input type="hidden" name="_method" value="delete" />
           <input type="hidden" name="_csrf_token" value={get_csrf_token()} />

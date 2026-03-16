@@ -16,6 +16,17 @@
           <.dm_mdi name="database" class="h-3.5 w-3.5" /> Cached
         </span>
         <%= if @pagination.total > 0 do %>
+          <form method="post" action={~p"/cached-packages/refresh"} class="inline">
+            <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+            <.dm_btn
+              type="submit"
+              variant="primary"
+              size="sm"
+              confirm="Refresh all cached packages from upstream? This may take a while."
+            >
+              <.dm_mdi name="refresh" class="h-4 w-4" /> Refresh All
+            </.dm_btn>
+          </form>
           <form method="post" action={~p"/cached-packages?confirm=true"} class="inline">
             <input type="hidden" name="_method" value="delete" />
             <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
@@ -32,8 +43,8 @@
       </div>
     </div>
   </div>
-
-  <!-- Stats -->
+  
+<!-- Stats -->
   <div class="admin-stats">
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="database" class="h-5 w-5" /></div>
@@ -42,12 +53,14 @@
     </div>
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="download" class="h-5 w-5" /></div>
-      <div class="admin-stat-value font-mono-data">{Enum.reduce(@packages, 0, fn p, acc -> acc + p.downloads end)}</div>
+      <div class="admin-stat-value font-mono-data">
+        {Enum.reduce(@packages, 0, fn p, acc -> acc + p.downloads end)}
+      </div>
       <div class="admin-stat-label">Total Downloads</div>
     </div>
   </div>
-
-  <!-- Search & Filter Panel -->
+  
+<!-- Search & Filter Panel -->
   <div class="admin-panel mb-6">
     <form method="get" action={~p"/cached-packages"} class="admin-filter-bar">
       <div class="flex-1 min-w-[200px]">
@@ -91,8 +104,8 @@
       </div>
     </form>
   </div>
-
-  <!-- Content -->
+  
+<!-- Content -->
   <%= if @packages == [] do %>
     <div class="admin-panel">
       <div class="admin-empty">
@@ -113,12 +126,17 @@
     <div class="admin-panel">
       <div class="admin-panel-header">
         <h3>Cached Packages</h3>
-        <span class="text-xs text-on-surface-variant font-mono-data">{@pagination.total} packages</span>
+        <span class="text-xs text-on-surface-variant font-mono-data">
+          {@pagination.total} packages
+        </span>
       </div>
       <div class="overflow-x-auto">
         <.dm_table data={@packages}>
           <:col :let={package} label="Name">
-            <.dm_link navigate={~p"/cached-packages/#{package.name}"} class="link link-primary font-semibold">
+            <.dm_link
+              navigate={~p"/cached-packages/#{package.name}"}
+              class="link link-primary font-semibold"
+            >
               {package.name}
             </.dm_link>
             <div class="font-mono-data text-on-surface-variant mt-0.5">
@@ -146,11 +164,16 @@
             <span class="font-mono-data">{package.downloads}</span>
           </:col>
           <:col :let={package} label="Updated">
-            <span class="font-mono-data text-on-surface-variant text-xs">{format_timestamp(package.updated_at)}</span>
+            <span class="font-mono-data text-on-surface-variant text-xs">
+              {format_timestamp(package.updated_at)}
+            </span>
           </:col>
           <:col :let={package} label="Actions">
             <div class="flex items-center gap-1">
-              <.dm_link navigate={~p"/cached-packages/#{package.name}"} class="btn btn-ghost btn-sm">
+              <.dm_link
+                navigate={~p"/cached-packages/#{package.name}"}
+                class="btn btn-ghost btn-sm"
+              >
                 View
               </.dm_link>
               <form action={~p"/cached-packages/#{package.name}"} method="post" class="inline">
@@ -170,27 +193,39 @@
           </:col>
         </.dm_table>
       </div>
-
-      <!-- Pagination -->
+      
+<!-- Pagination -->
       <div class="admin-pagination">
         <span>
-          Showing <strong class="font-mono-data">{(@pagination.page - 1) * @pagination.per_page + 1}</strong>
-          to <strong class="font-mono-data">{min(@pagination.page * @pagination.per_page, @pagination.total)}</strong>
+          Showing
+          <strong class="font-mono-data">
+            {(@pagination.page - 1) * @pagination.per_page + 1}
+          </strong>
+          to
+          <strong class="font-mono-data">
+            {min(@pagination.page * @pagination.per_page, @pagination.total)}
+          </strong>
           of <strong class="font-mono-data">{@pagination.total}</strong>
         </span>
         <div class="flex items-center gap-1">
           <%= if @pagination.page > 1 do %>
             <.dm_link
-              navigate={~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page - 1)}"}
+              navigate={
+                ~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page - 1)}"
+              }
               class="btn btn-ghost btn-sm"
             >
               <.dm_mdi name="chevron-left" class="h-4 w-4" /> Prev
             </.dm_link>
           <% end %>
-          <span class="px-2 font-mono-data text-sm">{@pagination.page} / {@pagination.total_pages}</span>
+          <span class="px-2 font-mono-data text-sm">
+            {@pagination.page} / {@pagination.total_pages}
+          </span>
           <%= if @pagination.page < @pagination.total_pages do %>
             <.dm_link
-              navigate={~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page + 1)}"}
+              navigate={
+                ~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page + 1)}"
+              }
               class="btn btn-ghost btn-sm"
             >
               Next <.dm_mdi name="chevron-right" class="h-4 w-4" />
