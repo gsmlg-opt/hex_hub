@@ -463,7 +463,19 @@
       <.section_heading id="claude-code" level={3}>Claude Code</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
-        Add HexHub to your Claude Code MCP settings:
+        Add HexHub to Claude Code using the CLI:
+      </p>
+
+      <.code_block label="Terminal (with authentication)">
+        <pre class="text-on-surface"><code>claude mcp add hexhub -t streamable-http -e Authorization="Bearer your_api_key" -- <%= @mcp_url %></code></pre>
+      </.code_block>
+
+      <.code_block label="Terminal (without authentication)">
+        <pre class="text-on-surface"><code>claude mcp add hexhub -t streamable-http -- <%= @mcp_url %></code></pre>
+      </.code_block>
+
+      <p class="text-on-surface-variant mb-4 leading-relaxed">
+        Or add it manually to your <code class="text-sm bg-surface-container-high px-1.5 py-0.5 rounded font-mono">.mcp.json</code>:
       </p>
 
       <.code_block label=".mcp.json">
