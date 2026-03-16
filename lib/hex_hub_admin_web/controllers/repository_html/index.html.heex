@@ -16,8 +16,8 @@
       </.dm_link>
     </div>
   </div>
-
-  <!-- Stats -->
+  
+<!-- Stats -->
   <div class="admin-stats">
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="source-repository" class="h-5 w-5" /></div>
@@ -26,12 +26,14 @@
     </div>
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="package-variant" class="h-5 w-5" /></div>
-      <div class="admin-stat-value">{Enum.reduce(@repositories, 0, fn r, acc -> acc + r.package_count end)}</div>
+      <div class="admin-stat-value">
+        {Enum.reduce(@repositories, 0, fn r, acc -> acc + r.package_count end)}
+      </div>
       <div class="admin-stat-label">Total Packages</div>
     </div>
   </div>
-
-  <!-- Table Panel -->
+  
+<!-- Table Panel -->
   <div class="admin-panel">
     <div class="admin-panel-header">
       <h3>All Repositories</h3>
@@ -49,7 +51,10 @@
         </:col>
         <:col :let={repository} label="Actions">
           <div class="flex items-center gap-1">
-            <.dm_link navigate={~p"/repositories/#{repository.name}/edit"} class="btn btn-ghost btn-sm">
+            <.dm_link
+              navigate={~p"/repositories/#{repository.name}/edit"}
+              class="btn btn-ghost btn-sm"
+            >
               <.dm_mdi name="pencil" class="h-4 w-4" /> Edit
             </.dm_link>
             <form
@@ -73,8 +78,8 @@
         </:col>
       </.dm_table>
     </div>
-
-    <!-- Pagination -->
+    
+<!-- Pagination -->
     <%= if @total_pages > 1 do %>
       <div class="admin-pagination">
         <span>Page {@page} of {@total_pages}</span>

@@ -11,8 +11,8 @@
       </div>
     </div>
   </div>
-
-  <!-- Stats -->
+  
+<!-- Stats -->
   <div class="admin-stats">
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="key-variant" class="h-5 w-5" /></div>
@@ -21,22 +21,28 @@
     </div>
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="check-circle" class="h-5 w-5" /></div>
-      <div class="admin-stat-value font-mono-data">{Enum.count(@tokens, fn t -> is_nil(t.revoked_at) end)}</div>
+      <div class="admin-stat-value font-mono-data">
+        {Enum.count(@tokens, fn t -> is_nil(t.revoked_at) end)}
+      </div>
       <div class="admin-stat-label">Active</div>
     </div>
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="cancel" class="h-5 w-5" /></div>
-      <div class="admin-stat-value font-mono-data">{Enum.count(@tokens, fn t -> not is_nil(t.revoked_at) end)}</div>
+      <div class="admin-stat-value font-mono-data">
+        {Enum.count(@tokens, fn t -> not is_nil(t.revoked_at) end)}
+      </div>
       <div class="admin-stat-label">Revoked</div>
     </div>
   </div>
-
-  <!-- Content -->
+  
+<!-- Content -->
   <div class="admin-panel">
     <%= if length(@tokens) > 0 do %>
       <div class="admin-panel-header">
         <h3>All Tokens</h3>
-        <span class="text-xs text-on-surface-variant font-mono-data">{length(@tokens)} tokens</span>
+        <span class="text-xs text-on-surface-variant font-mono-data">
+          {length(@tokens)} tokens
+        </span>
       </div>
       <div class="overflow-x-auto">
         <.dm_table data={@tokens}>
@@ -106,13 +112,17 @@
           </:col>
           <:col :let={token} label="Last Accessed">
             <%= if token.last_accessed_at do %>
-              <span class="font-mono-data text-on-surface-variant text-xs">{DateTime.to_iso8601(token.last_accessed_at)}</span>
+              <span class="font-mono-data text-on-surface-variant text-xs">
+                {DateTime.to_iso8601(token.last_accessed_at)}
+              </span>
             <% else %>
               <span class="text-on-surface-variant text-xs italic">Never</span>
             <% end %>
           </:col>
           <:col :let={token} label="Created">
-            <span class="font-mono-data text-on-surface-variant text-xs">{DateTime.to_iso8601(token.inserted_at)}</span>
+            <span class="font-mono-data text-on-surface-variant text-xs">
+              {DateTime.to_iso8601(token.inserted_at)}
+            </span>
           </:col>
           <:col :let={token} label="Actions">
             <%= if is_nil(token.revoked_at) do %>

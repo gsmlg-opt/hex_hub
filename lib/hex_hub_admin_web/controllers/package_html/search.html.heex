@@ -11,8 +11,8 @@
       </div>
     </div>
   </div>
-
-  <!-- Search Panel -->
+  
+<!-- Search Panel -->
   <div class="admin-panel mb-6">
     <form method="get" action={~p"/packages/search"} class="admin-filter-bar">
       <div class="flex-1 min-w-[280px]">
@@ -48,20 +48,21 @@
       </div>
     </form>
   </div>
-
-  <!-- Results Summary -->
+  
+<!-- Results Summary -->
   <%= if @query != "" do %>
     <div class="mb-4 flex items-center gap-2 text-sm text-on-surface-variant">
-      <.dm_mdi name="information-outline" class="h-4 w-4" />
-      Found <strong class="font-mono-data">{@pagination.total}</strong> package(s) matching
+      <.dm_mdi name="information-outline" class="h-4 w-4" /> Found
+      <strong class="font-mono-data">{@pagination.total}</strong>
+      package(s) matching
       "<strong>{@query}</strong>"
       <%= if @source_filter != "all" do %>
         in <span class="admin-badge admin-badge-local">{@source_filter}</span>
       <% end %>
     </div>
   <% end %>
-
-  <!-- Results -->
+  
+<!-- Results -->
   <%= if @results == [] do %>
     <div class="admin-panel">
       <div class="admin-empty">
@@ -88,7 +89,9 @@
     <div class="admin-panel">
       <div class="admin-panel-header">
         <h3>Search Results</h3>
-        <span class="text-xs text-on-surface-variant font-mono-data">{@pagination.total} found</span>
+        <span class="text-xs text-on-surface-variant font-mono-data">
+          {@pagination.total} found
+        </span>
       </div>
       <div class="overflow-x-auto">
         <.dm_table data={@results}>
@@ -147,27 +150,39 @@
           </:col>
         </.dm_table>
       </div>
-
-      <!-- Pagination -->
+      
+<!-- Pagination -->
       <div class="admin-pagination">
         <span>
-          Showing <strong class="font-mono-data">{(@pagination.page - 1) * @pagination.per_page + 1}</strong>
-          to <strong class="font-mono-data">{min(@pagination.page * @pagination.per_page, @pagination.total)}</strong>
+          Showing
+          <strong class="font-mono-data">
+            {(@pagination.page - 1) * @pagination.per_page + 1}
+          </strong>
+          to
+          <strong class="font-mono-data">
+            {min(@pagination.page * @pagination.per_page, @pagination.total)}
+          </strong>
           of <strong class="font-mono-data">{@pagination.total}</strong>
         </span>
         <div class="flex items-center gap-1">
           <%= if @pagination.page > 1 do %>
             <.dm_link
-              navigate={~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page - 1)}"}
+              navigate={
+                ~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page - 1)}"
+              }
               class="btn btn-ghost btn-sm"
             >
               <.dm_mdi name="chevron-left" class="h-4 w-4" /> Prev
             </.dm_link>
           <% end %>
-          <span class="px-2 font-mono-data text-sm">{@pagination.page} / {@pagination.total_pages}</span>
+          <span class="px-2 font-mono-data text-sm">
+            {@pagination.page} / {@pagination.total_pages}
+          </span>
           <%= if @pagination.page < @pagination.total_pages do %>
             <.dm_link
-              navigate={~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page + 1)}"}
+              navigate={
+                ~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page + 1)}"
+              }
               class="btn btn-ghost btn-sm"
             >
               Next <.dm_mdi name="chevron-right" class="h-4 w-4" />

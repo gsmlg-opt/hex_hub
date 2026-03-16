@@ -18,8 +18,8 @@
       </.dm_link>
     </div>
   </div>
-
-  <!-- Stats -->
+  
+<!-- Stats -->
   <div class="admin-stats">
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="package-variant" class="h-5 w-5" /></div>
@@ -32,8 +32,8 @@
       <div class="admin-stat-label">Current Page</div>
     </div>
   </div>
-
-  <!-- Table Panel -->
+  
+<!-- Table Panel -->
   <div class="admin-panel">
     <div class="admin-panel-header">
       <h3>All Packages</h3>
@@ -42,7 +42,10 @@
     <div class="overflow-x-auto">
       <.dm_table data={@packages}>
         <:col :let={package} label="Name">
-          <.dm_link navigate={~p"/packages/#{package.name}"} class="link link-primary font-semibold">
+          <.dm_link
+            navigate={~p"/packages/#{package.name}"}
+            class="link link-primary font-semibold"
+          >
             {package.name}
           </.dm_link>
         </:col>
@@ -84,20 +87,29 @@
         </:col>
       </.dm_table>
     </div>
-
-    <!-- Pagination -->
+    
+<!-- Pagination -->
     <div class="admin-pagination">
       <span>
-        Showing <strong class="font-mono-data">{@total_count |> min((@page - 1) * 20 + 1)}</strong>
+        Showing
+        <strong class="font-mono-data">{@total_count |> min((@page - 1) * 20 + 1)}</strong>
         to <strong class="font-mono-data">{@total_count |> min(@page * 20)}</strong>
         of <strong class="font-mono-data">{@total_count}</strong>
       </span>
       <div class="flex items-center gap-1">
-        <.dm_link navigate={~p"/packages?page=#{@page - 1}"} class="btn btn-ghost btn-sm" disabled={@page <= 1}>
+        <.dm_link
+          navigate={~p"/packages?page=#{@page - 1}"}
+          class="btn btn-ghost btn-sm"
+          disabled={@page <= 1}
+        >
           <.dm_mdi name="chevron-left" class="h-4 w-4" /> Prev
         </.dm_link>
         <span class="px-2 font-mono-data text-sm">{@page} / {@total_pages}</span>
-        <.dm_link navigate={~p"/packages?page=#{@page + 1}"} class="btn btn-ghost btn-sm" disabled={@page >= @total_pages}>
+        <.dm_link
+          navigate={~p"/packages?page=#{@page + 1}"}
+          class="btn btn-ghost btn-sm"
+          disabled={@page >= @total_pages}
+        >
           Next <.dm_mdi name="chevron-right" class="h-4 w-4" />
         </.dm_link>
       </div>
