@@ -1,87 +1,95 @@
 <Layouts.app flash={@flash}>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-8">
+  <!-- Page Header -->
+  <div class="admin-header">
+    <div class="flex items-center gap-3">
+      <div class="admin-header-icon">
+        <.dm_mdi name="magnify" class="h-6 w-6" />
+      </div>
       <div>
-        <h1 class="text-2xl font-bold text-on-surface">Package Search</h1>
-        <p class="text-sm text-on-surface-variant mt-1">
-          Search across local and cached packages
-        </p>
+        <h1 class="text-2xl font-bold text-on-surface tracking-tight">Package Search</h1>
+        <p class="text-sm text-on-surface-variant">Search across local and cached packages</p>
       </div>
     </div>
-    
-<!-- Search Form -->
-    <div class="card bg-surface shadow mb-6">
-      <div class="card-body py-4">
-        <form method="get" action={~p"/packages/search"} class="flex flex-wrap gap-4 items-end">
-          <div class="form-group flex-1 min-w-[300px]">
-            <label class="label">
-              <span class="form-label">Search Query</span>
-            </label>
-            <input
-              type="text"
-              name="q"
-              value={@query}
-              placeholder="Search packages by name..."
-              class="input w-full"
-              autofocus
-            />
-          </div>
-          <div class="form-group">
-            <label class="label">
-              <span class="form-label">Source Filter</span>
-            </label>
-            <select name="source" class="select">
-              <option value="all" selected={@source_filter == "all"}>All Sources</option>
-              <option value="local" selected={@source_filter == "local"}>Local Only</option>
-              <option value="cached" selected={@source_filter == "cached"}>Cached Only</option>
-            </select>
-          </div>
-          <.dm_btn type="submit" class="btn btn-primary">
-            Search
-          </.dm_btn>
-          <%= if @query != "" do %>
-            <.dm_link navigate={~p"/packages/search"} class="btn btn-ghost">
-              Clear
-            </.dm_link>
-          <% end %>
-        </form>
+  </div>
+
+  <!-- Search Panel -->
+  <div class="admin-panel mb-6">
+    <form method="get" action={~p"/packages/search"} class="admin-filter-bar">
+      <div class="flex-1 min-w-[280px]">
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Search Query
+        </label>
+        <input
+          type="text"
+          name="q"
+          value={@query}
+          placeholder="Search packages by name..."
+          class="input w-full"
+          autofocus
+        />
       </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Source
+        </label>
+        <select name="source" class="select">
+          <option value="all" selected={@source_filter == "all"}>All Sources</option>
+          <option value="local" selected={@source_filter == "local"}>Local Only</option>
+          <option value="cached" selected={@source_filter == "cached"}>Cached Only</option>
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <.dm_btn type="submit" variant="primary">
+          <.dm_mdi name="magnify" class="h-4 w-4" /> Search
+        </.dm_btn>
+        <%= if @query != "" do %>
+          <.dm_link navigate={~p"/packages/search"} class="btn btn-ghost">Clear</.dm_link>
+        <% end %>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Summary -->
+  <%= if @query != "" do %>
+    <div class="mb-4 flex items-center gap-2 text-sm text-on-surface-variant">
+      <.dm_mdi name="information-outline" class="h-4 w-4" />
+      Found <strong class="font-mono-data">{@pagination.total}</strong> package(s) matching
+      "<strong>{@query}</strong>"
+      <%= if @source_filter != "all" do %>
+        in <span class="admin-badge admin-badge-local">{@source_filter}</span>
+      <% end %>
     </div>
-    
-<!-- Results Summary -->
-    <%= if @query != "" do %>
-      <div class="mb-4">
-        <p class="text-sm text-on-surface-variant">
-          Found {@pagination.total} package(s) matching "<strong>{@query}</strong>"
-          <%= if @source_filter != "all" do %>
-            in <span class="badge badge-sm">{@source_filter}</span> source
-          <% end %>
-        </p>
-      </div>
-    <% end %>
-    
-<!-- Results Table -->
-    <%= if @results == [] do %>
-      <div class="card bg-surface shadow">
-        <div class="card-body items-center text-center py-16">
-          <.dm_mdi name="magnify" class="h-16 w-16 text-on-surface-variant" />
-          <h3 class="text-lg font-medium text-on-surface mt-4">
-            <%= if @query == "" do %>
-              Enter a search term
-            <% else %>
-              No packages found
-            <% end %>
-          </h3>
-          <p class="text-on-surface-variant mt-2">
-            <%= if @query == "" do %>
-              Search for packages by name across all sources.
-            <% else %>
-              No packages match your search criteria. Try a different term or source filter.
-            <% end %>
-          </p>
+  <% end %>
+
+  <!-- Results -->
+  <%= if @results == [] do %>
+    <div class="admin-panel">
+      <div class="admin-empty">
+        <div class="admin-empty-icon">
+          <.dm_mdi name="magnify" class="h-8 w-8" />
         </div>
+        <h3 class="text-lg font-semibold text-on-surface">
+          <%= if @query == "" do %>
+            Enter a search term
+          <% else %>
+            No packages found
+          <% end %>
+        </h3>
+        <p class="text-sm text-on-surface-variant mt-1 max-w-sm">
+          <%= if @query == "" do %>
+            Search for packages by name across all sources.
+          <% else %>
+            No packages match your search criteria. Try a different term or source filter.
+          <% end %>
+        </p>
       </div>
-    <% else %>
+    </div>
+  <% else %>
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <h3>Search Results</h3>
+        <span class="text-xs text-on-surface-variant font-mono-data">{@pagination.total} found</span>
+      </div>
       <div class="overflow-x-auto">
         <.dm_table data={@results}>
           <:col :let={package} label="Name">
@@ -91,35 +99,41 @@
                   do: ~p"/local-packages/#{package.name}",
                   else: ~p"/cached-packages/#{package.name}"
               }
-              class="link link-primary font-medium"
+              class="link link-primary font-semibold"
             >
               {package.name}
             </.dm_link>
-            <div class="text-sm text-on-surface-variant">
+            <div class="font-mono-data text-on-surface-variant mt-0.5">
               {package.latest_version || "No versions"}
             </div>
           </:col>
           <:col :let={package} label="Source">
             <span class={
               if package.source == :local,
-                do: "badge badge-primary",
-                else: "badge badge-secondary"
+                do: "admin-badge admin-badge-local",
+                else: "admin-badge admin-badge-cached"
             }>
               {if package.source == :local, do: "Local", else: "Cached"}
             </span>
           </:col>
           <:col :let={package} label="Status">
-            <span class={status_badge_class(package.status)}>
+            <span class={
+              if package.status == :shadowed,
+                do: "admin-badge admin-badge-shadowed",
+                else: "admin-badge admin-badge-active"
+            }>
               {if package.status == :shadowed, do: "Shadowed", else: "Active"}
             </span>
           </:col>
-          <:col :let={package} label="Description" class="max-w-xs truncate">
-            {package.meta["description"] || "No description"}
+          <:col :let={package} label="Description" class="max-w-xs">
+            <span class="text-sm text-on-surface-variant truncate block max-w-xs">
+              {package.meta["description"] || "No description"}
+            </span>
           </:col>
           <:col :let={package} label="Downloads">
-            <span class="badge badge-outline">{package.downloads}</span>
+            <span class="font-mono-data">{package.downloads}</span>
           </:col>
-          <:col :let={package} label="Actions">
+          <:col :let={package} label="">
             <.dm_link
               navigate={
                 if package.source == :local,
@@ -128,52 +142,39 @@
               }
               class="btn btn-ghost btn-sm"
             >
-              View
+              View <.dm_mdi name="arrow-right" class="h-4 w-4" />
             </.dm_link>
           </:col>
         </.dm_table>
       </div>
-      
-<!-- Pagination -->
-      <div class="flex justify-between items-center mt-6">
-        <div class="text-sm text-on-surface-variant">
-          Showing {(@pagination.page - 1) * @pagination.per_page + 1} to {min(
-            @pagination.page * @pagination.per_page,
-            @pagination.total
-          )} of {@pagination.total} results
-        </div>
-        <div class="join">
+
+      <!-- Pagination -->
+      <div class="admin-pagination">
+        <span>
+          Showing <strong class="font-mono-data">{(@pagination.page - 1) * @pagination.per_page + 1}</strong>
+          to <strong class="font-mono-data">{min(@pagination.page * @pagination.per_page, @pagination.total)}</strong>
+          of <strong class="font-mono-data">{@pagination.total}</strong>
+        </span>
+        <div class="flex items-center gap-1">
           <%= if @pagination.page > 1 do %>
             <.dm_link
-              navigate={
-                ~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page - 1)}"
-              }
-              class="join-item btn btn-sm"
+              navigate={~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page - 1)}"}
+              class="btn btn-ghost btn-sm"
             >
-              Previous
+              <.dm_mdi name="chevron-left" class="h-4 w-4" /> Prev
             </.dm_link>
-          <% else %>
-            <button class="join-item btn btn-sm" disabled>Previous</button>
           <% end %>
-
-          <button class="join-item btn btn-sm btn-active">
-            {@pagination.page}
-          </button>
-
+          <span class="px-2 font-mono-data text-sm">{@pagination.page} / {@pagination.total_pages}</span>
           <%= if @pagination.page < @pagination.total_pages do %>
             <.dm_link
-              navigate={
-                ~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page + 1)}"
-              }
-              class="join-item btn btn-sm"
+              navigate={~p"/packages/search?#{build_query_params(@query, @source_filter, @pagination.page + 1)}"}
+              class="btn btn-ghost btn-sm"
             >
-              Next
+              Next <.dm_mdi name="chevron-right" class="h-4 w-4" />
             </.dm_link>
-          <% else %>
-            <button class="join-item btn btn-sm" disabled>Next</button>
           <% end %>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </Layouts.app>

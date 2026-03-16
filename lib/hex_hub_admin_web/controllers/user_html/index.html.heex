@@ -1,64 +1,84 @@
 <Layouts.app flash={@flash}>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-on-surface">Users</h1>
-        <p class="text-sm text-on-surface-variant mt-1">
-          Manage all users in the system. Total: {@total_count} users
-        </p>
+  <!-- Page Header -->
+  <div class="admin-header">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="admin-header-icon">
+          <.dm_mdi name="account-group" class="h-6 w-6" />
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-on-surface tracking-tight">Users</h1>
+          <p class="text-sm text-on-surface-variant">Manage all users in the system</p>
+        </div>
       </div>
-      <.link
-        navigate={~p"/users/new"}
-        class="btn btn-primary"
-      >
-        Add User
-      </.link>
+      <.dm_link navigate={~p"/users/new"} class="btn btn-primary">
+        <.dm_mdi name="account-plus" class="h-4 w-4" /> Add User
+      </.dm_link>
     </div>
+  </div>
 
+  <!-- Stats -->
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="account-group" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{@total_count}</div>
+      <div class="admin-stat-label">Total Users</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="shield-account" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{Enum.count(@users, fn u -> HexHub.Users.is_system_user?(u.username) end)}</div>
+      <div class="admin-stat-label">System Users</div>
+    </div>
+  </div>
+
+  <!-- Table Panel -->
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <h3>All Users</h3>
+      <span class="text-xs text-on-surface-variant font-mono-data">{@total_count} users</span>
+    </div>
     <div class="overflow-x-auto">
       <.dm_table data={@users}>
         <:col :let={user} label="Username">
           <div class="flex items-center gap-2">
-            <.dm_link
-              navigate={~p"/users/#{user.username}"}
-              class="link link-primary"
-            >
+            <.dm_link navigate={~p"/users/#{user.username}"} class="link link-primary font-semibold">
               {user.username}
             </.dm_link>
             <%= if HexHub.Users.is_system_user?(user.username) do %>
-              <span class="badge badge-info badge-sm">System</span>
+              <span class="admin-badge admin-badge-system">System</span>
             <% end %>
           </div>
         </:col>
-        <:col :let={user} label="Email">{user.email}</:col>
-        <:col :let={_user} label="Packages">0</:col>
-        <:col :let={user} label="Joined">{DateTime.to_iso8601(user.inserted_at)}</:col>
+        <:col :let={user} label="Email">
+          <span class="text-sm text-on-surface-variant">{user.email}</span>
+        </:col>
+        <:col :let={_user} label="Packages">
+          <span class="font-mono-data">0</span>
+        </:col>
+        <:col :let={user} label="Joined">
+          <span class="font-mono-data text-on-surface-variant text-xs">{DateTime.to_iso8601(user.inserted_at)}</span>
+        </:col>
         <:col :let={user} label="Actions">
-          <div class="flex gap-2">
-            <.dm_link
-              navigate={~p"/users/#{user.username}"}
-              class="btn btn-sm btn-ghost"
-            >
-              View
+          <div class="flex items-center gap-1">
+            <.dm_link navigate={~p"/users/#{user.username}"} class="btn btn-ghost btn-sm">
+              <.dm_mdi name="eye" class="h-4 w-4" /> View
             </.dm_link>
             <%= if HexHub.Users.is_system_user?(user.username) do %>
-              <span
-                class="btn btn-sm btn-ghost"
-                disabled
-                title="System users cannot be deleted"
-              >
-                Protected
-              </span>
+              <.dm_btn variant="ghost" size="sm" disabled title="System users cannot be deleted">
+                <.dm_mdi name="shield-lock" class="h-4 w-4" /> Protected
+              </.dm_btn>
             <% else %>
               <form action={~p"/users/#{user.username}"} method="post" class="inline">
                 <input type="hidden" name="_method" value="delete" />
                 <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
                 <.dm_btn
                   type="submit"
-                  class="btn btn-sm btn-ghost btn-error"
-                  onclick="return confirm('Are you sure you want to delete this user?')"
+                  variant="ghost"
+                  size="sm"
+                  class="text-error"
+                  confirm="Are you sure you want to delete this user?"
                 >
-                  Delete
+                  <.dm_mdi name="delete" class="h-4 w-4" /> Delete
                 </.dm_btn>
               </form>
             <% end %>
@@ -67,32 +87,20 @@
       </.dm_table>
     </div>
 
-    <div class="flex items-center justify-between mt-6">
-      <div class="text-sm text-on-surface-variant">
-        Showing {min((@page - 1) * 20 + 1, @total_count)} to {min(@page * 20, @total_count)} of {@total_count} results
-      </div>
-      <div class="join">
-        <.dm_link
-          navigate={~p"/users?page=#{@page - 1}"}
-          class={
-            if @page <= 1,
-              do: "btn btn-sm join-item",
-              else: "btn btn-sm join-item"
-          }
-          disabled={@page <= 1}
-        >
-          Previous
+    <!-- Pagination -->
+    <div class="admin-pagination">
+      <span>
+        Showing <strong class="font-mono-data">{min((@page - 1) * 20 + 1, @total_count)}</strong>
+        to <strong class="font-mono-data">{min(@page * 20, @total_count)}</strong>
+        of <strong class="font-mono-data">{@total_count}</strong>
+      </span>
+      <div class="flex items-center gap-1">
+        <.dm_link navigate={~p"/users?page=#{@page - 1}"} class="btn btn-ghost btn-sm" disabled={@page <= 1}>
+          <.dm_mdi name="chevron-left" class="h-4 w-4" /> Prev
         </.dm_link>
-        <.dm_link
-          navigate={~p"/users?page=#{@page + 1}"}
-          class={
-            if @page >= @total_pages,
-              do: "btn btn-sm join-item",
-              else: "btn btn-sm join-item"
-          }
-          disabled={@page >= @total_pages}
-        >
-          Next
+        <span class="px-2 font-mono-data text-sm">{@page} / {@total_pages}</span>
+        <.dm_link navigate={~p"/users?page=#{@page + 1}"} class="btn btn-ghost btn-sm" disabled={@page >= @total_pages}>
+          Next <.dm_mdi name="chevron-right" class="h-4 w-4" />
         </.dm_link>
       </div>
     </div>

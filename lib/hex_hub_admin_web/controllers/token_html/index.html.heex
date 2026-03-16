@@ -1,118 +1,154 @@
-<div class="flex items-center justify-between mb-6">
-  <div>
-    <h1 class="text-3xl font-bold text-on-surface">API Tokens</h1>
-    <p class="text-on-surface-variant mt-1">All API tokens across all users</p>
+<Layouts.app flash={@flash}>
+  <!-- Page Header -->
+  <div class="admin-header">
+    <div class="flex items-center gap-3">
+      <div class="admin-header-icon">
+        <.dm_mdi name="key-variant" class="h-6 w-6" />
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-on-surface tracking-tight">API Tokens</h1>
+        <p class="text-sm text-on-surface-variant">All API tokens across all users</p>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="card bg-surface shadow-lg">
-  <div class="card-body">
+  <!-- Stats -->
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="key-variant" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{length(@tokens)}</div>
+      <div class="admin-stat-label">Total Tokens</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="check-circle" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{Enum.count(@tokens, fn t -> is_nil(t.revoked_at) end)}</div>
+      <div class="admin-stat-label">Active</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="cancel" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{Enum.count(@tokens, fn t -> not is_nil(t.revoked_at) end)}</div>
+      <div class="admin-stat-label">Revoked</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="admin-panel">
     <%= if length(@tokens) > 0 do %>
-      <.dm_table data={@tokens}>
-        <:col :let={token} label="Name">
-          <span class="font-mono">{token.name}</span>
-        </:col>
-        <:col :let={token} label="Owner">
-          <a href={~p"/users/#{token.username}"} class="link link-primary">
-            {token.username}
-          </a>
-        </:col>
-        <:col :let={token} label="Secret Key">
-          <div class="flex items-center gap-2">
-            <code
-              id={"token-key-#{token.name}"}
-              class="text-xs bg-surface-variant px-2 py-1 rounded select-all break-all hidden"
-            >
-              {token.secret}
-            </code>
-            <span
-              id={"token-mask-#{token.name}"}
-              class="text-on-surface-variant text-sm"
-            >
-              ••••••••
-            </span>
-            <button
-              type="button"
-              class="btn btn-xs btn-ghost"
-              onclick={"
-                var key = document.getElementById('token-key-#{token.name}');
-                var mask = document.getElementById('token-mask-#{token.name}');
-                if (key.classList.contains('hidden')) {
-                  key.classList.remove('hidden');
-                  mask.classList.add('hidden');
-                  this.textContent = 'Hide';
-                } else {
-                  key.classList.add('hidden');
-                  mask.classList.remove('hidden');
-                  this.textContent = 'Show';
-                }
-              "}
-            >
-              Show
-            </button>
-            <button
-              type="button"
-              class="btn btn-xs btn-ghost"
-              onclick={"navigator.clipboard.writeText(document.getElementById('token-key-#{token.name}').textContent).then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000); })"}
-            >
-              Copy
-            </button>
-          </div>
-        </:col>
-        <:col :let={token} label="Permissions">
-          <div class="flex gap-1">
-            <%= for perm <- token.permissions do %>
-              <span class="badge badge-sm badge-outline">{perm}</span>
-            <% end %>
-          </div>
-        </:col>
-        <:col :let={token} label="Status">
-          <%= if token.revoked_at do %>
-            <span class="badge badge-error badge-sm">Revoked</span>
-          <% else %>
-            <span class="badge badge-success badge-sm">Active</span>
-          <% end %>
-        </:col>
-        <:col :let={token} label="Last Accessed">
-          <%= if token.last_accessed_at do %>
-            {DateTime.to_iso8601(token.last_accessed_at)}
-          <% else %>
-            <span class="text-on-surface-variant text-sm">Never</span>
-          <% end %>
-        </:col>
-        <:col :let={token} label="Created">
-          {DateTime.to_iso8601(token.inserted_at)}
-        </:col>
-        <:col :let={token} label="Actions">
-          <%= if is_nil(token.revoked_at) do %>
-            <form
-              action={~p"/users/#{token.username}/tokens/#{token.name}"}
-              method="post"
-              class="inline"
-            >
-              <input type="hidden" name="_method" value="delete" />
-              <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-              <.dm_btn
-                type="submit"
-                class="btn btn-sm btn-ghost btn-error"
-                onclick="return confirm('Are you sure you want to revoke this token?')"
+      <div class="admin-panel-header">
+        <h3>All Tokens</h3>
+        <span class="text-xs text-on-surface-variant font-mono-data">{length(@tokens)} tokens</span>
+      </div>
+      <div class="overflow-x-auto">
+        <.dm_table data={@tokens}>
+          <:col :let={token} label="Name">
+            <span class="font-semibold font-mono-data">{token.name}</span>
+          </:col>
+          <:col :let={token} label="Owner">
+            <.dm_link navigate={~p"/users/#{token.username}"} class="link link-primary">
+              {token.username}
+            </.dm_link>
+          </:col>
+          <:col :let={token} label="Secret Key">
+            <div class="flex items-center gap-2">
+              <code
+                id={"token-key-#{token.name}"}
+                class="font-mono-data bg-surface-variant px-2 py-1 rounded select-all break-all hidden"
               >
-                Revoke
+                {token.secret}
+              </code>
+              <span
+                id={"token-mask-#{token.name}"}
+                class="text-on-surface-variant font-mono-data"
+              >
+                ••••••••
+              </span>
+              <.dm_btn
+                variant="ghost"
+                size="xs"
+                onclick={"
+                  var key = document.getElementById('token-key-#{token.name}');
+                  var mask = document.getElementById('token-mask-#{token.name}');
+                  if (key.classList.contains('hidden')) {
+                    key.classList.remove('hidden');
+                    mask.classList.add('hidden');
+                    this.textContent = 'Hide';
+                  } else {
+                    key.classList.add('hidden');
+                    mask.classList.remove('hidden');
+                    this.textContent = 'Show';
+                  }
+                "}
+              >
+                Show
               </.dm_btn>
-            </form>
-          <% else %>
-            <span class="text-on-surface-variant text-sm">—</span>
-          <% end %>
-        </:col>
-      </.dm_table>
+              <.dm_btn
+                variant="ghost"
+                size="xs"
+                onclick={"navigator.clipboard.writeText(document.getElementById('token-key-#{token.name}').textContent).then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000); })"}
+              >
+                Copy
+              </.dm_btn>
+            </div>
+          </:col>
+          <:col :let={token} label="Permissions">
+            <div class="flex gap-1 flex-wrap">
+              <%= for perm <- token.permissions do %>
+                <span class="admin-badge admin-badge-local">{perm}</span>
+              <% end %>
+            </div>
+          </:col>
+          <:col :let={token} label="Status">
+            <%= if token.revoked_at do %>
+              <span class="admin-badge admin-badge-revoked">Revoked</span>
+            <% else %>
+              <span class="admin-badge admin-badge-active">Active</span>
+            <% end %>
+          </:col>
+          <:col :let={token} label="Last Accessed">
+            <%= if token.last_accessed_at do %>
+              <span class="font-mono-data text-on-surface-variant text-xs">{DateTime.to_iso8601(token.last_accessed_at)}</span>
+            <% else %>
+              <span class="text-on-surface-variant text-xs italic">Never</span>
+            <% end %>
+          </:col>
+          <:col :let={token} label="Created">
+            <span class="font-mono-data text-on-surface-variant text-xs">{DateTime.to_iso8601(token.inserted_at)}</span>
+          </:col>
+          <:col :let={token} label="Actions">
+            <%= if is_nil(token.revoked_at) do %>
+              <form
+                action={~p"/users/#{token.username}/tokens/#{token.name}"}
+                method="post"
+                class="inline"
+              >
+                <input type="hidden" name="_method" value="delete" />
+                <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+                <.dm_btn
+                  type="submit"
+                  variant="ghost"
+                  size="sm"
+                  class="text-error"
+                  confirm="Are you sure you want to revoke this token?"
+                >
+                  <.dm_mdi name="close-circle" class="h-4 w-4" /> Revoke
+                </.dm_btn>
+              </form>
+            <% else %>
+              <span class="text-on-surface-variant text-sm">—</span>
+            <% end %>
+          </:col>
+        </.dm_table>
+      </div>
     <% else %>
-      <div class="text-center py-12">
-        <.dm_mdi name="key-variant" class="w-16 h-16 mx-auto text-on-surface-variant opacity-50" />
-        <h3 class="mt-4 text-lg font-semibold text-on-surface">No tokens</h3>
-        <p class="text-on-surface-variant mt-2">
+      <div class="admin-empty">
+        <div class="admin-empty-icon">
+          <.dm_mdi name="key-variant" class="h-8 w-8" />
+        </div>
+        <h3 class="text-lg font-semibold text-on-surface">No tokens</h3>
+        <p class="text-sm text-on-surface-variant mt-1 max-w-sm">
           No API tokens have been created yet. Create tokens from individual user pages.
         </p>
       </div>
     <% end %>
   </div>
-</div>
+</Layouts.app>

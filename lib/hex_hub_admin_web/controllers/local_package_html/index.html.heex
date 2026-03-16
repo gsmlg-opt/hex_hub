@@ -1,160 +1,166 @@
 <Layouts.app flash={@flash}>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-2xl font-bold text-on-surface">Local Packages</h1>
-        <p class="text-sm text-on-surface-variant mt-1">
-          Packages published directly to HexHub. Total: {@pagination.total} packages
-        </p>
-      </div>
-      <div class="flex items-center gap-4">
-        <span class="badge badge-primary badge-lg">Local</span>
-      </div>
-    </div>
-    
-<!-- Search and Sort Controls -->
-    <div class="card bg-surface shadow mb-6">
-      <div class="card-body py-4">
-        <form method="get" action={~p"/local-packages"} class="flex flex-wrap gap-4 items-end">
-          <div class="form-group flex-1 min-w-[200px]">
-            <label class="label">
-              <span class="form-label">Search</span>
-            </label>
-            <input
-              type="text"
-              name="search"
-              value={@search}
-              placeholder="Search packages..."
-              class="input w-full"
-            />
-          </div>
-          <div class="form-group">
-            <label class="label">
-              <span class="form-label">Sort by</span>
-            </label>
-            <select name="sort" class="select">
-              <option value="updated_at" selected={@sort == "updated_at"}>Updated</option>
-              <option value="name" selected={@sort == "name"}>Name</option>
-              <option value="downloads" selected={@sort == "downloads"}>Downloads</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="label">
-              <span class="form-label">Direction</span>
-            </label>
-            <select name="sort_dir" class="select">
-              <option value="desc" selected={@sort_dir == "desc"}>Descending</option>
-              <option value="asc" selected={@sort_dir == "asc"}>Ascending</option>
-            </select>
-          </div>
-          <.dm_btn type="submit" class="btn btn-primary">
-            Search
-          </.dm_btn>
-          <%= if @search != "" do %>
-            <.dm_link navigate={~p"/local-packages"} class="btn btn-ghost">
-              Clear
-            </.dm_link>
-          <% end %>
-        </form>
-      </div>
-    </div>
-    
-<!-- Empty State -->
-    <%= if @packages == [] do %>
-      <div class="card bg-surface shadow">
-        <div class="card-body items-center text-center py-16">
-          <.dm_mdi name="package-variant" class="h-16 w-16 text-on-surface-variant" />
-          <h3 class="text-lg font-medium text-on-surface mt-4">No local packages found</h3>
-          <p class="text-on-surface-variant mt-2">
-            <%= if @search != "" do %>
-              No packages match your search. Try a different term.
-            <% else %>
-              No packages have been published locally yet.
-            <% end %>
-          </p>
+  <!-- Page Header -->
+  <div class="admin-header">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="admin-header-icon">
+          <.dm_mdi name="shield-check" class="h-6 w-6" />
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-on-surface tracking-tight">Local Packages</h1>
+          <p class="text-sm text-on-surface-variant">Packages published directly to HexHub</p>
         </div>
       </div>
-    <% else %>
-      <!-- Package Table -->
+      <span class="admin-badge admin-badge-local text-sm">
+        <.dm_mdi name="shield-check" class="h-3.5 w-3.5" /> Local
+      </span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="package-variant" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{@pagination.total}</div>
+      <div class="admin-stat-label">Local Packages</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="download" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{Enum.reduce(@packages, 0, fn p, acc -> acc + p.downloads end)}</div>
+      <div class="admin-stat-label">Total Downloads</div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Panel -->
+  <div class="admin-panel mb-6">
+    <form method="get" action={~p"/local-packages"} class="admin-filter-bar">
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Search
+        </label>
+        <input
+          type="text"
+          name="search"
+          value={@search}
+          placeholder="Search packages..."
+          class="input w-full"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Sort by
+        </label>
+        <select name="sort" class="select">
+          <option value="updated_at" selected={@sort == "updated_at"}>Updated</option>
+          <option value="name" selected={@sort == "name"}>Name</option>
+          <option value="downloads" selected={@sort == "downloads"}>Downloads</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Direction
+        </label>
+        <select name="sort_dir" class="select">
+          <option value="desc" selected={@sort_dir == "desc"}>Descending</option>
+          <option value="asc" selected={@sort_dir == "asc"}>Ascending</option>
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <.dm_btn type="submit" variant="primary">
+          <.dm_mdi name="magnify" class="h-4 w-4" /> Search
+        </.dm_btn>
+        <%= if @search != "" do %>
+          <.dm_link navigate={~p"/local-packages"} class="btn btn-ghost">Clear</.dm_link>
+        <% end %>
+      </div>
+    </form>
+  </div>
+
+  <!-- Content -->
+  <%= if @packages == [] do %>
+    <div class="admin-panel">
+      <div class="admin-empty">
+        <div class="admin-empty-icon">
+          <.dm_mdi name="package-variant" class="h-8 w-8" />
+        </div>
+        <h3 class="text-lg font-semibold text-on-surface">No local packages found</h3>
+        <p class="text-sm text-on-surface-variant mt-1 max-w-sm">
+          <%= if @search != "" do %>
+            No packages match your search. Try a different term.
+          <% else %>
+            No packages have been published locally yet.
+          <% end %>
+        </p>
+      </div>
+    </div>
+  <% else %>
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <h3>Local Packages</h3>
+        <span class="text-xs text-on-surface-variant font-mono-data">{@pagination.total} packages</span>
+      </div>
       <div class="overflow-x-auto">
         <.dm_table data={@packages}>
           <:col :let={package} label="Name">
-            <.dm_link
-              navigate={~p"/local-packages/#{package.name}"}
-              class="link link-primary font-medium"
-            >
+            <.dm_link navigate={~p"/local-packages/#{package.name}"} class="link link-primary font-semibold">
               {package.name}
             </.dm_link>
-            <div class="text-sm text-on-surface-variant">
+            <div class="font-mono-data text-on-surface-variant mt-0.5">
               {package.latest_version || "No versions"}
             </div>
           </:col>
           <:col :let={package} label="Repository">
-            {package.repository_name}
+            <span class="text-sm">{package.repository_name}</span>
           </:col>
-          <:col :let={package} label="Description" class="max-w-xs truncate">
-            {package.meta["description"] || "No description"}
+          <:col :let={package} label="Description" class="max-w-xs">
+            <span class="text-sm text-on-surface-variant truncate block max-w-xs">
+              {package.meta["description"] || "No description"}
+            </span>
           </:col>
           <:col :let={package} label="Downloads">
-            <span class="badge badge-outline">{package.downloads}</span>
+            <span class="font-mono-data">{package.downloads}</span>
           </:col>
           <:col :let={package} label="Versions">
-            <span class="badge badge-info badge-sm">{length(package.versions)}</span>
+            <span class="admin-badge admin-badge-local">{length(package.versions)}</span>
           </:col>
           <:col :let={package} label="Updated">
-            {format_timestamp(package.updated_at)}
+            <span class="font-mono-data text-on-surface-variant text-xs">{format_timestamp(package.updated_at)}</span>
           </:col>
-          <:col :let={package} label="Actions">
-            <.dm_link
-              navigate={~p"/local-packages/#{package.name}"}
-              class="btn btn-ghost btn-sm"
-            >
-              View
+          <:col :let={package} label="">
+            <.dm_link navigate={~p"/local-packages/#{package.name}"} class="btn btn-ghost btn-sm">
+              View <.dm_mdi name="arrow-right" class="h-4 w-4" />
             </.dm_link>
           </:col>
         </.dm_table>
       </div>
-      
-<!-- Pagination -->
-      <div class="flex justify-between items-center mt-6">
-        <div class="text-sm text-on-surface-variant">
-          Showing {(@pagination.page - 1) * @pagination.per_page + 1} to {min(
-            @pagination.page * @pagination.per_page,
-            @pagination.total
-          )} of {@pagination.total} packages
-        </div>
-        <div class="join">
+
+      <!-- Pagination -->
+      <div class="admin-pagination">
+        <span>
+          Showing <strong class="font-mono-data">{(@pagination.page - 1) * @pagination.per_page + 1}</strong>
+          to <strong class="font-mono-data">{min(@pagination.page * @pagination.per_page, @pagination.total)}</strong>
+          of <strong class="font-mono-data">{@pagination.total}</strong>
+        </span>
+        <div class="flex items-center gap-1">
           <%= if @pagination.page > 1 do %>
             <.dm_link
-              navigate={
-                ~p"/local-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page - 1)}"
-              }
-              class="join-item btn btn-sm"
+              navigate={~p"/local-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page - 1)}"}
+              class="btn btn-ghost btn-sm"
             >
-              Previous
+              <.dm_mdi name="chevron-left" class="h-4 w-4" /> Prev
             </.dm_link>
-          <% else %>
-            <button class="join-item btn btn-sm" disabled>Previous</button>
           <% end %>
-
-          <button class="join-item btn btn-sm btn-active">
-            {@pagination.page}
-          </button>
-
+          <span class="px-2 font-mono-data text-sm">{@pagination.page} / {@pagination.total_pages}</span>
           <%= if @pagination.page < @pagination.total_pages do %>
             <.dm_link
-              navigate={
-                ~p"/local-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page + 1)}"
-              }
-              class="join-item btn btn-sm"
+              navigate={~p"/local-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page + 1)}"}
+              class="btn btn-ghost btn-sm"
             >
-              Next
+              Next <.dm_mdi name="chevron-right" class="h-4 w-4" />
             </.dm_link>
-          <% else %>
-            <button class="join-item btn btn-sm" disabled>Next</button>
           <% end %>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </Layouts.app>

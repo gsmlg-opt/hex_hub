@@ -1,130 +1,156 @@
 <Layouts.app flash={@flash}>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-2xl font-bold text-on-surface">Cached Packages</h1>
-        <p class="text-sm text-on-surface-variant mt-1">
-          Packages fetched from upstream. Total: {@pagination.total} packages
-        </p>
+  <!-- Page Header -->
+  <div class="admin-header">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="admin-header-icon">
+          <.dm_mdi name="database" class="h-6 w-6" />
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-on-surface tracking-tight">Cached Packages</h1>
+          <p class="text-sm text-on-surface-variant">Packages fetched from upstream</p>
+        </div>
       </div>
-      <div class="flex items-center gap-4">
-        <span class="badge badge-secondary badge-lg">Cached</span>
+      <div class="flex items-center gap-3">
+        <span class="admin-badge admin-badge-cached text-sm">
+          <.dm_mdi name="database" class="h-3.5 w-3.5" /> Cached
+        </span>
         <%= if @pagination.total > 0 do %>
           <form method="post" action={~p"/cached-packages?confirm=true"} class="inline">
             <input type="hidden" name="_method" value="delete" />
             <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
             <.dm_btn
               type="submit"
-              class="btn btn-error btn-sm"
-              onclick="return confirm('Are you sure you want to delete ALL cached packages? This cannot be undone.')"
+              variant="error"
+              size="sm"
+              confirm="Are you sure you want to delete ALL cached packages? This cannot be undone."
             >
-              Clear All Cache
+              <.dm_mdi name="delete-sweep" class="h-4 w-4" /> Clear All Cache
             </.dm_btn>
           </form>
         <% end %>
       </div>
     </div>
-    
-<!-- Search and Sort Controls -->
-    <div class="card bg-surface shadow mb-6">
-      <div class="card-body py-4">
-        <form method="get" action={~p"/cached-packages"} class="flex flex-wrap gap-4 items-end">
-          <div class="form-group flex-1 min-w-[200px]">
-            <label class="label">
-              <span class="form-label">Search</span>
-            </label>
-            <input
-              type="text"
-              name="search"
-              value={@search}
-              placeholder="Search cached packages..."
-              class="input w-full"
-            />
-          </div>
-          <div class="form-group">
-            <label class="label">
-              <span class="form-label">Sort by</span>
-            </label>
-            <select name="sort" class="select">
-              <option value="updated_at" selected={@sort == "updated_at"}>Updated</option>
-              <option value="name" selected={@sort == "name"}>Name</option>
-              <option value="downloads" selected={@sort == "downloads"}>Downloads</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="label">
-              <span class="form-label">Direction</span>
-            </label>
-            <select name="sort_dir" class="select">
-              <option value="desc" selected={@sort_dir == "desc"}>Descending</option>
-              <option value="asc" selected={@sort_dir == "asc"}>Ascending</option>
-            </select>
-          </div>
-          <.dm_btn type="submit" class="btn btn-primary">
-            Search
-          </.dm_btn>
+  </div>
+
+  <!-- Stats -->
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="database" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{@pagination.total}</div>
+      <div class="admin-stat-label">Cached Packages</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="download" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">{Enum.reduce(@packages, 0, fn p, acc -> acc + p.downloads end)}</div>
+      <div class="admin-stat-label">Total Downloads</div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Panel -->
+  <div class="admin-panel mb-6">
+    <form method="get" action={~p"/cached-packages"} class="admin-filter-bar">
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Search
+        </label>
+        <input
+          type="text"
+          name="search"
+          value={@search}
+          placeholder="Search cached packages..."
+          class="input w-full"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Sort by
+        </label>
+        <select name="sort" class="select">
+          <option value="updated_at" selected={@sort == "updated_at"}>Updated</option>
+          <option value="name" selected={@sort == "name"}>Name</option>
+          <option value="downloads" selected={@sort == "downloads"}>Downloads</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Direction
+        </label>
+        <select name="sort_dir" class="select">
+          <option value="desc" selected={@sort_dir == "desc"}>Descending</option>
+          <option value="asc" selected={@sort_dir == "asc"}>Ascending</option>
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <.dm_btn type="submit" variant="primary">
+          <.dm_mdi name="magnify" class="h-4 w-4" /> Search
+        </.dm_btn>
+        <%= if @search != "" do %>
+          <.dm_link navigate={~p"/cached-packages"} class="btn btn-ghost">Clear</.dm_link>
+        <% end %>
+      </div>
+    </form>
+  </div>
+
+  <!-- Content -->
+  <%= if @packages == [] do %>
+    <div class="admin-panel">
+      <div class="admin-empty">
+        <div class="admin-empty-icon">
+          <.dm_mdi name="database" class="h-8 w-8" />
+        </div>
+        <h3 class="text-lg font-semibold text-on-surface">No cached packages found</h3>
+        <p class="text-sm text-on-surface-variant mt-1 max-w-sm">
           <%= if @search != "" do %>
-            <.dm_link navigate={~p"/cached-packages"} class="btn btn-ghost">
-              Clear
-            </.dm_link>
+            No packages match your search. Try a different term.
+          <% else %>
+            No packages have been fetched from upstream yet.
           <% end %>
-        </form>
+        </p>
       </div>
     </div>
-    
-<!-- Empty State -->
-    <%= if @packages == [] do %>
-      <div class="card bg-surface shadow">
-        <div class="card-body items-center text-center py-16">
-          <.dm_mdi name="database" class="h-16 w-16 text-on-surface-variant" />
-          <h3 class="text-lg font-medium text-on-surface mt-4">No cached packages found</h3>
-          <p class="text-on-surface-variant mt-2">
-            <%= if @search != "" do %>
-              No packages match your search. Try a different term.
-            <% else %>
-              No packages have been fetched from upstream yet.
-            <% end %>
-          </p>
-        </div>
+  <% else %>
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <h3>Cached Packages</h3>
+        <span class="text-xs text-on-surface-variant font-mono-data">{@pagination.total} packages</span>
       </div>
-    <% else %>
-      <!-- Package Table -->
       <div class="overflow-x-auto">
         <.dm_table data={@packages}>
           <:col :let={package} label="Name">
-            <.dm_link
-              navigate={~p"/cached-packages/#{package.name}"}
-              class="link link-primary font-medium"
-            >
+            <.dm_link navigate={~p"/cached-packages/#{package.name}"} class="link link-primary font-semibold">
               {package.name}
             </.dm_link>
-            <div class="text-sm text-on-surface-variant">
+            <div class="font-mono-data text-on-surface-variant mt-0.5">
               {package.latest_version || "No versions"}
             </div>
           </:col>
           <:col :let={package} label="Status">
-            <span class={status_badge_class(package.status)}>
+            <span class={
+              if package.status == :shadowed,
+                do: "admin-badge admin-badge-shadowed",
+                else: "admin-badge admin-badge-active"
+            }>
               {if package.status == :shadowed, do: "Shadowed", else: "Active"}
             </span>
           </:col>
           <:col :let={package} label="Repository">
-            {package.repository_name}
+            <span class="text-sm">{package.repository_name}</span>
           </:col>
-          <:col :let={package} label="Description" class="max-w-xs truncate">
-            {package.meta["description"] || "No description"}
+          <:col :let={package} label="Description" class="max-w-xs">
+            <span class="text-sm text-on-surface-variant truncate block max-w-xs">
+              {package.meta["description"] || "No description"}
+            </span>
           </:col>
           <:col :let={package} label="Downloads">
-            <span class="badge badge-outline">{package.downloads}</span>
+            <span class="font-mono-data">{package.downloads}</span>
           </:col>
           <:col :let={package} label="Updated">
-            {format_timestamp(package.updated_at)}
+            <span class="font-mono-data text-on-surface-variant text-xs">{format_timestamp(package.updated_at)}</span>
           </:col>
           <:col :let={package} label="Actions">
-            <div class="flex gap-2">
-              <.dm_link
-                navigate={~p"/cached-packages/#{package.name}"}
-                class="btn btn-ghost btn-sm"
-              >
+            <div class="flex items-center gap-1">
+              <.dm_link navigate={~p"/cached-packages/#{package.name}"} class="btn btn-ghost btn-sm">
                 View
               </.dm_link>
               <form action={~p"/cached-packages/#{package.name}"} method="post" class="inline">
@@ -132,8 +158,10 @@
                 <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
                 <.dm_btn
                   type="submit"
-                  class="btn btn-ghost btn-sm text-error"
-                  onclick="return confirm('Delete this cached package?')"
+                  variant="ghost"
+                  size="sm"
+                  class="text-error"
+                  confirm="Delete this cached package?"
                 >
                   Delete
                 </.dm_btn>
@@ -142,47 +170,34 @@
           </:col>
         </.dm_table>
       </div>
-      
-<!-- Pagination -->
-      <div class="flex justify-between items-center mt-6">
-        <div class="text-sm text-on-surface-variant">
-          Showing {(@pagination.page - 1) * @pagination.per_page + 1} to {min(
-            @pagination.page * @pagination.per_page,
-            @pagination.total
-          )} of {@pagination.total} packages
-        </div>
-        <div class="join">
+
+      <!-- Pagination -->
+      <div class="admin-pagination">
+        <span>
+          Showing <strong class="font-mono-data">{(@pagination.page - 1) * @pagination.per_page + 1}</strong>
+          to <strong class="font-mono-data">{min(@pagination.page * @pagination.per_page, @pagination.total)}</strong>
+          of <strong class="font-mono-data">{@pagination.total}</strong>
+        </span>
+        <div class="flex items-center gap-1">
           <%= if @pagination.page > 1 do %>
             <.dm_link
-              navigate={
-                ~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page - 1)}"
-              }
-              class="join-item btn btn-sm"
+              navigate={~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page - 1)}"}
+              class="btn btn-ghost btn-sm"
             >
-              Previous
+              <.dm_mdi name="chevron-left" class="h-4 w-4" /> Prev
             </.dm_link>
-          <% else %>
-            <button class="join-item btn btn-sm" disabled>Previous</button>
           <% end %>
-
-          <button class="join-item btn btn-sm btn-active">
-            {@pagination.page}
-          </button>
-
+          <span class="px-2 font-mono-data text-sm">{@pagination.page} / {@pagination.total_pages}</span>
           <%= if @pagination.page < @pagination.total_pages do %>
             <.dm_link
-              navigate={
-                ~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page + 1)}"
-              }
-              class="join-item btn btn-sm"
+              navigate={~p"/cached-packages?#{build_query_params(@search, @sort, @sort_dir, @pagination.page + 1)}"}
+              class="btn btn-ghost btn-sm"
             >
-              Next
+              Next <.dm_mdi name="chevron-right" class="h-4 w-4" />
             </.dm_link>
-          <% else %>
-            <button class="join-item btn btn-sm" disabled>Next</button>
           <% end %>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </Layouts.app>
