@@ -1,22 +1,16 @@
-name: Build and Release Docker Image
+name: Build and Push Docker Image
 
 on:
-  push:
-    branches:
-      - develop
-      - main
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Docker tag to use (optional)'
+      git-ref:
+        description: 'Git ref (branch, tag, or SHA) to build from'
         required: false
-        default: 'manual'
+        default: 'main'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: gsmlg-opt/hex-hub
+  IMAGE_NAME: gsmlg-dev/hex-hub
 
 jobs:
   test:
@@ -36,6 +30,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.git-ref }}
 
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
@@ -70,6 +66,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.git-ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -85,72 +83,14 @@ jobs:
         id: secret
         run: echo "SECRET_KEY_BASE=$(openssl rand -base64 48)" >> $GITHUB_OUTPUT
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/develop' }}
-            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag != 'manual' }}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.push_image == 'true') }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
           build-args: |
             SECRET_KEY_BASE=${{ steps.secret.outputs.SECRET_KEY_BASE }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          body: |
-            ## Docker Image
-
-            Available at: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}`
-
-            ## Quick Start
-
-            ```bash
-            docker run -p 4000:4000 \
-              -e SECRET_KEY_BASE=your-secret-key \
-              -e PHX_HOST=localhost \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-            ```
-
-            ## Configuration
-
-            See [README.md](README.md) for full configuration options.
