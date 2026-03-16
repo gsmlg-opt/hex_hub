@@ -144,8 +144,9 @@ defmodule HexHubWeb.API.DownloadController do
     # Remove .tar extension if present
     base_name = String.replace_suffix(tarball_name, ".tar", "")
 
-    # Use regex to match pattern: package-version
-    case Regex.run(~r/^(.+)-([^-]+)$/, base_name) do
+    # Match package name followed by a semver version (starts with digit.digit)
+    # This correctly handles pre-release versions like "phoenix_duskmoon-9.0.0-rc.3"
+    case Regex.run(~r/^(.+?)-(\d+\..+)$/, base_name) do
       [_, package_name, version] ->
         {:ok, package_name, version}
 
