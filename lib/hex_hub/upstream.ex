@@ -97,8 +97,8 @@ defmodule HexHub.Upstream do
       start_time = System.monotonic_time()
       url = "#{upstream_config.repo_url}/tarballs/#{package_name}-#{version}.tar"
 
-      # Use raw binary request to preserve tarball integrity for checksum verification
-      result = make_raw_binary_request(url, upstream_config)
+      # Use raw binary request with retry to preserve tarball integrity for checksum verification
+      result = make_raw_binary_request_with_retry(url, upstream_config)
 
       duration_ms =
         (System.monotonic_time() - start_time)
@@ -135,8 +135,8 @@ defmodule HexHub.Upstream do
       start_time = System.monotonic_time()
       url = "#{upstream_config.repo_url}/docs/#{package_name}-#{version}.tar"
 
-      # Use raw binary request to preserve tarball integrity
-      result = make_raw_binary_request(url, upstream_config)
+      # Use raw binary request with retry to preserve tarball integrity
+      result = make_raw_binary_request_with_retry(url, upstream_config)
 
       duration_ms =
         (System.monotonic_time() - start_time)
@@ -321,6 +321,32 @@ defmodule HexHub.Upstream do
   end
 
   ## Private functions
+
+  # Retry wrapper for raw binary requests (tarballs)
+  defp make_raw_binary_request_with_retry(url, config, attempt \\ 1) do
+    case make_raw_binary_request(url, config) do
+      {:ok, _} = result ->
+        result
+
+      {:error, reason} when attempt < config.retry_attempts ->
+        Telemetry.log(:warning, :upstream, "Upstream tarball request failed, retrying", %{
+          attempt: attempt,
+          max_attempts: config.retry_attempts,
+          reason: reason,
+          retry_delay: config.retry_delay
+        })
+
+        :timer.sleep(config.retry_delay)
+        make_raw_binary_request_with_retry(url, config, attempt + 1)
+
+      {:error, _reason} = error ->
+        Telemetry.log(:error, :upstream, "Upstream tarball request failed after max attempts", %{
+          attempts: config.retry_attempts
+        })
+
+        error
+    end
+  end
 
   # Make a raw binary request without any automatic body processing
   # This is critical for tarballs to preserve checksum integrity
