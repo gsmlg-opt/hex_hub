@@ -672,4 +672,277 @@ defmodule HexHub.CachedPackages do
         :ok
     end
   end
+
+  @doc """
+  Refreshes all cached packages by re-fetching metadata from upstream.
+
+  For each cached package:
+  1. Fetches latest package metadata from upstream
+  2. Fetches the list of releases from upstream
+  3. Downloads and caches any new release tarballs not yet stored locally
+  4. Updates the package and release records in Mnesia
+
+  Returns `{:ok, %{refreshed: count, new_releases: count, errors: [...]}}`.
+  """
+  @spec refresh_all_cached_packages() :: {:ok, map()} | {:error, term()}
+  def refresh_all_cached_packages do
+    start_time = System.monotonic_time()
+
+    if not HexHub.Upstream.enabled?() do
+      {:error, "Upstream is disabled"}
+    else
+      # Get all cached package names
+      cached_names = list_cached_package_names()
+
+      results =
+        Enum.map(cached_names, fn name ->
+          case refresh_cached_package(name) do
+            {:ok, result} -> {:ok, name, result}
+            {:error, reason} -> {:error, name, reason}
+          end
+        end)
+
+      refreshed = Enum.count(results, fn {status, _, _} -> status == :ok end)
+
+      new_releases =
+        results
+        |> Enum.filter(fn {status, _, _} -> status == :ok end)
+        |> Enum.map(fn {:ok, _, result} -> result.new_releases end)
+        |> Enum.sum()
+
+      errors =
+        results
+        |> Enum.filter(fn {status, _, _} -> status == :error end)
+        |> Enum.map(fn {:error, name, reason} -> %{package: name, reason: reason} end)
+
+      duration = System.monotonic_time() - start_time
+
+      :telemetry.execute(
+        [:hex_hub, :admin, :cache, :refreshed],
+        %{duration: duration},
+        %{refreshed: refreshed, new_releases: new_releases, errors: length(errors)}
+      )
+
+      {:ok, %{refreshed: refreshed, new_releases: new_releases, errors: errors}}
+    end
+  end
+
+  @doc """
+  Refreshes a single cached package by re-fetching from upstream.
+
+  Returns `{:ok, %{new_releases: count}}` on success.
+  """
+  @spec refresh_cached_package(String.t()) :: {:ok, map()} | {:error, term()}
+  def refresh_cached_package(name) do
+    if not HexHub.Upstream.enabled?() do
+      {:error, "Upstream is disabled"}
+    else
+      with {:ok, upstream_pkg} <- HexHub.Upstream.fetch_package(name),
+           {:ok, upstream_releases} <- HexHub.Upstream.fetch_releases(name) do
+        # Update package metadata
+        update_cached_package_metadata(name, upstream_pkg)
+
+        # Find new releases not yet cached locally
+        local_versions = get_package_versions(name) |> MapSet.new()
+
+        new_releases =
+          upstream_releases
+          |> Enum.filter(fn r -> not MapSet.member?(local_versions, r["version"]) end)
+
+        # Cache new release tarballs
+        cached_count =
+          Enum.count(new_releases, fn release ->
+            version = release["version"]
+
+            case HexHub.Upstream.fetch_release_tarball(name, version) do
+              {:ok, tarball} ->
+                case HexHub.Upstream.cache_package(name, version, tarball, %{}) do
+                  :ok ->
+                    create_cached_release(name, release)
+                    true
+
+                  {:error, _} ->
+                    false
+                end
+
+              {:error, _} ->
+                false
+            end
+          end)
+
+        {:ok, %{new_releases: cached_count}}
+      end
+    end
+  end
+
+  @doc """
+  Refreshes the registry cache by re-fetching /names, /versions, and
+  /packages/:name for all cached packages from upstream.
+
+  This ensures the hex client can resolve dependencies even when
+  upstream is temporarily unavailable.
+  """
+  @spec refresh_registry_cache() :: {:ok, map()} | {:error, term()}
+  def refresh_registry_cache do
+    if not HexHub.Upstream.enabled?() do
+      {:error, "Upstream is disabled"}
+    else
+      config = HexHub.Upstream.config()
+      results = %{names: false, versions: false, packages: 0, errors: []}
+
+      # Refresh /names
+      results = refresh_registry_endpoint(config, "/names", results, :names)
+
+      # Refresh /versions
+      results = refresh_registry_endpoint(config, "/versions", results, :versions)
+
+      # Refresh /packages/:name for all cached packages
+      cached_names = list_cached_package_names()
+
+      results =
+        Enum.reduce(cached_names, results, fn name, acc ->
+          case fetch_and_cache_registry(config, "/packages/#{name}") do
+            :ok ->
+              Map.update!(acc, :packages, &(&1 + 1))
+
+            {:error, reason} ->
+              Map.update!(acc, :errors, &[%{path: "/packages/#{name}", reason: reason} | &1])
+          end
+        end)
+
+      {:ok, results}
+    end
+  end
+
+  defp refresh_registry_endpoint(config, path, results, key) do
+    case fetch_and_cache_registry(config, path) do
+      :ok ->
+        Map.put(results, key, true)
+
+      {:error, reason} ->
+        results
+        |> Map.put(key, false)
+        |> Map.update!(:errors, &[%{path: path, reason: reason} | &1])
+    end
+  end
+
+  defp fetch_and_cache_registry(config, path) do
+    url = "#{config.repo_url}#{path}"
+
+    headers = [
+      {"user-agent", "HexHub/#{Application.spec(:hex_hub, :vsn)} (Registry-Refresh)"},
+      {"accept", "application/octet-stream"}
+    ]
+
+    req_opts = [
+      receive_timeout: config.timeout,
+      headers: headers,
+      decode_body: false,
+      compressed: false
+    ]
+
+    case Req.get(url, req_opts) do
+      {:ok, %{status: 200, body: body, headers: resp_headers}} ->
+        relevant_headers =
+          resp_headers
+          |> Enum.filter(fn {name, _} ->
+            String.downcase(name) in [
+              "content-type",
+              "content-encoding",
+              "etag",
+              "cache-control",
+              "last-modified"
+            ]
+          end)
+          |> Enum.map(fn {name, value} -> {String.downcase(name), value} end)
+
+        record =
+          {:registry_cache, path, body, relevant_headers, System.system_time(:second)}
+
+        case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+          {:atomic, :ok} -> :ok
+          {:aborted, reason} -> {:error, "Cache write failed: #{inspect(reason)}"}
+        end
+
+      {:ok, %{status: status}} ->
+        {:error, "Upstream returned status #{status}"}
+
+      {:error, reason} ->
+        {:error, "Request failed: #{inspect(reason)}"}
+    end
+  end
+
+  defp list_cached_package_names do
+    case :mnesia.transaction(fn ->
+           :mnesia.select(@packages_table, [
+             {
+               {@packages_table, :"$1", :_, :_, :_, :_, :_, :_, :_, :_, :cached},
+               [],
+               [:"$1"]
+             }
+           ])
+         end) do
+      {:atomic, names} -> names
+      _ -> []
+    end
+  end
+
+  defp update_cached_package_metadata(name, upstream_pkg) do
+    meta = %{
+      "description" => get_in(upstream_pkg, ["meta", "description"]),
+      "licenses" => get_in(upstream_pkg, ["meta", "licenses"]) || [],
+      "links" => get_in(upstream_pkg, ["meta", "links"]) || %{},
+      "maintainers" => get_in(upstream_pkg, ["meta", "maintainers"]) || [],
+      "extra" => get_in(upstream_pkg, ["meta", "extra"]) || %{}
+    }
+
+    repository_name = upstream_pkg["repository"] || "hexpm"
+    now = DateTime.utc_now()
+
+    case :mnesia.dirty_read(@packages_table, name) do
+      [
+        {@packages_table, ^name, _repo, _meta, private, downloads, inserted_at, _updated_at,
+         html_url, docs_html_url, :cached}
+      ] ->
+        updated =
+          {@packages_table, name, repository_name, meta, private, downloads, inserted_at, now,
+           html_url, docs_html_url, :cached}
+
+        case :mnesia.transaction(fn -> :mnesia.write(updated) end) do
+          {:atomic, :ok} -> :ok
+          {:aborted, reason} -> {:error, inspect(reason)}
+        end
+
+      _ ->
+        # Package not found or not cached, create it
+        HexHub.Packages.create_package(name, repository_name, meta, false, :cached)
+    end
+  end
+
+  defp create_cached_release(name, release_info) do
+    now = DateTime.utc_now()
+    version = release_info["version"]
+
+    meta = %{
+      "app" => get_in(release_info, ["meta", "app"]),
+      "build_tools" => get_in(release_info, ["meta", "build_tools"]) || [],
+      "elixir" => get_in(release_info, ["meta", "elixir"])
+    }
+
+    requirements =
+      case release_info["requirements"] do
+        reqs when is_map(reqs) -> reqs
+        _ -> %{}
+      end
+
+    release =
+      {@package_releases_table, name, version, false, meta, requirements, false, 0, now, now,
+       "/packages/#{name}/releases/#{version}", "/packages/#{name}/releases/#{version}/package",
+       "/packages/#{name}/releases/#{version}", "/packages/#{name}/releases/#{version}/docs"}
+
+    case :mnesia.transaction(fn -> :mnesia.write(release) end) do
+      {:atomic, :ok} -> :ok
+      {:aborted, _reason} -> :error
+    end
+  end
 end

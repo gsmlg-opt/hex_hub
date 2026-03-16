@@ -133,6 +133,55 @@ defmodule HexHubAdminWeb.CachedPackageController do
     |> redirect(to: ~p"/cached-packages")
   end
 
+  @doc """
+  Refreshes all cached packages from upstream.
+  Re-fetches metadata and downloads any new release tarballs.
+  """
+  def refresh_all(conn, _params) do
+    case CachedPackages.refresh_all_cached_packages() do
+      {:ok, %{refreshed: refreshed, new_releases: new_releases, errors: errors}} ->
+        message =
+          "Refreshed #{refreshed} packages, #{new_releases} new releases cached" <>
+            if(errors != [], do: ", #{length(errors)} errors", else: "")
+
+        conn
+        |> put_flash(:info, message)
+        |> redirect(to: ~p"/cached-packages")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Failed to refresh: #{reason}")
+        |> redirect(to: ~p"/cached-packages")
+    end
+  end
+
+  @doc """
+  Refreshes a single cached package from upstream.
+  """
+  def refresh(conn, %{"id" => name}) do
+    case CachedPackages.refresh_cached_package(name) do
+      {:ok, %{new_releases: count}} ->
+        message =
+          if count > 0,
+            do: "Package #{name} refreshed, #{count} new releases cached",
+            else: "Package #{name} refreshed, already up to date"
+
+        conn
+        |> put_flash(:info, message)
+        |> redirect(to: ~p"/cached-packages/#{name}")
+
+      {:error, reason} when is_binary(reason) ->
+        conn
+        |> put_flash(:error, "Failed to refresh #{name}: #{reason}")
+        |> redirect(to: ~p"/cached-packages/#{name}")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Failed to refresh #{name}: #{inspect(reason)}")
+        |> redirect(to: ~p"/cached-packages/#{name}")
+    end
+  end
+
   # Private helpers
 
   defp parse_int(nil, default), do: default

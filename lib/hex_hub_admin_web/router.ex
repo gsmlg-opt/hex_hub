@@ -74,6 +74,8 @@ defmodule HexHubAdminWeb.Router do
 
     resources "/cached-packages", CachedPackageController, only: [:index, :show, :delete]
     delete "/cached-packages", CachedPackageController, :clear_all
+    post "/cached-packages/refresh", CachedPackageController, :refresh_all
+    post "/cached-packages/:id/refresh", CachedPackageController, :refresh
 
     # MCP management
     get "/mcp", MCPController, :info

@@ -7,82 +7,75 @@ defmodule HexHubWeb.API.RegistryController do
   - /versions - All package versions (gzipped protobuf)
   - /packages/:name - Package registry data (gzipped protobuf)
 
-  When a local package is not found, data is proxied from the upstream hex.pm repository.
+  Responses are proxied from upstream hex.pm and cached locally in Mnesia.
+  When upstream is unavailable, cached responses are served as fallback.
   """
 
   use HexHubWeb, :controller
 
   alias HexHub.Telemetry
 
+  @registry_cache_table :registry_cache
+
   @doc """
   Serves the package names registry.
 
   Returns a gzipped protobuf of all package names.
-  For a hex mirror, this proxies directly to upstream.
+  Proxies from upstream, with local cache fallback.
   """
   def names(conn, _params) do
-    case fetch_upstream_registry("/names") do
-      {:ok, data, headers} ->
-        send_registry_response(conn, data, headers)
-
-      {:error, reason} ->
-        Telemetry.log(:warning, :api, "Failed to fetch /names from upstream", %{
-          reason: reason
-        })
-
-        conn
-        |> put_status(:bad_gateway)
-        |> json(%{message: "Failed to fetch registry data from upstream"})
-    end
+    serve_registry(conn, "/names")
   end
 
   @doc """
   Serves the package versions registry.
 
   Returns a gzipped protobuf of all package versions.
-  For a hex mirror, this proxies directly to upstream.
+  Proxies from upstream, with local cache fallback.
   """
   def versions(conn, _params) do
-    case fetch_upstream_registry("/versions") do
-      {:ok, data, headers} ->
-        send_registry_response(conn, data, headers)
-
-      {:error, reason} ->
-        Telemetry.log(:warning, :api, "Failed to fetch /versions from upstream", %{
-          reason: reason
-        })
-
-        conn
-        |> put_status(:bad_gateway)
-        |> json(%{message: "Failed to fetch registry data from upstream"})
-    end
+    serve_registry(conn, "/versions")
   end
 
   @doc """
   Serves the package registry data.
 
   Returns gzipped protobuf of package info including releases.
-  First checks local storage, then proxies to upstream if not found.
+  Proxies from upstream, with local cache fallback.
   """
   def package(conn, %{"name" => name}) do
-    case fetch_upstream_registry("/packages/#{name}") do
+    serve_registry(conn, "/packages/#{name}")
+  end
+
+  # Unified registry serving with cache-through pattern
+  defp serve_registry(conn, path) do
+    case fetch_upstream_registry(path) do
       {:ok, data, headers} ->
+        # Cache the successful response asynchronously
+        cache_registry_response(path, data, headers)
         send_registry_response(conn, data, headers)
 
-      {:error, :not_found} ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{message: "Package not found"})
-
       {:error, reason} ->
-        Telemetry.log(:warning, :api, "Failed to fetch package from upstream", %{
-          name: name,
-          reason: reason
-        })
+        # Try to serve from cache
+        case get_cached_registry(path) do
+          {:ok, data, headers} ->
+            Telemetry.log(:info, :api, "Serving registry from cache (upstream unavailable)", %{
+              path: path,
+              reason: reason
+            })
 
-        conn
-        |> put_status(:bad_gateway)
-        |> json(%{message: "Failed to fetch registry data from upstream"})
+            send_registry_response(conn, data, headers)
+
+          :miss ->
+            Telemetry.log(:warning, :api, "Registry request failed, no cache available", %{
+              path: path,
+              reason: reason
+            })
+
+            conn
+            |> put_status(:bad_gateway)
+            |> json(%{message: "Failed to fetch registry data from upstream"})
+        end
     end
   end
 
@@ -98,7 +91,7 @@ defmodule HexHubWeb.API.RegistryController do
       url = "#{config.repo_url}#{path}"
 
       headers = [
-        {"user-agent", "HexHub/0.1.0 (Registry-Proxy)"},
+        {"user-agent", "HexHub/#{Application.spec(:hex_hub, :vsn)} (Registry-Proxy)"},
         {"accept", "application/octet-stream"}
       ]
 
@@ -173,5 +166,38 @@ defmodule HexHubWeb.API.RegistryController do
       end
 
     send_resp(conn, 200, data)
+  end
+
+  # Cache a registry response in Mnesia for offline fallback
+  defp cache_registry_response(path, data, headers) do
+    record =
+      {@registry_cache_table, path, data, headers, System.system_time(:second)}
+
+    # Fire-and-forget write - don't block the response
+    spawn(fn ->
+      case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+        {:atomic, :ok} ->
+          :ok
+
+        {:aborted, reason} ->
+          Telemetry.log(:warning, :api, "Failed to cache registry response", %{
+            path: path,
+            reason: inspect(reason)
+          })
+      end
+    end)
+  end
+
+  # Retrieve a cached registry response from Mnesia
+  defp get_cached_registry(path) do
+    case :mnesia.dirty_read(@registry_cache_table, path) do
+      [{@registry_cache_table, ^path, data, headers, _cached_at}] ->
+        {:ok, data, headers}
+
+      [] ->
+        :miss
+    end
+  rescue
+    _ -> :miss
   end
 end

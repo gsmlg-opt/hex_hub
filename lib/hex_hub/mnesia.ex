@@ -19,7 +19,8 @@ defmodule HexHub.Mnesia do
     :blocked_addresses,
     :retired_releases,
     :system_metadata,
-    :backups
+    :backups,
+    :registry_cache
   ]
 
   @doc """
@@ -307,6 +308,12 @@ defmodule HexHub.Mnesia do
          ],
          type: :set,
          index: [:created_at, :expires_at]
+       ] ++ storage_opt(storage_type)},
+      # Registry response cache - stores proxied registry data for offline fallback
+      {:registry_cache,
+       [
+         attributes: [:path, :data, :headers, :cached_at],
+         type: :set
        ] ++ storage_opt(storage_type)}
     ]
 
@@ -484,7 +491,8 @@ defmodule HexHub.Mnesia do
       :blocked_addresses,
       :retired_releases,
       :system_metadata,
-      :backups
+      :backups,
+      :registry_cache
     ]
 
     Enum.each(persistent_tables, fn table ->
