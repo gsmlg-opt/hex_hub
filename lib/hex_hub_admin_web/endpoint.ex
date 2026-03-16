@@ -34,7 +34,12 @@ defmodule HexHubAdminWeb.Endpoint do
     cookie_key: "request_logger"
 
   # Trust reverse proxy headers (x-forwarded-for, x-forwarded-proto, x-forwarded-port)
-  plug Plug.RewriteOn, [:x_forwarded_for, :x_forwarded_host, :x_forwarded_port, :x_forwarded_proto]
+  plug Plug.RewriteOn, [
+    :x_forwarded_for,
+    :x_forwarded_host,
+    :x_forwarded_port,
+    :x_forwarded_proto
+  ]
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
