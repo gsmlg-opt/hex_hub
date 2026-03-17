@@ -73,6 +73,13 @@ defmodule HexHubWeb.Router do
     get "/package/:name", PackageController, :redirect_to_package
   end
 
+  # Badge route for package version badges (SVG)
+  scope "/", HexHubWeb do
+    pipe_through :docs_assets
+
+    get "/packages/:name/badge.svg", BadgeController, :show
+  end
+
   # Package documentation asset routes (JS, CSS, images, etc.)
   # These need their own scope without the browser pipeline's content-type restrictions
   scope "/", HexHubWeb do
