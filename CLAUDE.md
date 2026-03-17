@@ -109,6 +109,25 @@ JSON-RPC 2.0 server for AI client integration. Conditionally started in supervis
 
 When a package isn't found locally, `HexHub.Upstream` transparently fetches from hex.pm (or configured upstream), caches it permanently. Configurable via `UPSTREAM_ENABLED` env var.
 
+## UI Libraries
+
+The project uses the **DuskMoon UI** component ecosystem:
+
+- **`phoenix_duskmoon`** — Phoenix LiveView component library (Hex package). Provides `dm_*` components for templates. Use this for all server-rendered UI components.
+- **`@duskmoon-dev/core`** — CSS component library (npm). Base design system with utility classes and theme support.
+- **`@duskmoon-dev/css-art`** — Pure CSS art components (npm). Decorative visual elements rendered entirely in CSS.
+- **`@duskmoon-dev/elements`** — Web Components library (npm). Custom elements (`<el-dm-*>`) for interactive client-side UI.
+- **`@duskmoon-dev/art-elements`** — CSS art as custom elements (npm). Web component wrappers for CSS art.
+
+**When building UI**: Use `phoenix_duskmoon` `dm_*` components in HEEx templates. For client-side interactivity, use `@duskmoon-dev/elements` custom elements. Style with `@duskmoon-dev/core` CSS classes. Do not introduce other CSS frameworks or component libraries.
+
+**Issues & feature requests**: If you encounter bugs or need new features in any DuskMoon UI library, file an issue in the corresponding GitHub repo with the label `internal request`:
+- `phoenix_duskmoon` — https://github.com/gsmlg-dev/phoenix_duskmoon/issues
+- `@duskmoon-dev/core` — https://github.com/aspect-build/aspect-frameworks/issues (TBD — confirm repo)
+- `@duskmoon-dev/css-art` — https://github.com/aspect-build/aspect-frameworks/issues (TBD — confirm repo)
+- `@duskmoon-dev/elements` — https://github.com/aspect-build/aspect-frameworks/issues (TBD — confirm repo)
+- `@duskmoon-dev/art-elements` — https://github.com/aspect-build/aspect-frameworks/issues (TBD — confirm repo)
+
 ## Code Conventions
 
 ### Telemetry-First Logging

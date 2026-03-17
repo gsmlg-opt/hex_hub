@@ -31,6 +31,7 @@ defmodule HexHub.Mnesia do
     create_tables()
     create_indices()
     migrate_to_disc_copies()
+    migrate_api_keys_add_secret_and_last_accessed()
     wait_for_tables()
   end
 
@@ -445,6 +446,57 @@ defmodule HexHub.Mnesia do
         IO.warn("Failed to migrate package source field: #{inspect(reason)}")
         {:error, reason}
     end
+  end
+
+  @doc """
+  Migrate api_keys table to add :secret and :last_accessed_at fields.
+
+  Old schema (8 elements): {:api_keys, name, username, secret_hash, permissions, revoked_at, inserted_at, updated_at}
+  New schema (10 elements): {:api_keys, name, username, secret, secret_hash, permissions, revoked_at, last_accessed_at, inserted_at, updated_at}
+  """
+  def migrate_api_keys_add_secret_and_last_accessed do
+    current_attrs = :mnesia.table_info(:api_keys, :attributes)
+
+    if :secret not in current_attrs or :last_accessed_at not in current_attrs do
+      new_attributes = [
+        :name,
+        :username,
+        :secret,
+        :secret_hash,
+        :permissions,
+        :revoked_at,
+        :last_accessed_at,
+        :inserted_at,
+        :updated_at
+      ]
+
+      transform_fn = fn
+        {:api_keys, name, username, secret_hash, permissions, revoked_at, inserted_at, updated_at} ->
+          {:api_keys, name, username, nil, secret_hash, permissions, revoked_at, nil, inserted_at,
+           updated_at}
+
+        record when tuple_size(record) == 10 ->
+          # Already migrated
+          record
+      end
+
+      case :mnesia.transform_table(:api_keys, transform_fn, new_attributes) do
+        {:atomic, :ok} ->
+          IO.puts("Migrated api_keys table: added :secret and :last_accessed_at fields")
+          :ok
+
+        {:aborted, {:already_exists, :api_keys}} ->
+          :ok
+
+        {:aborted, reason} ->
+          IO.warn("Failed to migrate api_keys table: #{inspect(reason)}")
+          {:error, reason}
+      end
+    else
+      :ok
+    end
+  rescue
+    _ -> :ok
   end
 
   @doc """
