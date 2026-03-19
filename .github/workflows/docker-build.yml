@@ -89,6 +89,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          provenance: false
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
           build-args: |
             SECRET_KEY_BASE=${{ steps.secret.outputs.SECRET_KEY_BASE }}
