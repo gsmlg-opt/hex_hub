@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "@duskmoon-dev/core": "latest",
-    "@duskmoon-dev/elements": "0.10.0"
+    "@duskmoon-dev/elements": "0.11.0"
   }
 }
