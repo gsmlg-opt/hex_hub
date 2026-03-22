@@ -26,6 +26,9 @@
           <.dm_btn variant="ghost" size="sm" disabled title="System users cannot be edited">
             <.dm_mdi name="pencil" class="h-4 w-4" /> Edit
           </.dm_btn>
+          <.dm_btn variant="ghost" size="sm" disabled title="System users cannot be deleted" class="text-error">
+            <.dm_mdi name="delete" class="h-4 w-4" /> Delete
+          </.dm_btn>
         <% else %>
           <.dm_link navigate={~p"/users/#{@user.username}/edit"} class="btn btn-primary btn-sm">
             <.dm_mdi name="pencil" class="h-4 w-4" /> Edit User

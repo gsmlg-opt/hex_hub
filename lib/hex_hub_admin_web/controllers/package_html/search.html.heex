@@ -52,9 +52,7 @@
 <!-- Results Summary -->
   <%= if @query != "" do %>
     <div class="mb-4 flex items-center gap-2 text-sm text-on-surface-variant">
-      <.dm_mdi name="information-outline" class="h-4 w-4" /> Found
-      <strong class="font-mono-data">{@pagination.total}</strong>
-      package(s) matching
+      <.dm_mdi name="information-outline" class="h-4 w-4" /> Found {@pagination.total} package(s) matching
       "<strong>{@query}</strong>"
       <%= if @source_filter != "all" do %>
         in <span class="admin-badge admin-badge-local">{@source_filter}</span>
