@@ -83,6 +83,8 @@ defmodule HexHubAdminWeb.Router do
     get "/mcp/clients", MCPController, :clients
     get "/mcp/logs", MCPController, :logs
     delete "/mcp/logs/clear", MCPController, :clear_logs
+    get "/mcp/inspector", MCPController, :inspector
+    post "/mcp/inspector/run", MCPController, :run_inspection
 
     # Backup management
     get "/backups", BackupController, :index

@@ -1,0 +1,169 @@
+<Layouts.app flash={@flash}>
+  <div class="p-6">
+    <h1 class="text-3xl font-bold mb-6">MCP Inspector</h1>
+
+    <%= unless @enabled do %>
+      <div class="alert alert-warning mb-6">
+        <.dm_mdi name="alert" class="w-5 h-5" />
+        <span>MCP server is disabled. Enable it to run inspections.</span>
+      </div>
+    <% end %>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
+      <!-- Health Check -->
+      <div class="card bg-surface shadow">
+        <div class="card-body">
+          <h3 class="card-title text-base">
+            <.dm_mdi name="heart-pulse" class="w-5 h-5 text-success" /> Health Check
+          </h3>
+          <p class="text-sm text-on-surface-variant mb-3">
+            Check MCP server health status and statistics.
+          </p>
+          <form action={~p"/mcp/inspector/run"} method="post">
+            <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+            <input type="hidden" name="action" value="health_check" />
+            <button type="submit" class="btn btn-sm btn-success" disabled={!@enabled}>
+              <.dm_mdi name="play" class="h-4 w-4" /> Run
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Initialize -->
+      <div class="card bg-surface shadow">
+        <div class="card-body">
+          <h3 class="card-title text-base">
+            <.dm_mdi name="handshake" class="w-5 h-5 text-primary" /> Initialize
+          </h3>
+          <p class="text-sm text-on-surface-variant mb-3">
+            Send an MCP initialize request to test protocol handshake.
+          </p>
+          <form action={~p"/mcp/inspector/run"} method="post">
+            <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+            <input type="hidden" name="action" value="initialize" />
+            <button type="submit" class="btn btn-sm btn-primary" disabled={!@enabled}>
+              <.dm_mdi name="play" class="h-4 w-4" /> Run
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- List Tools -->
+      <div class="card bg-surface shadow">
+        <div class="card-body">
+          <h3 class="card-title text-base">
+            <.dm_mdi name="wrench" class="w-5 h-5 text-secondary" /> List Tools
+          </h3>
+          <p class="text-sm text-on-surface-variant mb-3">
+            Request the list of available MCP tools from the server.
+          </p>
+          <form action={~p"/mcp/inspector/run"} method="post">
+            <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+            <input type="hidden" name="action" value="list_tools" />
+            <button type="submit" class="btn btn-sm btn-secondary" disabled={!@enabled}>
+              <.dm_mdi name="play" class="h-4 w-4" /> Run
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call Tool -->
+    <div class="card bg-surface shadow-xl mb-8">
+      <div class="card-body">
+        <h2 class="card-title">
+          <.dm_mdi name="function" class="w-6 h-6 text-tertiary" /> Call Tool
+        </h2>
+        <p class="text-sm text-on-surface-variant mb-4">
+          Execute an MCP tool with custom arguments and inspect the response.
+        </p>
+        <form action={~p"/mcp/inspector/run"} method="post" class="space-y-4">
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+          <input type="hidden" name="action" value="call_tool" />
+
+          <div class="form-control">
+            <label class="label">Tool Name</label>
+            <select name="tool_name" class="select select-bordered w-full" disabled={!@enabled}>
+              <%= for tool <- @tools do %>
+                <option value={tool.name}>{tool.name}</option>
+              <% end %>
+            </select>
+          </div>
+
+          <div class="form-control">
+            <label class="label">Arguments (JSON)</label>
+            <textarea
+              name="arguments"
+              class="textarea textarea-bordered font-mono text-sm w-full"
+              rows="4"
+              placeholder="{}"
+              disabled={!@enabled}
+            >{"{}"}</textarea>
+          </div>
+
+          <button type="submit" class="btn btn-tertiary" disabled={!@enabled}>
+            <.dm_mdi name="play" class="h-4 w-4" /> Execute Tool
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <%= if @result do %>
+      <div class="card bg-surface shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title flex items-center gap-2">
+            <.dm_mdi name="code-json" class="w-6 h-6" />
+            Result
+            <span class="text-sm font-normal text-on-surface-variant">
+              — {@action}
+            </span>
+            <%= if @result[:duration_ms] do %>
+              <span class="badge badge-outline badge-sm ml-2">
+                {@result[:duration_ms]}ms
+              </span>
+            <% end %>
+          </h2>
+
+          <!-- Status Badge -->
+          <div class="mb-4">
+            <%= if @result[:ok] do %>
+              <span class="badge badge-success gap-1">
+                <.dm_mdi name="check-circle" class="h-4 w-4" /> Success
+              </span>
+            <% else %>
+              <span class="badge badge-error gap-1">
+                <.dm_mdi name="alert-circle" class="h-4 w-4" /> Error
+              </span>
+            <% end %>
+          </div>
+
+          <!-- Request -->
+          <%= if @result[:request] do %>
+            <div class="mb-4">
+              <h3 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
+                <.dm_mdi name="arrow-right-bold" class="w-4 h-4" color="var(--color-primary)" />
+                Request
+              </h3>
+              <div class="bg-surface-container-high rounded-lg p-3 overflow-x-auto border border-outline-variant">
+                <pre class="text-xs font-mono text-on-surface whitespace-pre">{Jason.encode!(@result[:request], pretty: true)}</pre>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Response -->
+          <div>
+            <h3 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
+              <.dm_mdi name="arrow-left-bold" class="w-4 h-4" color="var(--color-secondary)" />
+              Response
+            </h3>
+            <div class="bg-surface-container-high rounded-lg p-3 overflow-x-auto border border-outline-variant">
+              <pre class="text-xs font-mono text-on-surface whitespace-pre">{Jason.encode!(@result[:ok] || @result[:error], pretty: true)}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</Layouts.app>
