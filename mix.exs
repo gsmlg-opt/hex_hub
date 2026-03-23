@@ -60,7 +60,6 @@ defmodule HexHub.MixProject do
       {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.5"},
       {:sweet_xml, "~> 0.7"},
-      {:hackney, "~> 1.20"},
       {:mox, "~> 1.1", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
