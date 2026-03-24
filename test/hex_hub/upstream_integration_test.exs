@@ -58,7 +58,7 @@ defmodule HexHub.UpstreamIntegrationTest do
 
         case Upstream.fetch_releases(package_name) do
           {:ok, releases} when is_list(releases) ->
-            assert length(releases) > 0
+            assert releases != []
             first_release = hd(releases)
             assert is_map(first_release)
             assert is_binary(first_release["version"])

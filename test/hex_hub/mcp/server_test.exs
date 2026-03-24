@@ -45,7 +45,7 @@ defmodule HexHub.MCP.ServerTest do
         {:ok, tools} ->
           assert is_list(tools)
 
-          if length(tools) > 0 do
+          if tools != [] do
             tool = List.first(tools)
             assert Map.has_key?(tool, "name")
             assert Map.has_key?(tool, "description")
@@ -200,7 +200,7 @@ defmodule HexHub.MCP.ServerTest do
       assert length(tools1) == length(tools2)
 
       # Test tool schemas are consistent
-      if length(tools1) > 0 do
+      if tools1 != [] do
         first_tool = List.first(tools1)
         {:ok, schema} = Server.get_tool_schema(first_tool["name"])
         assert schema.name == first_tool["name"]

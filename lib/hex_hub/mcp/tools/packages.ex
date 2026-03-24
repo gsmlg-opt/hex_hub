@@ -334,7 +334,7 @@ defmodule HexHub.MCP.Tools.Packages do
         not Map.has_key?(args, field) or is_nil(Map.get(args, field))
       end)
 
-    if length(missing_required) > 0 do
+    if missing_required != [] do
       {:error, {:missing_required_fields, missing_required}}
     else
       # Check for unknown fields
@@ -345,7 +345,7 @@ defmodule HexHub.MCP.Tools.Packages do
           field not in known_fields
         end)
 
-      if length(unknown_fields) > 0 do
+      if unknown_fields != [] do
         Telemetry.log(:warning, :mcp, "Unknown fields in args", %{
           unknown_fields: inspect(unknown_fields)
         })

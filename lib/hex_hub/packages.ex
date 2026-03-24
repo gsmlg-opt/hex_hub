@@ -1243,79 +1243,97 @@ defmodule HexHub.Packages do
         version: version
       })
 
-      with {:ok, tarball} <- Upstream.fetch_release_tarball(package_name, version) do
+      with {:ok, tarball} <- fetch_upstream_tarball(package_name, version),
+           {:ok, release_info} <- fetch_upstream_release_info(package_name, version),
+           {:ok, _package} <- fetch_upstream_package_info(package_name) do
+        meta = extract_release_meta(release_info)
+        requirements = extract_requirements(release_info)
+        Telemetry.log(:debug, :package, "Step 5: Extracted meta and requirements")
+
+        cache_and_create_release(package_name, version, tarball, meta, requirements)
+      end
+    end
+  end
+
+  defp fetch_upstream_tarball(package_name, version) do
+    case Upstream.fetch_release_tarball(package_name, version) do
+      {:ok, tarball} ->
         Telemetry.log(:debug, :package, "Step 1: Got tarball", %{size: byte_size(tarball)})
+        {:ok, tarball}
 
-        with {:ok, releases} <- Upstream.fetch_releases(package_name) do
-          Telemetry.log(:debug, :package, "Step 2: Got releases", %{count: length(releases)})
+      {:error, reason} ->
+        Telemetry.log(:error, :package, "Step 1 failed: Failed to fetch release tarball", %{
+          reason: reason
+        })
 
-          release_info = Enum.find(releases, fn r -> r["version"] == version end)
+        {:error, :not_found}
+    end
+  end
 
-          if release_info do
-            Telemetry.log(:debug, :package, "Step 3: Found release info", %{version: version})
+  defp fetch_upstream_release_info(package_name, version) do
+    case Upstream.fetch_releases(package_name) do
+      {:ok, releases} ->
+        Telemetry.log(:debug, :package, "Step 2: Got releases", %{count: length(releases)})
 
-            with {:ok, _package} <- fetch_package_from_upstream(package_name) do
-              Telemetry.log(:debug, :package, "Step 4: Got package info")
-
-              meta = extract_release_meta(release_info)
-              requirements = extract_requirements(release_info)
-              Telemetry.log(:debug, :package, "Step 5: Extracted meta and requirements")
-
-              # Cache the tarball
-              case Upstream.cache_package(package_name, version, tarball, meta) do
-                :ok ->
-                  Telemetry.log(:debug, :package, "Step 6: Cached tarball successfully")
-                  # Create release in local database
-                  create_release_from_upstream(package_name, version, meta, requirements)
-
-                {:error, reason} ->
-                  Telemetry.log(
-                    :error,
-                    :package,
-                    "Step 6 failed: Failed to cache release tarball",
-                    %{
-                      package: package_name,
-                      version: version,
-                      reason: reason
-                    }
-                  )
-
-                  {:error, :not_found}
-              end
-            else
-              {:error, reason} ->
-                Telemetry.log(
-                  :error,
-                  :package,
-                  "Step 4 failed: Failed to fetch package from upstream",
-                  %{reason: reason}
-                )
-
-                {:error, :not_found}
-            end
-          else
+        case Enum.find(releases, fn r -> r["version"] == version end) do
+          nil ->
             Telemetry.log(:error, :package, "Step 3 failed: Version not found in releases", %{
               version: version
             })
 
             {:error, :not_found}
-          end
-        else
-          {:error, reason} ->
-            Telemetry.log(:error, :package, "Step 2 failed: Failed to fetch releases", %{
-              reason: reason
-            })
 
-            {:error, :not_found}
+          release_info ->
+            Telemetry.log(:debug, :package, "Step 3: Found release info", %{version: version})
+            {:ok, release_info}
         end
-      else
-        {:error, reason} ->
-          Telemetry.log(:error, :package, "Step 1 failed: Failed to fetch release tarball", %{
-            reason: reason
-          })
 
-          {:error, :not_found}
-      end
+      {:error, reason} ->
+        Telemetry.log(:error, :package, "Step 2 failed: Failed to fetch releases", %{
+          reason: reason
+        })
+
+        {:error, :not_found}
+    end
+  end
+
+  defp fetch_upstream_package_info(package_name) do
+    case fetch_package_from_upstream(package_name) do
+      {:ok, package} ->
+        Telemetry.log(:debug, :package, "Step 4: Got package info")
+        {:ok, package}
+
+      {:error, reason} ->
+        Telemetry.log(
+          :error,
+          :package,
+          "Step 4 failed: Failed to fetch package from upstream",
+          %{reason: reason}
+        )
+
+        {:error, :not_found}
+    end
+  end
+
+  defp cache_and_create_release(package_name, version, tarball, meta, requirements) do
+    case Upstream.cache_package(package_name, version, tarball, meta) do
+      :ok ->
+        Telemetry.log(:debug, :package, "Step 6: Cached tarball successfully")
+        create_release_from_upstream(package_name, version, meta, requirements)
+
+      {:error, reason} ->
+        Telemetry.log(
+          :error,
+          :package,
+          "Step 6 failed: Failed to cache release tarball",
+          %{
+            package: package_name,
+            version: version,
+            reason: reason
+          }
+        )
+
+        {:error, :not_found}
     end
   end
 

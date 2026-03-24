@@ -141,7 +141,7 @@ defmodule HexHub.MCP.Tools.Dependencies do
 
     errors = Enum.filter(parsed, &match?({:error, _}, &1))
 
-    if length(errors) > 0 do
+    if errors != [] do
       {:error, {:invalid_requirements, errors}}
     else
       {:ok, Enum.into(parsed, %{})}
@@ -178,7 +178,7 @@ defmodule HexHub.MCP.Tools.Dependencies do
 
     errors = Enum.filter(resolved, &match?({:error, _}, &1))
 
-    if length(errors) > 0 do
+    if errors != [] do
       {:error, {:resolution_failed, errors}}
     else
       {:ok, Enum.filter(resolved, &match?({_, _}, &1))}
@@ -369,7 +369,7 @@ defmodule HexHub.MCP.Tools.Dependencies do
 
     errors = Enum.filter(parsed, &match?({:error, _}, &1))
 
-    if length(errors) > 0 do
+    if errors != [] do
       {:error, {:invalid_packages, errors}}
     else
       {:ok, Enum.filter(parsed, &match?({_, _}, &1))}
@@ -549,7 +549,7 @@ defmodule HexHub.MCP.Tools.Dependencies do
         not Map.has_key?(args, field) or is_nil(Map.get(args, field))
       end)
 
-    if length(missing_required) > 0 do
+    if missing_required != [] do
       {:error, {:missing_required_fields, missing_required}}
     else
       # Check for unknown fields
@@ -560,7 +560,7 @@ defmodule HexHub.MCP.Tools.Dependencies do
           field not in known_fields
         end)
 
-      if length(unknown_fields) > 0 do
+      if unknown_fields != [] do
         Telemetry.log(:warning, :mcp, "Unknown fields in args", %{
           unknown_fields: inspect(unknown_fields)
         })

@@ -8,8 +8,8 @@
         <span>MCP server is disabled. Enable it to run inspections.</span>
       </div>
     <% end %>
-
-    <!-- Quick Actions -->
+    
+<!-- Quick Actions -->
     <div class="grid grid-cols-auto-fill-72 gap-6 mb-8">
       <!-- Health Check -->
       <div class="card bg-surface shadow">
@@ -29,8 +29,8 @@
           </form>
         </div>
       </div>
-
-      <!-- Initialize -->
+      
+<!-- Initialize -->
       <div class="card bg-surface shadow">
         <div class="card-body">
           <h3 class="card-title text-base">
@@ -48,8 +48,8 @@
           </form>
         </div>
       </div>
-
-      <!-- List Tools -->
+      
+<!-- List Tools -->
       <div class="card bg-surface shadow">
         <div class="card-body">
           <h3 class="card-title text-base">
@@ -68,8 +68,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Call Tool -->
+    
+<!-- Call Tool -->
     <div class="card bg-surface shadow-xl mb-8">
       <div class="card-body">
         <h2 class="card-title">
@@ -108,14 +108,13 @@
         </form>
       </div>
     </div>
-
-    <!-- Result -->
+    
+<!-- Result -->
     <%= if @result do %>
       <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title flex items-center gap-2">
-            <.dm_mdi name="code-json" class="w-6 h-6" />
-            Result
+            <.dm_mdi name="code-json" class="w-6 h-6" /> Result
             <span class="text-sm font-normal text-on-surface-variant">
               — {@action}
             </span>
@@ -125,8 +124,8 @@
               </span>
             <% end %>
           </h2>
-
-          <!-- Status Badge -->
+          
+<!-- Status Badge -->
           <div class="mb-4">
             <%= if @result[:ok] do %>
               <span class="badge badge-success gap-1">
@@ -138,8 +137,8 @@
               </span>
             <% end %>
           </div>
-
-          <!-- Request -->
+          
+<!-- Request -->
           <%= if @result[:request] do %>
             <div class="mb-4">
               <h3 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
@@ -151,8 +150,8 @@
               </div>
             </div>
           <% end %>
-
-          <!-- Response -->
+          
+<!-- Response -->
           <div>
             <h3 class="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
               <.dm_mdi name="arrow-left-bold" class="w-4 h-4" color="var(--color-secondary)" />

@@ -26,7 +26,13 @@
           <.dm_btn variant="ghost" size="sm" disabled title="System users cannot be edited">
             <.dm_mdi name="pencil" class="h-4 w-4" /> Edit
           </.dm_btn>
-          <.dm_btn variant="ghost" size="sm" disabled title="System users cannot be deleted" class="text-error">
+          <.dm_btn
+            variant="ghost"
+            size="sm"
+            disabled
+            title="System users cannot be deleted"
+            class="text-error"
+          >
             <.dm_mdi name="delete" class="h-4 w-4" /> Delete
           </.dm_btn>
         <% else %>
@@ -49,8 +55,8 @@
       </div>
     </div>
   </div>
-
-  <!-- Stats -->
+  
+<!-- Stats -->
   <div class="admin-stats">
     <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="key-variant" class="h-5 w-5" /></div>
@@ -77,8 +83,8 @@
       <div class="admin-stat-label">Member Since</div>
     </div>
   </div>
-
-  <!-- User Details Panel -->
+  
+<!-- User Details Panel -->
   <div class="admin-panel mb-6">
     <div class="admin-panel-header">
       <h3>User Details</h3>
@@ -122,8 +128,8 @@
       </div>
     </div>
   </div>
-
-  <!-- API Tokens Panel -->
+  
+<!-- API Tokens Panel -->
   <div class="admin-panel mb-6">
     <div class="admin-panel-header">
       <h3>API Tokens</h3>
@@ -245,13 +251,17 @@
         </p>
       </div>
     <% end %>
-
-    <!-- Create Token Form -->
+    
+<!-- Create Token Form -->
     <div class="admin-form-section">
       <div class="admin-form-section-header">
         <h4>Create New Token</h4>
       </div>
-      <form action={~p"/users/#{@user.username}/tokens"} method="post" class="admin-form-section-body">
+      <form
+        action={~p"/users/#{@user.username}/tokens"}
+        method="post"
+        class="admin-form-section-body"
+      >
         <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
         <div class="admin-form-row">
           <div class="admin-form-field">
@@ -299,8 +309,8 @@
       </form>
     </div>
   </div>
-
-  <!-- Owned Packages Panel -->
+  
+<!-- Owned Packages Panel -->
   <div class="admin-panel">
     <div class="admin-panel-header">
       <h3>Owned Packages</h3>
