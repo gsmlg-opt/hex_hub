@@ -191,7 +191,7 @@ defmodule HexHub.MCP.Schemas do
     # Check required fields
     missing_fields = Enum.reject(required_fields, &Map.has_key?(data, &1))
 
-    if length(missing_fields) > 0 do
+    if missing_fields != [] do
       {:error, :missing_required_fields}
     else
       # Validate each property that has a schema

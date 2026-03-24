@@ -5,5 +5,8 @@
   "dependencies": {
     "@duskmoon-dev/core": "latest",
     "@duskmoon-dev/elements": "0.11.0"
+  },
+  "overrides": {
+    "@duskmoon-dev/el-code-block": "0.11.0"
   }
 }

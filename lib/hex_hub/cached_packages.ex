@@ -752,26 +752,23 @@ defmodule HexHub.CachedPackages do
         # Cache new release tarballs
         cached_count =
           Enum.count(new_releases, fn release ->
-            version = release["version"]
-
-            case HexHub.Upstream.fetch_release_tarball(name, version) do
-              {:ok, tarball} ->
-                case HexHub.Upstream.cache_package(name, version, tarball, %{}) do
-                  :ok ->
-                    create_cached_release(name, release)
-                    true
-
-                  {:error, _} ->
-                    false
-                end
-
-              {:error, _} ->
-                false
-            end
+            cache_new_release(name, release)
           end)
 
         {:ok, %{new_releases: cached_count}}
       end
+    end
+  end
+
+  defp cache_new_release(name, release) do
+    version = release["version"]
+
+    with {:ok, tarball} <- HexHub.Upstream.fetch_release_tarball(name, version),
+         :ok <- HexHub.Upstream.cache_package(name, version, tarball, %{}) do
+      create_cached_release(name, release)
+      true
+    else
+      {:error, _} -> false
     end
   end
 

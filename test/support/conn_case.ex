@@ -39,6 +39,10 @@ defmodule HexHubWeb.ConnCase do
     # Clear Users test store
     HexHub.Users.reset_test_store()
 
+    # Ensure storage is reset to local for test isolation
+    Application.put_env(:hex_hub, :storage_type, :local)
+    Application.put_env(:hex_hub, :storage_path, "priv/test_storage")
+
     # Clear test storage
     test_storage_path = "priv/test_storage"
 

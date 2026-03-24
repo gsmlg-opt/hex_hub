@@ -220,7 +220,7 @@ defmodule HexHub.MCP.HandlerTest do
       tool_status = Handler.get_tool_status()
       assert is_list(tool_status)
 
-      if length(tool_status) > 0 do
+      if tool_status != [] do
         tool = List.first(tool_status)
         assert Map.has_key?(tool, :name)
         assert Map.has_key?(tool, :description)

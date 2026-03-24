@@ -425,7 +425,7 @@ defmodule HexHubWeb.MCPPublicTest do
         assert response["error"]["code"] == -32002
         # Check retry-after header
         retry_after = get_resp_header(conn2, "retry-after")
-        assert length(retry_after) > 0
+        assert retry_after != []
       end
 
       # Reset rate limit config

@@ -116,6 +116,9 @@ config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+# Use Req as HTTP client for ExAws (replaces hackney)
+config :ex_aws, http_client: ExAws.Request.Req
+
 config :phoenix, :json_library, Jason
 
 # Upstream configuration (stored in Mnesia database)
