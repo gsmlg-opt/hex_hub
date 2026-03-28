@@ -167,6 +167,10 @@ Return `{:ok, result}` or `{:error, reason}` tuples consistently across all cont
 
 GitHub Actions runs: Compile (warnings-as-errors), Format Check, Credo (strict), Dialyzer, Tests, E2E Tests. All must pass. Dialyzer PLT is cached by OTP/Elixir version + mix.lock hash; warnings suppressed via `.dialyzer_ignore.exs`.
 
+## Operational Docs
+
+`docs/` contains deployment and operational guides: `clustering.md`, `docker.md`, `hex-mirror.md`, `mcp-deployment.md`.
+
 ## Environment Variables
 
 See `config/runtime.exs` for full list. Key ones:
