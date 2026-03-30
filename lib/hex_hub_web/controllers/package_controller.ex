@@ -327,10 +327,17 @@ defmodule HexHubWeb.PackageController do
         releases ->
           releases
           |> Enum.map(& &1.version)
-          |> Enum.sort_by(& &1, &>=/2)
+          |> Enum.sort(&version_compare/2)
           |> List.first()
       end
 
     Map.put(package, :latest_version, latest_version)
+  end
+
+  defp version_compare(v1, v2) do
+    case {Version.parse(v1), Version.parse(v2)} do
+      {{:ok, parsed1}, {:ok, parsed2}} -> Version.compare(parsed1, parsed2) != :lt
+      _ -> v1 >= v2
+    end
   end
 end

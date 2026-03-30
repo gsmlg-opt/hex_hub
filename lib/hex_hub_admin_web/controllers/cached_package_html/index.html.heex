@@ -52,6 +52,13 @@
       <div class="admin-stat-label">Cached Packages</div>
     </div>
     <div class="admin-stat">
+      <div class="admin-stat-icon"><.dm_mdi name="tag-multiple" class="h-5 w-5" /></div>
+      <div class="admin-stat-value font-mono-data">
+        {Enum.reduce(@packages, 0, fn p, acc -> acc + length(p.versions) end)}
+      </div>
+      <div class="admin-stat-label">Cached Versions</div>
+    </div>
+    <div class="admin-stat">
       <div class="admin-stat-icon"><.dm_mdi name="download" class="h-5 w-5" /></div>
       <div class="admin-stat-value font-mono-data">
         {Enum.reduce(@packages, 0, fn p, acc -> acc + p.downloads end)}
@@ -142,6 +149,31 @@
             <div class="font-mono-data text-on-surface-variant mt-0.5">
               {package.latest_version || "No versions"}
             </div>
+          </:col>
+          <:col :let={package} label="Versions">
+            <%= if package.versions_with_status == [] do %>
+              <span class="text-sm text-on-surface-variant">None</span>
+            <% else %>
+              <div class="flex flex-wrap gap-1">
+                <%= for v <- package.versions_with_status do %>
+                  <%= if v.cached do %>
+                    <span
+                      class="admin-badge admin-badge-active text-xs font-mono-data"
+                      title={"#{v.version} — cached"}
+                    >
+                      {v.version}
+                    </span>
+                  <% else %>
+                    <span
+                      class="admin-badge admin-badge-shadowed text-xs font-mono-data opacity-60"
+                      title={"#{v.version} — not cached"}
+                    >
+                      {v.version}
+                    </span>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
           </:col>
           <:col :let={package} label="Status">
             <span class={

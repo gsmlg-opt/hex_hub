@@ -1217,7 +1217,11 @@ defmodule HexHub.Packages do
       case Upstream.fetch_package(package_name) do
         {:ok, upstream_package} ->
           # Create package locally with upstream metadata
-          create_package_from_upstream(package_name, upstream_package)
+          with {:ok, package} <- create_package_from_upstream(package_name, upstream_package) do
+            # Also create release metadata records so versions are visible immediately
+            create_release_metadata_from_upstream(package_name)
+            {:ok, package}
+          end
 
         {:error, _reason} ->
           Telemetry.log(:warning, :package, "Failed to fetch package from upstream", %{
@@ -1451,6 +1455,39 @@ defmodule HexHub.Packages do
 
       {:aborted, reason} ->
         {:error, "Failed to create release: #{inspect(reason)}"}
+    end
+  end
+
+  defp create_release_metadata_from_upstream(package_name) do
+    case Upstream.fetch_releases(package_name) do
+      {:ok, upstream_releases} ->
+        now = DateTime.utc_now()
+
+        Enum.each(upstream_releases, fn release_info ->
+          version = release_info["version"]
+          meta = extract_release_meta(release_info)
+          requirements = extract_requirements(release_info)
+
+          release =
+            {@releases_table, package_name, version, false, meta, requirements, false, 0, now, now,
+             "/packages/#{package_name}/releases/#{version}",
+             "/packages/#{package_name}/releases/#{version}/package",
+             "/packages/#{package_name}/releases/#{version}",
+             "/packages/#{package_name}/releases/#{version}/docs"}
+
+          :mnesia.transaction(fn -> :mnesia.write(release) end)
+        end)
+
+        Telemetry.log(:debug, :package, "Created release metadata from upstream", %{
+          package: package_name,
+          count: length(upstream_releases)
+        })
+
+      {:error, reason} ->
+        Telemetry.log(:warning, :package, "Failed to fetch releases from upstream", %{
+          package: package_name,
+          reason: reason
+        })
     end
   end
 

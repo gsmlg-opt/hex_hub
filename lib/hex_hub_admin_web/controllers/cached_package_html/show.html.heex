@@ -138,6 +138,15 @@
               <:col :let={release} label="Version">
                 <span class="font-mono">{release.version}</span>
               </:col>
+              <:col :let={release} label="Tarball Cached">
+                <span class={
+                  if Map.get(release, :tarball_cached, false),
+                    do: "badge badge-success",
+                    else: "badge badge-ghost"
+                }>
+                  {if Map.get(release, :tarball_cached, false), do: "Cached", else: "Not Cached"}
+                </span>
+              </:col>
               <:col :let={release} label="Has Docs">
                 <span class={
                   if release.has_docs, do: "badge badge-success", else: "badge badge-ghost"

@@ -100,7 +100,15 @@ defmodule HexHub.CachedPackages do
                 do: :shadowed,
                 else: :active
 
-            versions = get_package_versions(name)
+            versions_with_status =
+              if source == :cached do
+                get_versions_with_cache_status(name)
+              else
+                get_package_versions(name)
+                |> Enum.map(&%{version: &1, cached: true})
+              end
+
+            version_strings = Enum.map(versions_with_status, & &1.version)
 
             %{
               name: name,
@@ -114,8 +122,9 @@ defmodule HexHub.CachedPackages do
               docs_html_url: docs,
               source: source,
               status: status,
-              versions: versions,
-              latest_version: List.first(versions)
+              versions: version_strings,
+              versions_with_status: versions_with_status,
+              latest_version: List.first(version_strings)
             }
           end)
 
@@ -319,7 +328,15 @@ defmodule HexHub.CachedPackages do
           end
 
         versions = get_package_versions(name)
+        versions_with_status = get_versions_with_cache_status(name)
         releases = get_package_releases(name)
+
+        # Annotate releases with cache status
+        releases_with_status =
+          Enum.map(releases, fn release ->
+            key = HexHub.Storage.generate_package_key(name, release.version, :cached)
+            Map.put(release, :tarball_cached, HexHub.Storage.exists?(key))
+          end)
 
         {:ok,
          %{
@@ -335,8 +352,9 @@ defmodule HexHub.CachedPackages do
            source: src,
            status: status,
            versions: versions,
+           versions_with_status: versions_with_status,
            latest_version: List.first(versions),
-           releases: releases
+           releases: releases_with_status
          }}
 
       {:aborted, reason} ->
@@ -580,6 +598,18 @@ defmodule HexHub.CachedPackages do
       {:atomic, names} -> MapSet.new(names)
       {:aborted, _} -> MapSet.new()
     end
+  end
+
+  @doc """
+  Returns a list of `%{version: String.t(), cached: boolean()}` maps for a package,
+  where `cached` indicates whether the tarball exists in storage.
+  """
+  def get_versions_with_cache_status(name) do
+    get_package_versions(name)
+    |> Enum.map(fn version ->
+      key = HexHub.Storage.generate_package_key(name, version, :cached)
+      %{version: version, cached: HexHub.Storage.exists?(key)}
+    end)
   end
 
   defp get_package_versions(name) do
