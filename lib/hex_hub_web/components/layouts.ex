@@ -11,6 +11,8 @@ defmodule HexHubWeb.Layouts do
   # and other static content.
   embed_templates "layouts/*"
 
+  @app_version Mix.Project.config()[:version]
+
   @doc """
   Renders your app layout.
 
@@ -34,6 +36,8 @@ defmodule HexHubWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
+    assigns = assign_new(assigns, :app_version, fn -> @app_version end)
+
     ~H"""
     <header class="sticky top-0 z-50">
       <nav class="navbar navbar-surface-container-high border-b border-outline-variant">
@@ -80,7 +84,7 @@ defmodule HexHubWeb.Layouts do
     <footer class="border-t border-outline-variant bg-surface-container-low">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-on-surface-variant">
-          <p>HexHub &mdash; Private Hex Package Manager</p>
+          <p>HexHub v{@app_version} &mdash; Private Hex Package Manager</p>
           <div class="flex items-center gap-4">
             <a href="/docs" class="hover:text-on-surface transition-colors">Documentation</a>
             <a href="/docs/api-reference" class="hover:text-on-surface transition-colors">API</a>
