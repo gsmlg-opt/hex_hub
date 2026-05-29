@@ -18,6 +18,83 @@
   grid-template-columns: repeat(auto-fit, minmax(min(calc(--value(integer) * 0.25rem), 100%), 1fr));
 }
 
+/* DuskMoon appbar component styles are emitted after Tailwind utilities under Volt.
+   Keep the appbar's responsive mobile controls authoritative. */
+#appbar-mobile-menu.hidden {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .appbar-nav.md\:hidden,
+  #appbar-mobile-menu.md\:hidden {
+    display: none;
+  }
+}
+
+/* Scoped DuskMoon confirm dialog refinements for admin actions. */
+.admin-confirm-dialog::part(backdrop),
+el-dm-dialog[id^="confirm-dialog-"]::part(backdrop) {
+  background: color-mix(in srgb, var(--color-scrim) 60%, transparent);
+  backdrop-filter: blur(1px);
+}
+
+.admin-confirm-dialog::part(dialog),
+el-dm-dialog[id^="confirm-dialog-"]::part(dialog) {
+  width: min(30rem, calc(100vw - 2rem));
+  max-width: min(30rem, calc(100vw - 2rem));
+  min-width: min(30rem, calc(100vw - 2rem));
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-2xl);
+}
+
+.admin-confirm-dialog::part(header),
+el-dm-dialog[id^="confirm-dialog-"]::part(header) {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.admin-confirm-dialog::part(close),
+el-dm-dialog[id^="confirm-dialog-"]::part(close) {
+  border-radius: 0.375rem;
+  color: var(--color-on-surface-variant);
+}
+
+.admin-confirm-dialog::part(body),
+el-dm-dialog[id^="confirm-dialog-"]::part(body) {
+  padding: 1.25rem;
+}
+
+.admin-confirm-dialog::part(footer),
+el-dm-dialog[id^="confirm-dialog-"]::part(footer) {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.admin-confirm-title,
+el-dm-dialog[id^="confirm-dialog-"] > [slot="header"] {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.admin-confirm-message,
+el-dm-dialog[id^="confirm-dialog-"] > p {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+}
+
+.admin-confirm-actions,
+el-dm-dialog[id^="confirm-dialog-"] > [slot="footer"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 /* ── Obsidian Console: Admin Aesthetic ─────────────────────────── */
 
 /* Page header with accent underline */
@@ -145,6 +222,21 @@
   background: color-mix(in srgb, var(--color-surface-variant) 15%, var(--color-surface));
   font-size: 0.8125rem;
   color: var(--color-on-surface-variant);
+}
+
+/* Compact icon-only table actions. */
+.admin-action-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.admin-table-action-tooltip {
+  display: inline-flex;
+}
+
+.admin-table-action-button {
+  flex-shrink: 0;
 }
 
 /* Empty state */

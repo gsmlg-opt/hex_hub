@@ -135,10 +135,14 @@
               {format_timestamp(package.updated_at)}
             </span>
           </:col>
-          <:col :let={package} label="">
-            <.dm_link navigate={~p"/local-packages/#{package.name}"} class="btn btn-ghost btn-sm">
-              View <.dm_mdi name="arrow-right" class="h-4 w-4" />
-            </.dm_link>
+          <:col :let={package} label="Actions">
+            <div class="admin-action-cell">
+              <.admin_table_action
+                label="View"
+                icon="arrow-right"
+                navigate={~p"/local-packages/#{package.name}"}
+              />
+            </div>
           </:col>
         </.dm_table>
       </div>

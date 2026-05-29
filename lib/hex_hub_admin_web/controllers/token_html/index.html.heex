@@ -126,23 +126,28 @@
           </:col>
           <:col :let={token} label="Actions">
             <%= if is_nil(token.revoked_at) do %>
-              <form
-                action={~p"/users/#{token.username}/tokens/#{token.name}"}
-                method="post"
-                class="inline"
-              >
-                <input type="hidden" name="_method" value="delete" />
-                <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-                <.dm_btn
-                  type="submit"
-                  variant="ghost"
-                  size="sm"
-                  class="text-error"
-                  confirm="Are you sure you want to revoke this token?"
+              <% revoke_id = Base.url_encode64("#{token.username}:#{token.name}", padding: false) %>
+              <div class="admin-action-cell">
+                <form
+                  id={"revoke-token-form-#{revoke_id}"}
+                  action={~p"/users/#{token.username}/tokens/#{token.name}"}
+                  method="post"
+                  class="hidden"
                 >
-                  <.dm_mdi name="close-circle" class="h-4 w-4" /> Revoke
-                </.dm_btn>
-              </form>
+                  <input type="hidden" name="_method" value="delete" />
+                  <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+                </form>
+                <.admin_table_action
+                  id={"revoke-token-#{revoke_id}"}
+                  form={"revoke-token-form-#{revoke_id}"}
+                  label="Revoke"
+                  icon="close-circle"
+                  class="text-error"
+                  confirm_title="Revoke token?"
+                  confirm_text="Revoke"
+                  confirm="Are you sure you want to revoke this token?"
+                />
+              </div>
             <% else %>
               <span class="text-on-surface-variant text-sm">—</span>
             <% end %>

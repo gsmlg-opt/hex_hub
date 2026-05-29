@@ -50,30 +50,32 @@
           <span class="font-mono-data text-on-surface-variant">{repository.inserted_at}</span>
         </:col>
         <:col :let={repository} label="Actions">
-          <div class="flex items-center gap-1">
-            <.dm_link
+          <% delete_id = Base.url_encode64(repository.name, padding: false) %>
+          <div class="admin-action-cell">
+            <.admin_table_action
+              label="Edit"
+              icon="pencil"
               navigate={~p"/repositories/#{repository.name}/edit"}
-              class="btn btn-ghost btn-sm"
-            >
-              <.dm_mdi name="pencil" class="h-4 w-4" /> Edit
-            </.dm_link>
+            />
             <form
+              id={"delete-repository-form-#{delete_id}"}
               action={~p"/repositories/#{repository.name}"}
               method="post"
-              class="inline"
+              class="hidden"
             >
               <input type="hidden" name="_method" value="delete" />
               <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-              <.dm_btn
-                type="submit"
-                variant="ghost"
-                size="sm"
-                class="text-error"
-                confirm="Are you sure you want to delete this repository and all its packages?"
-              >
-                <.dm_mdi name="delete" class="h-4 w-4" /> Delete
-              </.dm_btn>
             </form>
+            <.admin_table_action
+              id={"delete-repository-#{delete_id}"}
+              form={"delete-repository-form-#{delete_id}"}
+              label="Delete"
+              icon="delete"
+              class="text-error"
+              confirm_title="Delete repository?"
+              confirm_text="Delete"
+              confirm="Are you sure you want to delete this repository and all its packages?"
+            />
           </div>
         </:col>
       </.dm_table>

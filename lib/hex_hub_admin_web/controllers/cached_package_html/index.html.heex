@@ -16,29 +16,45 @@
           <.dm_mdi name="database" class="h-3.5 w-3.5" /> Cached
         </span>
         <%= if @pagination.total > 0 do %>
-          <form method="post" action={~p"/cached-packages/refresh"} class="inline">
+          <form
+            id="refresh-cached-packages-form"
+            method="post"
+            action={~p"/cached-packages/refresh"}
+            class="hidden"
+          >
             <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-            <.dm_btn
-              type="submit"
-              variant="primary"
-              size="sm"
-              confirm="Refresh all cached packages from upstream? This may take a while."
-            >
-              <.dm_mdi name="refresh" class="h-4 w-4" /> Refresh All
-            </.dm_btn>
           </form>
-          <form method="post" action={~p"/cached-packages?confirm=true"} class="inline">
+          <.dm_btn
+            id="refresh-cached-packages"
+            form="refresh-cached-packages-form"
+            variant="primary"
+            size="sm"
+            confirm_title="Refresh cached packages?"
+            confirm_text="Refresh"
+            confirm="Refresh all cached packages from upstream? This may take a while."
+          >
+            <.dm_mdi name="refresh" class="h-4 w-4" /> Refresh All
+          </.dm_btn>
+          <form
+            id="clear-cached-packages-form"
+            method="post"
+            action={~p"/cached-packages?confirm=true"}
+            class="hidden"
+          >
             <input type="hidden" name="_method" value="delete" />
             <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-            <.dm_btn
-              type="submit"
-              variant="error"
-              size="sm"
-              confirm="Are you sure you want to delete ALL cached packages? This cannot be undone."
-            >
-              <.dm_mdi name="delete-sweep" class="h-4 w-4" /> Clear All Cache
-            </.dm_btn>
           </form>
+          <.dm_btn
+            id="clear-cached-packages"
+            form="clear-cached-packages-form"
+            variant="error"
+            size="sm"
+            confirm_title="Clear all cache?"
+            confirm_text="Clear cache"
+            confirm="Are you sure you want to delete ALL cached packages? This cannot be undone."
+          >
+            <.dm_mdi name="delete-sweep" class="h-4 w-4" /> Clear All Cache
+          </.dm_btn>
         <% end %>
       </div>
     </div>
@@ -201,26 +217,32 @@
             </span>
           </:col>
           <:col :let={package} label="Actions">
-            <div class="flex items-center gap-1">
-              <.dm_link
+            <% delete_id = Base.url_encode64(package.name, padding: false) %>
+            <div class="admin-action-cell">
+              <.admin_table_action
+                label="View"
+                icon="eye"
                 navigate={~p"/cached-packages/#{package.name}"}
-                class="btn btn-ghost btn-sm"
+              />
+              <form
+                id={"delete-cached-package-form-#{delete_id}"}
+                action={~p"/cached-packages/#{package.name}"}
+                method="post"
+                class="hidden"
               >
-                View
-              </.dm_link>
-              <form action={~p"/cached-packages/#{package.name}"} method="post" class="inline">
                 <input type="hidden" name="_method" value="delete" />
                 <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-                <.dm_btn
-                  type="submit"
-                  variant="ghost"
-                  size="sm"
-                  class="text-error"
-                  confirm="Delete this cached package?"
-                >
-                  Delete
-                </.dm_btn>
               </form>
+              <.admin_table_action
+                id={"delete-cached-package-#{delete_id}"}
+                form={"delete-cached-package-form-#{delete_id}"}
+                label="Delete"
+                icon="delete"
+                class="text-error"
+                confirm_title="Delete cached package?"
+                confirm_text="Delete"
+                confirm="Delete this cached package?"
+              />
             </div>
           </:col>
         </.dm_table>

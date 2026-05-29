@@ -135,17 +135,18 @@
           <:col :let={package} label="Downloads">
             <span class="font-mono-data">{package.downloads}</span>
           </:col>
-          <:col :let={package} label="">
-            <.dm_link
-              navigate={
-                if package.source == :local,
-                  do: ~p"/local-packages/#{package.name}",
-                  else: ~p"/cached-packages/#{package.name}"
-              }
-              class="btn btn-ghost btn-sm"
-            >
-              View <.dm_mdi name="arrow-right" class="h-4 w-4" />
-            </.dm_link>
+          <:col :let={package} label="Actions">
+            <div class="admin-action-cell">
+              <.admin_table_action
+                label="View"
+                icon="arrow-right"
+                navigate={
+                  if package.source == :local,
+                    do: ~p"/local-packages/#{package.name}",
+                    else: ~p"/cached-packages/#{package.name}"
+                }
+              />
+            </div>
           </:col>
         </.dm_table>
       </div>
