@@ -85,7 +85,7 @@ defmodule HexHub.MixProject do
       test: ["test"],
       lint: ["credo --strict", "dialyzer"],
       "quickbeam.compile": quickbeam_compile_alias(),
-      "assets.setup": ["npm.install"],
+      "assets.setup": ["npm.install --frozen"],
       "assets.build": [
         "cmd mix volt.build hex_hub --tailwind --no-hash --no-minify",
         "cmd mix volt.build hex_hub_admin --tailwind --no-hash --no-minify"
