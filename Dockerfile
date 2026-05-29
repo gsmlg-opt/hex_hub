@@ -9,7 +9,7 @@
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
 #   - https://hub.docker.com/_/debian/tags?name=bookworm-20240423-slim - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: docker.io/hexpm/elixir:1.15.7-erlang-26.2.5-debian-bookworm-20240423-slim
+#   - Ex: docker.io/hexpm/elixir:1.18.4-erlang-28.0.2-debian-bookworm-20250811-slim
 #
 FROM hexpm/elixir:1.18.4-erlang-28.0.2-debian-bookworm-20250811-slim AS builder
 
@@ -21,10 +21,6 @@ RUN apt-get update \
 # prepare build dir
 WORKDIR /app
 
-# install bun
-RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:$PATH"
-
 # install hex + rebar
 RUN mix local.hex --force \
   && mix local.rebar --force
@@ -33,9 +29,8 @@ RUN mix local.hex --force \
 ARG MIX_ENV=prod
 ARG SECRET_KEY_BASE
 
-# install npm packages
-COPY package.json bun.lock* ./
-RUN bun install
+# copy npm package manifests
+COPY package.json npm.lock* ./
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -130,4 +125,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:4360/health || exit 1
 
 CMD ["/app/bin/hex_hub", "start"]
-

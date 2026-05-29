@@ -85,7 +85,8 @@ defmodule HexHubAdminWeb do
       import Phoenix.HTML
 
       use PhoenixDuskmoon.Component
-      use PhoenixDuskmoon.CssArt
+      use PhoenixDuskmoon.ArtComponent
+      import HexHubAdminWeb.AdminComponents
 
       # Common modules used in templates
       alias HexHubAdminWeb.Layouts

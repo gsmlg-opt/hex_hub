@@ -44,8 +44,9 @@ The application is ready for production use.
 
 ### Prerequisites
 
-- Elixir 1.15+ and Erlang/OTP 26+
-- Node.js 18+ (for assets)
+- Elixir 1.17+ and Erlang/OTP 26+
+- npm_ex via Mix for package.json dependencies
+- mise on Intel macOS (installs Zig 0.15.2 for local QuickBEAM compilation)
 - No database required (uses Mnesia for storage)
 
 ### Installation
@@ -68,6 +69,7 @@ The application will be available at `http://localhost:4360`
 
 ```bash
 # Build for production
+MIX_ENV=prod mix assets.setup
 MIX_ENV=prod mix assets.deploy
 MIX_ENV=prod mix release
 
@@ -404,6 +406,7 @@ RUN mix local.hex --force && \
     mix local.rebar --force && \
     mix deps.get && \
     mix compile && \
+    mix assets.setup && \
     mix assets.deploy
 
 EXPOSE 4360 4361

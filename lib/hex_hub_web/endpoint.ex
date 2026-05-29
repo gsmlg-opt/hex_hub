@@ -32,6 +32,7 @@ defmodule HexHubWeb.Endpoint do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
+    plug Volt.DevServer, root: "assets", profile: :hex_hub
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,

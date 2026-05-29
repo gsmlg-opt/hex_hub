@@ -14,8 +14,17 @@
     <.live_title default="HexHub" suffix=" · HexHub">
       {assigns[:page_title]}
     </.live_title>
-    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
-    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    <link
+      phx-track-static
+      rel="stylesheet"
+      href={Volt.static_path(HexHubWeb.Endpoint, "/assets/public/css/app.css", profile: :hex_hub)}
+    />
+    <script
+      defer
+      phx-track-static
+      type="module"
+      src={Volt.static_path(HexHubWeb.Endpoint, "/assets/public/js/app.js", profile: :hex_hub)}
+    >
     </script>
   </head>
   <body class="bg-surface antialiased">

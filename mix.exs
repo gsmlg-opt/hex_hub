@@ -5,7 +5,7 @@ defmodule HexHub.MixProject do
     [
       app: :hex_hub,
       version: "1.0.10",
-      elixir: "~> 1.15",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -36,7 +36,7 @@ defmodule HexHub.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
-    [
+    common_deps = [
       {:phoenix, "~> 1.8.0-rc.4", override: true},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -44,8 +44,8 @@ defmodule HexHub.MixProject do
       {:lazy_html, ">= 0.1.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:phoenix_duskmoon, "~> 9.1"},
-      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
-      {:bun, "~> 1.4", runtime: Mix.env() == :dev},
+      {:volt, "~> 0.14.0"},
+      {:npm, "~> 0.7.4", runtime: false},
       {:swoosh, "~> 1.16"},
       {:req, "~> 0.5"},
       {:telemetry_metrics, "~> 1.0"},
@@ -67,6 +67,8 @@ defmodule HexHub.MixProject do
       {:qr_code, "~> 3.0"},
       {:yaml_elixir, "~> 2.11"}
     ]
+
+    common_deps ++ quickbeam_source_deps()
   end
 
   defp dialyzer do
@@ -79,30 +81,58 @@ defmodule HexHub.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get", "assets.setup", "assets.build"],
+      setup: ["deps.get", "quickbeam.compile", "assets.setup", "assets.build"],
       test: ["test"],
       lint: ["credo --strict", "dialyzer"],
-      "assets.setup": [
-        "tailwind.install --if-missing",
-        "bun.install --if-missing",
-        "cmd ln -sfn ../deps/phoenix node_modules/phoenix",
-        "cmd ln -sfn ../deps/phoenix_html node_modules/phoenix_html",
-        "cmd ln -sfn ../deps/phoenix_live_view node_modules/phoenix_live_view",
-        "cmd ln -sfn ../deps/phoenix_duskmoon node_modules/phoenix_duskmoon"
-      ],
+      "quickbeam.compile": quickbeam_compile_alias(),
+      "assets.setup": ["npm.install"],
       "assets.build": [
-        "tailwind hex_hub",
-        "tailwind hex_hub_admin",
-        "bun hex_hub",
-        "bun hex_hub_admin"
+        "cmd mix volt.build hex_hub --tailwind --no-hash --no-minify",
+        "cmd mix volt.build hex_hub_admin --tailwind --no-hash --no-minify"
       ],
       "assets.deploy": [
-        "tailwind hex_hub --minify",
-        "tailwind hex_hub_admin --minify",
-        "bun hex_hub --minify",
-        "bun hex_hub_admin --minify",
+        "cmd mix volt.build hex_hub --tailwind",
+        "cmd mix volt.build hex_hub_admin --tailwind",
         "phx.digest"
       ]
     ]
+  end
+
+  defp quickbeam_source_deps do
+    if quickbeam_source_build?() do
+      [{:zigler, "~> 0.15.2", runtime: false}]
+    else
+      []
+    end
+  end
+
+  defp quickbeam_compile_alias do
+    if quickbeam_source_build?() do
+      [
+        "cmd elixir scripts/patch_quickbeam_targets.exs",
+        "cmd mise exec zig@0.15.2 -- mix deps.compile zigler",
+        "cmd mise exec zig@0.15.2 -- env QUICKBEAM_BUILD=1 mix deps.compile quickbeam"
+      ]
+    else
+      []
+    end
+  end
+
+  defp quickbeam_source_build? do
+    build_host() == {"x86_64", :darwin}
+  end
+
+  defp build_host do
+    system = :erlang.system_info(:system_architecture) |> to_string()
+    arch = system |> String.split("-") |> hd()
+
+    os =
+      cond do
+        String.contains?(system, "linux") -> :linux
+        String.contains?(system, "darwin") -> :darwin
+        true -> :unknown
+      end
+
+    {arch, os}
   end
 end

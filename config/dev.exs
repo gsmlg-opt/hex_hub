@@ -1,5 +1,35 @@
 import Config
 
+public_volt_watcher = [
+  name: HexHubWeb.VoltWatcher,
+  root: "assets",
+  watch_dirs: [
+    "lib/hex_hub_web",
+    "lib/hex_hub",
+    "deps/phoenix_duskmoon/lib/phoenix_duskmoon",
+    "assets"
+  ],
+  tailwind: true,
+  tailwind_css: "assets/css/app.css",
+  tailwind_outdir: "priv/static/assets/public/css",
+  target: :es2020
+]
+
+admin_volt_watcher = [
+  name: HexHubAdminWeb.VoltWatcher,
+  root: "assets",
+  watch_dirs: [
+    "lib/hex_hub_admin_web",
+    "lib/hex_hub",
+    "deps/phoenix_duskmoon/lib/phoenix_duskmoon",
+    "assets"
+  ],
+  tailwind: true,
+  tailwind_css: "assets/css/admin.css",
+  tailwind_outdir: "priv/static/assets/admin/css",
+  target: :es2020
+]
+
 config :hex_hub, HexHubWeb.Endpoint,
   http: [ip: {0, 0, 0, 0}, port: String.to_integer(System.get_env("PORT") || "4360")],
   check_origin: false,
@@ -7,8 +37,7 @@ config :hex_hub, HexHubWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "SKnshuH0YE4iQNwz3qDeTKhOSwsnZV6W2h0PFf6prJjLQMQ3Ht+P4J4SoF0VGAHB",
   watchers: [
-    bun: {Bun, :install_and_run, [:hex_hub, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:hex_hub, ~w(--watch)]}
+    volt: {HexHub.Assets.VoltWatcher, :run, [public_volt_watcher]}
   ]
 
 config :hex_hub, HexHubAdminWeb.Endpoint,
@@ -18,8 +47,7 @@ config :hex_hub, HexHubAdminWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "SKnshuH0YE4iQNwz3qDeTKhOSwsnZV6W2h0PFf6prJjLQMQ3Ht+P4J4SoF0VGAHB",
   watchers: [
-    bun: {Bun, :install_and_run, [:hex_hub_admin, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:hex_hub_admin, ~w(--watch)]}
+    volt: {HexHub.Assets.VoltWatcher, :run, [admin_volt_watcher]}
   ]
 
 config :hex_hub, HexHubWeb.Endpoint,

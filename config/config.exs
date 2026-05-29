@@ -63,48 +63,47 @@ config :hex_hub, :mcp,
   heartbeat_interval: String.to_integer(System.get_env("MCP_HEARTBEAT_INTERVAL", "30000")),
   debug: System.get_env("MCP_DEBUG", "false") == "true"
 
-config :bun,
-  version: "1.3.2",
-  hex_hub: [
-    args: ~w(build assets/js/app.js --outdir=priv/static/assets),
-    cd: Path.expand("..", __DIR__),
-    env: %{
-      "NODE_PATH" =>
-        "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"
-    }
+config :volt,
+  resolve_dirs: ["node_modules", "deps"],
+  target: :es2020,
+  sourcemap: :hidden
+
+config :volt, :hex_hub,
+  entry: "assets/js/app.js",
+  outdir: "priv/static/assets/public",
+  root: "assets",
+  asset_url_prefix: "/assets/public",
+  tailwind: [
+    css: "assets/css/app.css",
+    sources: [
+      %{base: "lib/hex_hub_web", pattern: "**/*.{ex,heex}"},
+      %{base: "lib/hex_hub", pattern: "**/*.{ex,heex}"},
+      %{base: "deps/phoenix_duskmoon/lib/phoenix_duskmoon", pattern: "**/*.{ex,heex}"},
+      %{base: "assets", pattern: "**/*.{js,css}"}
+    ]
   ],
-  hex_hub_admin: [
-    args: ~w(build assets/js/admin.js --outdir=priv/static/assets),
-    cd: Path.expand("..", __DIR__),
-    env: %{
-      "NODE_PATH" =>
-        "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"
-    }
+  server: [
+    prefix: "/assets/public",
+    watch_dirs: ["lib/hex_hub_web", "lib/hex_hub", "assets"]
   ]
 
-config :tailwind,
-  version: "4.1.11",
-  hex_hub: [
-    args: ~w(
-      --input=assets/css/app.css
-      --output=priv/static/assets/app.css
-    ),
-    cd: Path.expand("..", __DIR__),
-    env: %{
-      "NODE_PATH" =>
-        "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"
-    }
+config :volt, :hex_hub_admin,
+  entry: "assets/js/admin.js",
+  outdir: "priv/static/assets/admin",
+  root: "assets",
+  asset_url_prefix: "/assets/admin",
+  tailwind: [
+    css: "assets/css/admin.css",
+    sources: [
+      %{base: "lib/hex_hub_admin_web", pattern: "**/*.{ex,heex}"},
+      %{base: "lib/hex_hub", pattern: "**/*.{ex,heex}"},
+      %{base: "deps/phoenix_duskmoon/lib/phoenix_duskmoon", pattern: "**/*.{ex,heex}"},
+      %{base: "assets", pattern: "**/*.{js,css}"}
+    ]
   ],
-  hex_hub_admin: [
-    args: ~w(
-      --input=assets/css/admin.css
-      --output=priv/static/assets/admin.css
-    ),
-    cd: Path.expand("..", __DIR__),
-    env: %{
-      "NODE_PATH" =>
-        "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../node_modules", __DIR__)}"
-    }
+  server: [
+    prefix: "/assets/admin",
+    watch_dirs: ["lib/hex_hub_admin_web", "lib/hex_hub", "assets"]
   ]
 
 # Telemetry-based logging configuration

@@ -27,6 +27,7 @@ defmodule HexHubAdminWeb.Endpoint do
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
     plug Phoenix.CodeReloader
+    plug Volt.DevServer, root: "assets", profile: :hex_hub_admin
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,

@@ -1,10 +1,13 @@
 import { Socket } from "phoenix";
 import "phoenix_html";
+import { register as registerAlert } from "@duskmoon-dev/elements/el-alert";
+import { register as registerBreadcrumbs } from "@duskmoon-dev/elements/el-breadcrumbs";
+import { register as registerButton } from "@duskmoon-dev/elements/el-button";
+import { register as registerDialog } from "@duskmoon-dev/elements/el-dialog";
+import { register as registerPagination } from "@duskmoon-dev/elements/el-pagination";
+import { installDuskmoonConfirmDialogBridge } from "./duskmoon_confirm_bridge.js";
 import { LiveSocket } from "phoenix_live_view";
 import * as DuskmoonHooks from "phoenix_duskmoon/hooks";
-import { registerAll } from "@duskmoon-dev/elements";
-
-registerAll();
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 const liveSocket = new LiveSocket("/live", Socket, {
@@ -12,6 +15,13 @@ const liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
   hooks: { ...DuskmoonHooks },
 });
+
+registerAlert();
+registerBreadcrumbs();
+registerButton();
+registerDialog();
+registerPagination();
+installDuskmoonConfirmDialogBridge();
 
 // Vanilla JS theme switcher for non-LiveView pages (where phx-hook won't fire)
 document.addEventListener("change", (e) => {
