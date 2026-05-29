@@ -46,7 +46,7 @@ RUN mkdir config
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
 COPY config/ config/
-RUN env QUICKBEAM_BUILD=1 mix deps.compile
+RUN mise exec zig@0.15.2 -- env QUICKBEAM_BUILD=1 mix deps.compile
 
 # Setup assets
 RUN mix assets.setup
