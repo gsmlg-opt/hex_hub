@@ -7,20 +7,16 @@
 # This file is based on these images:
 #
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
-#   - https://hub.docker.com/_/debian/tags?name=bookworm-20240423-slim - for the release image
+#   - https://hub.docker.com/_/ubuntu/tags?name=noble - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: docker.io/hexpm/elixir:1.18.4-erlang-28.0.2-debian-bookworm-20250811-slim
+#   - Ex: docker.io/hexpm/elixir:1.18.4-erlang-28.0.4-ubuntu-noble-20250805
 #
-FROM hexpm/elixir:1.18.4-erlang-28.0.2-debian-bookworm-20250811-slim AS builder
+FROM hexpm/elixir:1.18.4-erlang-28.0.4-ubuntu-noble-20250805 AS builder
 
 # install build dependencies
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends build-essential git curl unzip ca-certificates xz-utils \
+  && apt-get install -y --no-install-recommends build-essential git curl unzip ca-certificates \
   && rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/root/.local/bin:${PATH}"
-RUN curl https://mise.run | sh \
-  && mise install zig@0.15.2
 
 # prepare build dir
 WORKDIR /app
@@ -32,7 +28,6 @@ RUN mix local.hex --force \
 # set build ENV
 ARG MIX_ENV=prod
 ARG SECRET_KEY_BASE
-ENV QUICKBEAM_SOURCE_BUILD=1
 
 # copy npm package manifests
 COPY package.json npm.lock* ./
@@ -46,7 +41,7 @@ RUN mkdir config
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
 COPY config/ config/
-RUN mise exec zig@0.15.2 -- env QUICKBEAM_BUILD=1 mix deps.compile
+RUN mix deps.compile
 
 # Setup assets
 RUN mix assets.setup
@@ -69,7 +64,7 @@ RUN mix release
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
-FROM debian:bookworm-slim AS final
+FROM ubuntu:noble AS final
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
