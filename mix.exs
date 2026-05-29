@@ -4,7 +4,7 @@ defmodule HexHub.MixProject do
   def project do
     [
       app: :hex_hub,
-      version: "1.0.10",
+      version: "1.0.11",
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
