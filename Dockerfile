@@ -15,8 +15,12 @@ FROM hexpm/elixir:1.18.4-erlang-28.0.2-debian-bookworm-20250811-slim AS builder
 
 # install build dependencies
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends build-essential git curl unzip \
+  && apt-get install -y --no-install-recommends build-essential git curl unzip ca-certificates xz-utils \
   && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/root/.local/bin:${PATH}"
+RUN curl https://mise.run | sh \
+  && mise install zig@0.15.2
 
 # prepare build dir
 WORKDIR /app
@@ -28,6 +32,7 @@ RUN mix local.hex --force \
 # set build ENV
 ARG MIX_ENV=prod
 ARG SECRET_KEY_BASE
+ENV QUICKBEAM_SOURCE_BUILD=1
 
 # copy npm package manifests
 COPY package.json npm.lock* ./
@@ -41,7 +46,7 @@ RUN mkdir config
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
 COPY config/ config/
-RUN mix deps.compile
+RUN env QUICKBEAM_BUILD=1 mix deps.compile
 
 # Setup assets
 RUN mix assets.setup

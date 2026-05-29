@@ -110,8 +110,8 @@ defmodule HexHub.MixProject do
     if quickbeam_source_build?() do
       [
         "cmd elixir scripts/patch_quickbeam_targets.exs",
-        "cmd mise exec zig@0.15.2 -- mix deps.compile zigler",
-        "cmd mise exec zig@0.15.2 -- env QUICKBEAM_BUILD=1 mix deps.compile quickbeam"
+        "cmd mise exec zig@0.15.2 -- mix deps.compile protoss pegasus zig_get zig_parser zigler",
+        "cmd mise exec zig@0.15.2 -- env QUICKBEAM_BUILD=1 mix deps.compile quickbeam --force"
       ]
     else
       []
@@ -119,7 +119,8 @@ defmodule HexHub.MixProject do
   end
 
   defp quickbeam_source_build? do
-    build_host() == {"x86_64", :darwin}
+    System.get_env("QUICKBEAM_SOURCE_BUILD") in ["1", "true"] or
+      build_host() == {"x86_64", :darwin}
   end
 
   defp build_host do
