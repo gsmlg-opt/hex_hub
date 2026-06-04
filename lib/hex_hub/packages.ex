@@ -1114,15 +1114,13 @@ defmodule HexHub.Packages do
 
            # Delete all packages in the repository
            Enum.each(packages, fn {table, pkg_name, _repo, _meta, _private, _downloads,
-                                   _inserted_at, _updated_at, _html_url, _docs_html_url,
-                                   _source} ->
+                                   _inserted_at, _updated_at, _html_url, _docs_html_url, _source} ->
              :mnesia.delete({table, pkg_name})
            end)
 
            # Also delete all releases for packages in this repository
            Enum.each(packages, fn {_table, pkg_name, _repo, _meta, _private, _downloads,
-                                   _inserted_at, _updated_at, _html_url, _docs_html_url,
-                                   _source} ->
+                                   _inserted_at, _updated_at, _html_url, _docs_html_url, _source} ->
              releases =
                :mnesia.match_object(
                  {@releases_table, pkg_name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_}
@@ -1130,8 +1128,7 @@ defmodule HexHub.Packages do
 
              Enum.each(releases, fn {rel_table, _pkg_name, version, _has_docs, _meta,
                                      _requirements, _retired, _downloads, _inserted_at,
-                                     _updated_at, _url, _package_url, _html_url,
-                                     _docs_html_url} ->
+                                     _updated_at, _url, _package_url, _html_url, _docs_html_url} ->
                :mnesia.delete({rel_table, {pkg_name, version}})
              end)
            end)
@@ -1169,8 +1166,7 @@ defmodule HexHub.Packages do
 
                Enum.each(releases, fn {rel_table, _pkg_name, version, _has_docs, _meta,
                                        _requirements, _retired, _downloads, _inserted_at,
-                                       _updated_at, _url, _package_url, _html_url,
-                                       _docs_html_url} ->
+                                       _updated_at, _url, _package_url, _html_url, _docs_html_url} ->
                  :mnesia.delete({rel_table, {name, version}})
                end)
 
@@ -1469,8 +1465,8 @@ defmodule HexHub.Packages do
           requirements = extract_requirements(release_info)
 
           release =
-            {@releases_table, package_name, version, false, meta, requirements, false, 0, now, now,
-             "/packages/#{package_name}/releases/#{version}",
+            {@releases_table, package_name, version, false, meta, requirements, false, 0, now,
+             now, "/packages/#{package_name}/releases/#{version}",
              "/packages/#{package_name}/releases/#{version}/package",
              "/packages/#{package_name}/releases/#{version}",
              "/packages/#{package_name}/releases/#{version}/docs"}

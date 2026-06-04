@@ -714,7 +714,14 @@ defmodule HexHub.CachedPackages do
 
   Returns `{:ok, %{refreshed: count, new_releases: count, errors: [...]}}`.
   """
-  @spec refresh_all_cached_packages() :: {:ok, map()} | {:error, term()}
+  @spec refresh_all_cached_packages() ::
+          {:ok,
+           %{
+             refreshed: non_neg_integer(),
+             new_releases: non_neg_integer(),
+             errors: [{String.t(), term()}]
+           }}
+          | {:error, String.t()}
   def refresh_all_cached_packages do
     start_time = System.monotonic_time()
 
@@ -762,7 +769,8 @@ defmodule HexHub.CachedPackages do
 
   Returns `{:ok, %{new_releases: count}}` on success.
   """
-  @spec refresh_cached_package(String.t()) :: {:ok, map()} | {:error, term()}
+  @spec refresh_cached_package(String.t()) ::
+          {:ok, %{new_releases: non_neg_integer()}} | {:error, String.t()}
   def refresh_cached_package(name) do
     if not HexHub.Upstream.enabled?() do
       {:error, "Upstream is disabled"}

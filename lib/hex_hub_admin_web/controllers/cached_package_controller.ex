@@ -170,14 +170,14 @@ defmodule HexHubAdminWeb.CachedPackageController do
         |> put_flash(:info, message)
         |> redirect(to: ~p"/cached-packages/#{name}")
 
-      {:error, reason} when is_binary(reason) ->
-        conn
-        |> put_flash(:error, "Failed to refresh #{name}: #{reason}")
-        |> redirect(to: ~p"/cached-packages/#{name}")
-
       {:error, reason} ->
+        message =
+          if is_binary(reason),
+            do: "Failed to refresh #{name}: #{reason}",
+            else: "Failed to refresh #{name}: #{inspect(reason)}"
+
         conn
-        |> put_flash(:error, "Failed to refresh #{name}: #{inspect(reason)}")
+        |> put_flash(:error, message)
         |> redirect(to: ~p"/cached-packages/#{name}")
     end
   end
