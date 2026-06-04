@@ -17,7 +17,7 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.18'
+          elixir-version: '1.19'
           otp-version: '28'
 
       - name: Restore dependencies cache
@@ -46,7 +46,7 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.18'
+          elixir-version: '1.19'
           otp-version: '28'
 
       - name: Restore dependencies cache
@@ -75,7 +75,7 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.18'
+          elixir-version: '1.19'
           otp-version: '28'
 
       - name: Restore dependencies cache
@@ -104,7 +104,7 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.18'
+          elixir-version: '1.19'
           otp-version: '28'
 
       - name: Restore dependencies cache
@@ -124,9 +124,9 @@ jobs:
         id: dialyzer-cache
         with:
           path: priv/plts
-          key: ${{ runner.os }}-otp28-elixir1.18-dialyzer-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-otp28-elixir1.19-dialyzer-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-otp28-elixir1.18-dialyzer-
+            ${{ runner.os }}-otp28-elixir1.19-dialyzer-
 
       - name: Create PLT directory
         run: mkdir -p priv/plts
