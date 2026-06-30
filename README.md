@@ -1,440 +1,260 @@
-# HexHub - Private Hex Package Manager
+# HexHub
 
 [![CI](https://github.com/gsmlg-opt/hex_hub/actions/workflows/ci.yml/badge.svg)](https://github.com/gsmlg-opt/hex_hub/actions/workflows/ci.yml)
 [![Test](https://github.com/gsmlg-opt/hex_hub/actions/workflows/test.yml/badge.svg)](https://github.com/gsmlg-opt/hex_hub/actions/workflows/test.yml)
 [![E2E Tests](https://github.com/gsmlg-opt/hex_hub/actions/workflows/e2e.yml/badge.svg)](https://github.com/gsmlg-opt/hex_hub/actions/workflows/e2e.yml)
 [![Docker Image](https://ghcr-badge.egpl.dev/gsmlg-dev/hex-hub/latest_tag?trim=major&label=docker&color=blue)](https://github.com/orgs/gsmlg-dev/packages/container/package/hex-hub)
 
-HexHub is a complete implementation of the Hex API specification for managing Elixir packages privately. It provides package hosting, documentation serving, and repository management capabilities.
+HexHub is a private Hex package manager and HexDocs server built with Phoenix. It is intended to run as a drop-in Hex registry for private Elixir packages, with optional upstream proxying and caching for public packages from hex.pm.
+
+The application uses Mnesia for metadata, local filesystem or S3-compatible object storage for package artifacts, and two Phoenix endpoints:
+
+- Main package/API endpoint: `http://localhost:4360`
+- Admin dashboard endpoint: `http://localhost:4361`
 
 ## Features
 
-- **Complete Hex API Compatibility**: Drop-in replacement for hex.pm
-- **Package Management**: Upload, download, and manage Elixir packages
-- **Documentation Hosting**: Automatic documentation generation and serving
-- **User Management**: API key authentication and user accounts
-- **Repository Support**: Private repositories with access control
-- **Live Documentation**: Real-time documentation updates
-- **Mnesia Storage**: In-memory database with disk persistence (no PostgreSQL required)
-- **Flexible Storage**: Support for local filesystem or S3-compatible storage
-- **Zero Database Setup**: Uses Mnesia for data storage, no external database required
-- **Anonymous Publishing**: Optional mode for publishing packages without authentication (configurable via admin dashboard)
-- **Admin Dashboard**: Web-based administration interface for managing users, packages, and configuration
+- Hex client compatible package registry endpoints
+- Package publishing, release download, retirement, ownership, and API key management
+- Hosted package documentation upload and serving
+- Public HTML package browser
+- Admin dashboard for packages, users, repositories, storage, backups, upstream config, and publish settings
+- Optional anonymous publishing mode
+- Upstream proxy and cache for hex.pm-compatible repositories
+- Local filesystem or S3-compatible storage
+- Mnesia persistence without PostgreSQL or another external database
+- Optional Mnesia/libcluster clustering
+- Optional MCP JSON-RPC and WebSocket server for AI client integration
+- Backup export/import support
 
-## Status
+## Requirements
 
-✅ **Development Complete**: All core Hex API functionality has been implemented with Mnesia storage.
-
-**Completed Features:**
-- ✅ Complete Hex API implementation
-- ✅ Mnesia database with full CRUD operations
-- ✅ User management with authentication
-- ✅ Package publishing and retrieval
-- ✅ Documentation hosting
-- ✅ API key management
-- ✅ Package ownership management
-- ✅ Comprehensive test suite (389+ tests, 100% passing)
-- ✅ Local file storage for packages and documentation
-- ✅ Anonymous publishing mode (admin configurable)
-- ✅ Admin dashboard with user/package management
-
-The application is ready for production use.
+- Elixir 1.17 or newer
+- Erlang/OTP 26 or newer
+- Node package dependencies installed through the `npm` Mix package
+- `mise` and Zig 0.15.2 only when QuickBEAM must be compiled from source, such as Intel macOS
 
 ## Quick Start
 
-### Prerequisites
-
-- Elixir 1.17+ and Erlang/OTP 26+
-- npm_ex via Mix for package.json dependencies
-- mise on Intel macOS (installs Zig 0.15.2 for local QuickBEAM compilation)
-- No database required (uses Mnesia for storage)
-
-### Installation
-
 ```bash
-# Clone the repository
 git clone https://github.com/gsmlg-opt/hex_hub.git
 cd hex_hub
 
-# Install dependencies
 mix setup
-
-# Start the development server
 mix phx.server
 ```
 
-The application will be available at `http://localhost:4360`
+Open:
 
-### Production Deployment
+- Package browser/API: http://localhost:4360
+- Admin dashboard: http://localhost:4361
+
+The default development storage paths are:
+
+- Mnesia data: `priv/mnesia/dev`
+- Package and docs storage: `priv/storage`
+
+## Development Commands
 
 ```bash
-# Build for production
+mix setup                         # Fetch deps, compile QuickBEAM when needed, build assets
+mix phx.server                    # Start both web endpoints
+mix assets.build                  # Build development assets
+mix assets.deploy                 # Build production assets
+mix test                          # Run unit/integration tests
+MIX_ENV=test mix test.e2e         # Run E2E tests
+mix format                        # Format Elixir code
+mix lint                          # Run credo --strict and dialyzer
+mix compile --warnings-as-errors  # Match the CI compile gate
+```
+
+## Hex Client Usage
+
+Point Mix at a HexHub instance with `HEX_MIRROR`:
+
+```bash
+export HEX_MIRROR=http://localhost:4360
+mix deps.get
+```
+
+For a production instance:
+
+```bash
+export HEX_MIRROR=https://hex.example.com
+mix deps.get
+```
+
+HexHub supports both root-level Hex client routes and `/api` routes. The root-level routes are used for Mix compatibility, including package metadata, tarballs, release information, docs, and dependency resolution.
+
+## Publishing Packages
+
+Create an API key in the admin dashboard or through the API, then publish with the Hex client against your HexHub URL.
+
+```bash
+mix hex.repo add private http://localhost:4360
+mix hex.user key generate --repo private
+mix hex.publish package --repo private
+```
+
+If the deployment publishes a repository public key, pass it with `--public-key PATH` or `--fetch-public-key FINGERPRINT`.
+
+Anonymous publishing can be enabled from the admin dashboard when the deployment intentionally allows unauthenticated package publishing.
+
+## HTTP API
+
+HexHub exposes Hex-compatible API endpoints under `/api` and selected root-level endpoints required by the Mix client.
+
+Common endpoints:
+
+- `GET /api/packages`
+- `GET /api/packages/:name`
+- `POST /api/packages/:name/releases`
+- `GET /api/packages/:name/releases/:version`
+- `POST /api/packages/:name/releases/:version/docs`
+- `POST /api/packages/:name/releases/:version/retire`
+- `GET /api/keys`
+- `POST /api/keys`
+- `GET /api/repos`
+
+The OpenAPI document is available at `priv/static/openapi/hex-api.yaml` in the repository.
+
+## Configuration
+
+Production configuration is environment-driven.
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `SECRET_KEY_BASE` | Phoenix secret key base | required in production |
+| `PHX_HOST` | Public package/API hostname | `hex-hub.dev` |
+| `PORT` | Public package/API port | `4360` |
+| `ADMIN_PHX_HOST` | Admin dashboard hostname | `admin.hex-hub.dev` |
+| `ADMIN_PORT` | Admin dashboard port | `4361` |
+| `MNESIA_DIR` | Mnesia data directory | `mnesia` |
+| `STORAGE_TYPE` | Storage backend: `local` or `s3` | `local` |
+| `STORAGE_PATH` | Local package/docs storage path | `priv/storage` |
+| `S3_BUCKET` | S3 bucket when `STORAGE_TYPE=s3` | unset |
+| `S3_BUCKET_PATH` | Prefix inside the S3 bucket | `/` |
+| `AWS_ACCESS_KEY_ID` | S3 access key | unset |
+| `AWS_SECRET_ACCESS_KEY` | S3 secret key | unset |
+| `AWS_REGION` | S3 region | `us-east-1` |
+| `AWS_S3_HOST` | Custom S3-compatible endpoint host | unset |
+| `AWS_S3_PORT` | Custom S3 endpoint port | `443` |
+| `AWS_S3_SCHEME` | `http` or `https` | `https` |
+| `AWS_S3_PATH_STYLE` | Enable path-style S3 requests | `false` |
+| `UPSTREAM_ENABLED` | Enable upstream package proxying | `true` |
+| `UPSTREAM_API_URL` | Upstream Hex API URL | `https://hex.pm` |
+| `UPSTREAM_REPO_URL` | Upstream Hex repo URL | `https://repo.hex.pm` |
+| `CLUSTERING_ENABLED` | Enable clustering | `false` |
+| `MCP_ENABLED` | Enable MCP server | `false` |
+| `MCP_REQUIRE_AUTH` | Require API key auth for MCP | `true` |
+| `MCP_RATE_LIMIT` | MCP requests per hour per IP | `1000` |
+| `LOG_CONSOLE_ENABLED` | Enable telemetry console logs | `true` |
+| `LOG_CONSOLE_LEVEL` | Console log level | `info` |
+| `LOG_FILE_ENABLED` | Enable telemetry file logs | `false` |
+| `LOG_FILE_PATH` | Telemetry log file path | unset |
+
+## Storage
+
+Local storage is the default:
+
+```bash
+export STORAGE_TYPE=local
+export STORAGE_PATH=/var/lib/hex_hub/storage
+export MNESIA_DIR=/var/lib/hex_hub/mnesia
+```
+
+S3-compatible storage:
+
+```bash
+export STORAGE_TYPE=s3
+export S3_BUCKET=hex-packages
+export S3_BUCKET_PATH=/hex-hub
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=us-east-1
+```
+
+For MinIO or another S3-compatible service:
+
+```bash
+export AWS_S3_HOST=minio.example.com
+export AWS_S3_PORT=9000
+export AWS_S3_SCHEME=http
+export AWS_S3_PATH_STYLE=true
+```
+
+## Production Release
+
+```bash
 MIX_ENV=prod mix assets.setup
 MIX_ENV=prod mix assets.deploy
 MIX_ENV=prod mix release
 
-# Run the release
+SECRET_KEY_BASE="$(mix phx.gen.secret)" \
+PHX_HOST=hex.example.com \
+ADMIN_PHX_HOST=admin.hex.example.com \
+MNESIA_DIR=/var/lib/hex_hub/mnesia \
+STORAGE_PATH=/var/lib/hex_hub/storage \
 _build/prod/rel/hex_hub/bin/hex_hub start
 ```
 
-## API Usage
+Keep `MNESIA_DIR` and the configured storage backend on durable storage and include both in backups.
 
-### Authentication
+## Docker
 
-All API endpoints require authentication via API key:
-
-```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" https://your-domain.com/api/packages
-```
-
-### Publishing Packages
+Prebuilt images are published to GitHub Container Registry:
 
 ```bash
-# Create a package first
-curl -X POST \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"repository": "hexpm", "meta": {"description": "My awesome package"}}' \
-  https://your-domain.com/api/packages/my_package
-
-# Then publish a release
-curl -X POST \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/octet-stream" \
-  --data-binary @my_package-1.0.0.tar \
-  https://your-domain.com/api/publish?name=my_package&version=1.0.0
-```
-
-### Installing Packages
-
-Add to your `mix.exs`:
-
-```elixir
-defp deps do
-  [
-    {:my_package, "~> 1.0", repo: "gsmlg-dev", organization: "gsmlg-dev"}
-  ]
-end
-```
-
-Configure your repository:
-
-```elixir
-# In config/config.exs
-config :hex, repos: [
-  "gsmlg-dev": "https://your-domain.com"
-]
-```
-
-## API Endpoints
-
-The application implements the complete Hex API specification:
-
-### Users
-- `POST /api/users` - Create new user
-- `GET /api/users/:username_or_email` - Get user profile
-- `GET /api/users/me` - Get current authenticated user
-- `POST /api/users/:username_or_email/reset` - Reset password
-
-### Repositories
-- `GET /api/repos` - List repositories
-- `GET /api/repos/:name` - Get repository details
-
-### Packages
-- `GET /api/packages` - List packages (with pagination and search)
-- `GET /api/packages/:name` - Get package details
-- `POST /api/publish` - Publish new package/release
-
-### Documentation
-- `POST /api/packages/:name/releases/:version/docs` - Upload documentation
-- `DELETE /api/packages/:name/releases/:version/docs` - Remove documentation
-
-### Package Ownership
-- `GET /api/packages/:name/owners` - List package owners
-- `PUT /api/packages/:name/owners/:email` - Add package owner
-- `DELETE /api/packages/:name/owners/:email` - Remove package owner
-
-### API Keys
-- `GET /api/keys` - List API keys
-- `POST /api/keys` - Create API key (requires Basic Auth)
-- `GET /api/keys/:name` - Get API key details
-- `DELETE /api/keys/:name` - Delete API key
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SECRET_KEY_BASE` | 64-byte secret for sessions | *(required in prod)* |
-| `PHX_HOST` | Hostname for URL generation | `hex-hub.dev` |
-| `PORT` | Main API port | `4360` |
-| `ADMIN_PORT` | Admin dashboard port | `4361` |
-| `MNESIA_DIR` | Path for Mnesia database storage | `mnesia` |
-| `STORAGE_TYPE` | Storage backend (`local` or `s3`) | `local` |
-| `STORAGE_PATH` | Path for package/docs file storage (when `STORAGE_TYPE=local`) | `priv/storage` |
-| `MIX_ENV` | Environment (dev, test, prod) | `dev` |
-
-### Storage Configuration
-
-Configure storage in `config/dev.exs`:
-
-```elixir
-config :hex_hub,
-  storage_type: :local,  # or :s3
-  storage_path: "priv/storage"
-```
-
-For S3 storage:
-```elixir
-config :hex_hub,
-  storage_type: :s3,
-  s3_bucket: "your-bucket-name",
-  s3_region: "us-east-1"
-
-# S3 Configuration
-config :ex_aws,
-  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
-  region: System.get_env("AWS_REGION", "us-east-1")
-
-config :ex_aws, :s3,
-  scheme: "https://",
-  host: System.get_env("AWS_S3_HOST"),  # For custom S3-compatible services
-  port: (if port = System.get_env("AWS_S3_PORT"), do: String.to_integer(port), else: 443),
-  path_style: System.get_env("AWS_S3_PATH_STYLE", "false") == "true"
-```
-
-### S3 Storage Setup
-
-#### AWS S3 Setup
-
-1. Create an S3 bucket:
-   ```bash
-   aws s3 mb s3://your-hex-packages-bucket
-   ```
-
-2. Create an IAM user with programmatic access and attach the following policy:
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Action": [
-           "s3:GetObject",
-           "s3:PutObject",
-           "s3:DeleteObject",
-           "s3:ListBucket"
-         ],
-         "Resource": [
-           "arn:aws:s3:::your-hex-packages-bucket",
-           "arn:aws:s3:::your-hex-packages-bucket/*"
-         ]
-       }
-     ]
-   }
-   ```
-
-3. Set environment variables:
-   ```bash
-   export STORAGE_TYPE=s3
-   export S3_BUCKET=your-hex-packages-bucket
-   export AWS_ACCESS_KEY_ID=your-access-key
-   export AWS_SECRET_ACCESS_KEY=your-secret-key
-   export AWS_REGION=us-east-1
-   ```
-
-#### S3-Compatible Services (MinIO, DigitalOcean Spaces, etc.)
-
-For S3-compatible services, use additional environment variables:
-
-```bash
-export AWS_S3_HOST=your-minio-server.com
-export AWS_S3_PORT=9000
-export AWS_S3_PATH_STYLE=true  # Required for MinIO
-export AWS_S3_SCHEME=http  # Use http for local MinIO
-```
-
-#### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `STORAGE_TYPE` | Storage backend (`local` or `s3`) | `local` |
-| `S3_BUCKET` | S3 bucket name | - |
-| `S3_BUCKET_PATH` | Path prefix within the S3 bucket | `/` |
-| `AWS_ACCESS_KEY_ID` | AWS access key ID | - |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret access key | - |
-| `AWS_REGION` | AWS region | `us-east-1` |
-| `AWS_S3_HOST` | Custom S3 host (for S3-compatible services) | - |
-| `AWS_S3_PORT` | Custom S3 port | `443` |
-| `AWS_S3_PATH_STYLE` | Use path-style addressing (for MinIO) | `false` |
-| `AWS_S3_SCHEME` | URL scheme (`http` or `https`) | `https` |
-
-### Repository Settings
-
-Configure repositories in `config/runtime.exs`:
-
-```elixir
-config :hex_hub, :repositories, [
-  %{
-    name: "my-org",
-    private: true,
-    public_key: "base64-encoded-public-key"
-  }
-]
-```
-
-## Development
-
-### Running Tests
-
-```bash
-# Run all tests
-mix test
-
-# Run with coverage
-mix test --cover
-
-# Run specific test file
-mix test test/hex_hub_web/controllers/api/package_controller_test.exs
-```
-
-### Database Setup
-
-No database setup required - HexHub uses Mnesia for data storage. Mnesia will automatically initialize on first run.
-
-For testing:
-```bash
-# Mnesia will be automatically configured for tests
-# No manual setup needed
-```
-
-### Code Style
-
-```bash
-# Format code
-mix format
-
-# Check for issues
-mix credo
-
-# Type checking (if using dialyzer)
-mix dialyzer
-```
-
-## Production Deployment
-
-For production deployment:
-
-1. Configure Mnesia clustering if needed
-2. Set up persistent storage for Mnesia data
-3. Configure SSL/TLS
-4. Set up monitoring and logging
-5. Configure file storage (local or S3)
-
-### Mnesia Configuration
-
-HexHub uses Mnesia for data storage. The database path is configurable via the `MNESIA_DIR` environment variable:
-
-```bash
-# Set a custom Mnesia data directory
-export MNESIA_DIR=/var/lib/hex_hub/mnesia
-```
-
-Default paths:
-- **Production**: `mnesia` (relative to app root), or `/data/mnesia` in Docker
-- **Development**: `priv/mnesia/dev`
-- **Test**: `priv/mnesia/test`
-
-Package and documentation files are stored separately at `STORAGE_PATH` (default `priv/storage`, or `/data/storage` in Docker).
-
-For persistence, ensure these directories are on durable storage and backed up regularly.
-
-### Docker Deployment
-
-Pre-built Docker images are available on GitHub Container Registry:
-
-```bash
-# Pull the latest image
 docker pull ghcr.io/gsmlg-dev/hex-hub:main
+```
 
-# Run with basic configuration
+Run a single-node local-storage deployment:
+
+```bash
 docker run -d \
   --name hex-hub \
   -p 4360:4360 \
   -p 4361:4361 \
-  -e SECRET_KEY_BASE=$(openssl rand -base64 48) \
+  -e SECRET_KEY_BASE="$(openssl rand -base64 48)" \
   -e PHX_HOST=localhost \
+  -e ADMIN_PHX_HOST=localhost \
   -e MNESIA_DIR=/data/mnesia \
   -e STORAGE_PATH=/data/storage \
   -v hex_hub_data:/data \
   ghcr.io/gsmlg-dev/hex-hub:main
 ```
 
-Or use Docker Compose:
+## MCP Server
 
-```yaml
-version: '3.8'
-services:
-  hex-hub:
-    image: ghcr.io/gsmlg-dev/hex-hub:main
-    ports:
-      - "4360:4360"   # Main API
-      - "4361:4361"   # Admin dashboard
-    environment:
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - PHX_HOST=${PHX_HOST:-localhost}
-      - MNESIA_DIR=/data/mnesia
-      - STORAGE_PATH=/data/storage
-    volumes:
-      - hex_hub_data:/data
+Enable the MCP server when AI clients need package search, release lookup, dependency, documentation, or repository tools.
 
-volumes:
-  hex_hub_data:
+```bash
+export MCP_ENABLED=true
+export MCP_REQUIRE_AUTH=true
+export MCP_RATE_LIMIT=1000
 ```
 
-For building from source:
+Endpoints:
 
-```dockerfile
-FROM elixir:1.18-alpine
+- `GET /mcp/health`
+- `GET /mcp/tools`
+- `GET /mcp/server-info`
+- `POST /mcp`
+- `WS /mcp/ws`
 
-WORKDIR /app
-COPY . .
+See `docs/mcp-deployment.md` for deployment details.
 
-RUN mix local.hex --force && \
-    mix local.rebar --force && \
-    mix deps.get && \
-    mix compile && \
-    mix assets.setup && \
-    mix assets.deploy
+## Operational Docs
 
-EXPOSE 4360 4361
-CMD ["mix", "phx.server"]
-```
+- `docs/docker.md` - Docker deployment examples
+- `docs/hex-mirror.md` - `HEX_MIRROR` and upstream cache behavior
+- `docs/clustering.md` - clustered Mnesia deployments
+- `docs/mcp-deployment.md` - MCP server configuration and deployment
 
-## Contributing
+## Data Migrations
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -am 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-## Security
-
-- Use strong API keys
-- Enable HTTPS in production
-- Implement rate limiting
-- Regular security audits
-- Monitor access logs
+Mnesia schema changes must preserve existing data. Add migration functions in `lib/hex_hub/mnesia.ex`, transform old tuple shapes to the new shape, and run migrations during startup after table creation and before table waits. Do not recreate tables that may contain production data.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
-
-## Support
-
-- [GitHub Issues](https://github.com/gsmlg-opt/hex_hub/issues)
-- [Documentation](https://your-docs-site.com)
-- [Community Discord](https://discord.gg/your-server)
+MIT License. See `LICENSE` for details.
