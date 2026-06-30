@@ -15,14 +15,13 @@ in {
       figlet
       lolcat
       watchman
-      beam28Packages.elixir-ls
     ]
     ++ lib.optionals stdenv.isLinux [
       inotify-tools
     ];
 
   languages.elixir.enable = true;
-  languages.elixir.package = pkgs-stable.beam28Packages.elixir;
+  languages.elixir.package = pkgs.beam28Packages.elixir_1_19;
 
   scripts.hello.exec = ''
     figlet -w 120 $GREET | lolcat

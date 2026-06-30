@@ -17,13 +17,21 @@
     <link
       phx-track-static
       rel="stylesheet"
-      href={Volt.static_path(HexHubWeb.Endpoint, "/assets/public/css/app.css", profile: :hex_hub)}
+      href={
+        DuskmoonBundler.static_path(HexHubWeb.Endpoint, "/assets/public/css/app.css",
+          profile: :hex_hub
+        )
+      }
     />
     <script
       defer
       phx-track-static
       type="module"
-      src={Volt.static_path(HexHubWeb.Endpoint, "/assets/public/js/app.js", profile: :hex_hub)}
+      src={
+        DuskmoonBundler.static_path(HexHubWeb.Endpoint, "/assets/public/js/app.js",
+          profile: :hex_hub
+        )
+      }
     >
     </script>
   </head>

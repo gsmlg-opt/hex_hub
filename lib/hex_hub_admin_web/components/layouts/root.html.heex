@@ -16,7 +16,7 @@
       phx-track-static
       rel="stylesheet"
       href={
-        Volt.static_path(HexHubAdminWeb.Endpoint, "/assets/admin/css/app.css",
+        DuskmoonBundler.static_path(HexHubAdminWeb.Endpoint, "/assets/admin/css/app.css",
           profile: :hex_hub_admin
         )
       }
@@ -26,7 +26,7 @@
       phx-track-static
       type="module"
       src={
-        Volt.static_path(HexHubAdminWeb.Endpoint, "/assets/admin/js/admin.js",
+        DuskmoonBundler.static_path(HexHubAdminWeb.Endpoint, "/assets/admin/js/admin.js",
           profile: :hex_hub_admin
         )
       }

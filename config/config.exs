@@ -63,12 +63,15 @@ config :hex_hub, :mcp,
   heartbeat_interval: String.to_integer(System.get_env("MCP_HEARTBEAT_INTERVAL", "30000")),
   debug: System.get_env("MCP_DEBUG", "false") == "true"
 
-config :volt,
+# WORKAROUND(upstream): duskmoon-dev/phoenix-duskmoon-ui#49
+config :duskmoon_npm, registry: "https://registry.npmjs.org"
+
+config :duskmoon_bundler,
   resolve_dirs: ["node_modules", "deps"],
   target: :es2020,
   sourcemap: :hidden
 
-config :volt, :hex_hub,
+config :duskmoon_bundler, :hex_hub,
   entry: "assets/js/app.js",
   outdir: "priv/static/assets/public",
   root: "assets",
@@ -87,7 +90,7 @@ config :volt, :hex_hub,
     watch_dirs: ["lib/hex_hub_web", "lib/hex_hub", "assets"]
   ]
 
-config :volt, :hex_hub_admin,
+config :duskmoon_bundler, :hex_hub_admin,
   entry: "assets/js/admin.js",
   outdir: "priv/static/assets/admin",
   root: "assets",

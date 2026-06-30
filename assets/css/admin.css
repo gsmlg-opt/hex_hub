@@ -18,7 +18,7 @@
   grid-template-columns: repeat(auto-fit, minmax(min(calc(--value(integer) * 0.25rem), 100%), 1fr));
 }
 
-/* DuskMoon appbar component styles are emitted after Tailwind utilities under Volt.
+/* DuskMoon appbar component styles are emitted after Tailwind utilities under DuskmoonBundler.
    Keep the appbar's responsive mobile controls authoritative. */
 #appbar-mobile-menu.hidden {
   display: none;

@@ -276,8 +276,7 @@ defmodule HexHubWeb.DocsHTML do
         for="docs-drawer"
         class="hidden peer-checked:block fixed inset-0 z-30 bg-black/40 backdrop-blur-sm"
         aria-label="close sidebar"
-      >
-      </label>
+      ></label>
       <!-- Main content -->
       <div class="flex-1 overflow-y-auto scroll-smooth">
         <!-- Mobile menu button -->

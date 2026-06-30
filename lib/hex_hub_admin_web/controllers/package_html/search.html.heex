@@ -11,8 +11,8 @@
       </div>
     </div>
   </div>
-  
-<!-- Search Panel -->
+
+  <!-- Search Panel -->
   <div class="admin-panel mb-6">
     <form method="get" action={~p"/packages/search"} class="admin-filter-bar">
       <div class="flex-1 min-w-[280px]">
@@ -48,8 +48,8 @@
       </div>
     </form>
   </div>
-  
-<!-- Results Summary -->
+
+  <!-- Results Summary -->
   <%= if @query != "" do %>
     <div class="mb-4 flex items-center gap-2 text-sm text-on-surface-variant">
       <.dm_mdi name="information-outline" class="h-4 w-4" />
@@ -60,8 +60,8 @@
       <% end %>
     </div>
   <% end %>
-  
-<!-- Results -->
+
+  <!-- Results -->
   <%= if @results == [] do %>
     <div class="admin-panel">
       <div class="admin-empty">
@@ -150,8 +150,8 @@
           </:col>
         </.dm_table>
       </div>
-      
-<!-- Pagination -->
+
+      <!-- Pagination -->
       <div class="admin-pagination">
         <span>
           Showing

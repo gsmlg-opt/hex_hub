@@ -1,6 +1,5 @@
 <Layouts.app flash={@flash}>
-  
-<!-- Page content -->
+  <!-- Page content -->
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold">Edit Storage Configuration</h1>
@@ -45,8 +44,8 @@
               </label>
             </div>
           </div>
-          
-<!-- Local Storage Options -->
+
+          <!-- Local Storage Options -->
           <div id="local-config" class={if @storage_config.storage_type != :local, do: "hidden"}>
             <div class="form-group">
               <label class="label">
@@ -64,8 +63,8 @@
               </label>
             </div>
           </div>
-          
-<!-- S3 Storage Options -->
+
+          <!-- S3 Storage Options -->
           <div id="s3-config" class={if @storage_config.storage_type != :s3, do: "hidden"}>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div class="form-group">
@@ -235,8 +234,8 @@
           </div>
         </div>
       </div>
-      
-<!-- Information Card -->
+
+      <!-- Information Card -->
       <div class="card bg-surface shadow-xl">
         <div class="card-body">
           <h2 class="card-title">Configuration Information</h2>
@@ -258,8 +257,8 @@
           </div>
         </div>
       </div>
-      
-<!-- Form Actions -->
+
+      <!-- Form Actions -->
       <div class="flex gap-4">
         <button type="submit" class="btn btn-primary">
           Save Configuration

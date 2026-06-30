@@ -5,8 +5,8 @@
       <:crumb to="/packages">Packages</:crumb>
       <:crumb>{@package.name}</:crumb>
     </.dm_breadcrumb>
-    
-<!-- Header -->
+
+    <!-- Header -->
     <div class="flex flex-col lg:flex-row justify-between gap-6 mb-8">
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-3 mb-3">
@@ -16,8 +16,8 @@
         <p class="text-on-surface-variant leading-relaxed mb-4">
           {@package.meta["description"] || "No description available"}
         </p>
-        
-<!-- Links -->
+
+        <!-- Links -->
         <div class="flex flex-wrap items-center gap-3">
           <span class="chip chip-primary">
             <.dm_mdi name="license" class="w-4 h-4 mr-1" />
@@ -44,8 +44,8 @@
           <% end %>
         </div>
       </div>
-      
-<!-- Download Stats -->
+
+      <!-- Download Stats -->
       <div class="flex gap-3 shrink-0">
         <div class="card bg-surface-container-low border border-outline-variant">
           <div class="card-body p-4 text-center">
@@ -67,8 +67,8 @@
         </div>
       </div>
     </div>
-    
-<!-- Installation -->
+
+    <!-- Installation -->
     <div class="card bg-surface-container-low border border-outline-variant mb-8">
       <div class="card-body p-5">
         <h2 class="font-semibold text-on-surface mb-3">Installation</h2>
@@ -78,8 +78,8 @@
         </div>
       </div>
     </div>
-    
-<!-- Main Content Grid -->
+
+    <!-- Main Content Grid -->
     <div class="grid lg:grid-cols-3 gap-6">
       <!-- Left Column: Versions + Dependencies -->
       <div class="lg:col-span-2 space-y-6">
@@ -129,8 +129,8 @@
             </div>
           </div>
         </div>
-        
-<!-- Dependencies -->
+
+        <!-- Dependencies -->
         <%= if map_size(@dependencies) > 0 do %>
           <div class="card bg-surface-container-low border border-outline-variant">
             <div class="card-body p-5">
@@ -187,8 +187,8 @@
           </div>
         <% end %>
       </div>
-      
-<!-- Sidebar -->
+
+      <!-- Sidebar -->
       <div class="space-y-6">
         <!-- Package Info -->
         <div class="card bg-surface-container-low border border-outline-variant">
@@ -222,8 +222,8 @@
             </dl>
           </div>
         </div>
-        
-<!-- Maintainers -->
+
+        <!-- Maintainers -->
         <%= if @package.meta["maintainers"] && length(@package.meta["maintainers"]) > 0 do %>
           <div class="card bg-surface-container-low border border-outline-variant">
             <div class="card-body p-5">
@@ -236,8 +236,8 @@
             </div>
           </div>
         <% end %>
-        
-<!-- Timeline -->
+
+        <!-- Timeline -->
         <div class="card bg-surface-container-low border border-outline-variant">
           <div class="card-body p-5">
             <h3 class="font-semibold text-on-surface mb-4">Timeline</h3>

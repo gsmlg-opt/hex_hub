@@ -1,7 +1,7 @@
 import Config
 
-public_volt_watcher = [
-  name: HexHubWeb.VoltWatcher,
+public_duskmoon_bundler_watcher = [
+  name: HexHubWeb.DuskmoonBundlerWatcher,
   root: "assets",
   watch_dirs: [
     "lib/hex_hub_web",
@@ -15,8 +15,8 @@ public_volt_watcher = [
   target: :es2020
 ]
 
-admin_volt_watcher = [
-  name: HexHubAdminWeb.VoltWatcher,
+admin_duskmoon_bundler_watcher = [
+  name: HexHubAdminWeb.DuskmoonBundlerWatcher,
   root: "assets",
   watch_dirs: [
     "lib/hex_hub_admin_web",
@@ -37,7 +37,8 @@ config :hex_hub, HexHubWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "SKnshuH0YE4iQNwz3qDeTKhOSwsnZV6W2h0PFf6prJjLQMQ3Ht+P4J4SoF0VGAHB",
   watchers: [
-    volt: {HexHub.Assets.VoltWatcher, :run, [public_volt_watcher]}
+    duskmoon_bundler:
+      {HexHub.Assets.DuskmoonBundlerWatcher, :run, [public_duskmoon_bundler_watcher]}
   ]
 
 config :hex_hub, HexHubAdminWeb.Endpoint,
@@ -47,7 +48,8 @@ config :hex_hub, HexHubAdminWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "SKnshuH0YE4iQNwz3qDeTKhOSwsnZV6W2h0PFf6prJjLQMQ3Ht+P4J4SoF0VGAHB",
   watchers: [
-    volt: {HexHub.Assets.VoltWatcher, :run, [admin_volt_watcher]}
+    duskmoon_bundler:
+      {HexHub.Assets.DuskmoonBundlerWatcher, :run, [admin_duskmoon_bundler_watcher]}
   ]
 
 config :hex_hub, HexHubWeb.Endpoint,

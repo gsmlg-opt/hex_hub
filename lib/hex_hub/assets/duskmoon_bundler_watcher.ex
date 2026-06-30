@@ -1,8 +1,8 @@
-defmodule HexHub.Assets.VoltWatcher do
+defmodule HexHub.Assets.DuskmoonBundlerWatcher do
   @moduledoc false
 
   def run(opts) when is_list(opts) do
-    case Volt.Watcher.start_link(opts) do
+    case DuskmoonBundler.Watcher.start_link(opts) do
       {:ok, _pid} ->
         Process.sleep(:infinity)
 
@@ -10,7 +10,7 @@ defmodule HexHub.Assets.VoltWatcher do
         Process.sleep(:infinity)
 
       {:error, reason} ->
-        raise "failed to start Volt watcher: #{inspect(reason)}"
+        raise "failed to start DuskmoonBundler watcher: #{inspect(reason)}"
     end
   end
 end

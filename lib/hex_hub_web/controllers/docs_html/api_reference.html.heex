@@ -27,8 +27,8 @@
           </a>
         </div>
       </div>
-      
-<!-- Authentication -->
+
+      <!-- Authentication -->
       <.section_heading id="authentication" level={2}>Authentication</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -72,8 +72,8 @@
           </tbody>
         </table>
       </div>
-      
-<!-- Rate Limiting -->
+
+      <!-- Rate Limiting -->
       <.section_heading id="rate-limiting" level={2}>Rate Limiting</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -106,8 +106,8 @@
           </div>
         </div>
       </div>
-      
-<!-- Media Types -->
+
+      <!-- Media Types -->
       <.section_heading id="media-types" level={2}>Media Types</.section_heading>
 
       <div class="space-y-2 mb-6">
@@ -130,11 +130,11 @@
           <span class="text-sm text-on-surface-variant">Erlang term format</span>
         </div>
       </div>
-      
-<!-- Endpoints -->
+
+      <!-- Endpoints -->
       <.section_heading id="endpoints" level={2}>Endpoints</.section_heading>
-      
-<!-- Tag quick nav -->
+
+      <!-- Tag quick nav -->
       <div class="flex flex-wrap gap-2 mb-8">
         <%= for {tag, _endpoints} <- @endpoints_by_tag do %>
           <a
@@ -146,8 +146,8 @@
           </a>
         <% end %>
       </div>
-      
-<!-- Endpoint sections -->
+
+      <!-- Endpoint sections -->
       <%= for {tag, endpoints} <- @endpoints_by_tag do %>
         <section
           id={"tag-#{String.downcase(String.replace(tag, " ", "-"))}"}
@@ -235,8 +235,8 @@
           </div>
         </section>
       <% end %>
-      
-<!-- Error Responses -->
+
+      <!-- Error Responses -->
       <.section_heading id="error-responses" level={2}>Error Responses</.section_heading>
 
       <p class="text-on-surface-variant mb-4 leading-relaxed">
@@ -252,8 +252,8 @@
   &#125;
 &#125;</code></pre>
       </.code_block>
-      
-<!-- Next Steps -->
+
+      <!-- Next Steps -->
       <.section_heading id="next-steps" level={2}>Next Steps</.section_heading>
 
       <div class="space-y-3">

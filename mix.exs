@@ -5,7 +5,7 @@ defmodule HexHub.MixProject do
     [
       app: :hex_hub,
       version: "1.0.11",
-      elixir: "~> 1.17",
+      elixir: ">= 1.18.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -40,12 +40,13 @@ defmodule HexHub.MixProject do
       {:phoenix, "~> 1.8.0-rc.4", override: true},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 1.1.0-rc.0"},
+      {:phoenix_live_view, "~> 1.2"},
       {:lazy_html, ">= 0.1.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:phoenix_duskmoon, "~> 9.1"},
-      {:volt, "~> 0.14.0"},
-      {:npm, "~> 0.7.4", runtime: false},
+      # TODO(upstream): duskmoon-dev/phoenix-duskmoon-ui#51
+      {:duskmoon_bundler, "~> 9.5"},
+      {:plug, "~> 1.20", override: true},
       {:swoosh, "~> 1.16"},
       {:req, "~> 0.5"},
       {:telemetry_metrics, "~> 1.0"},
@@ -87,12 +88,12 @@ defmodule HexHub.MixProject do
       "quickbeam.compile": quickbeam_compile_alias(),
       "assets.setup": ["npm.install --frozen"],
       "assets.build": [
-        "cmd mix volt.build hex_hub --tailwind --no-hash --no-minify",
-        "cmd mix volt.build hex_hub_admin --tailwind --no-hash --no-minify"
+        "cmd mix duskmoon_bundler.build hex_hub --tailwind --no-hash --no-minify",
+        "cmd mix duskmoon_bundler.build hex_hub_admin --tailwind --no-hash --no-minify"
       ],
       "assets.deploy": [
-        "cmd mix volt.build hex_hub --tailwind",
-        "cmd mix volt.build hex_hub_admin --tailwind",
+        "cmd mix duskmoon_bundler.build hex_hub --tailwind",
+        "cmd mix duskmoon_bundler.build hex_hub_admin --tailwind",
         "phx.digest"
       ]
     ]

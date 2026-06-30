@@ -91,8 +91,8 @@
           {if @total_count == 1, do: "result", else: "results"}
         </div>
       </div>
-      
-<!-- A-Z Filter -->
+
+      <!-- A-Z Filter -->
       <div class="mb-8">
         <div class="flex flex-wrap gap-1 justify-center">
           <a
@@ -111,8 +111,8 @@
           <% end %>
         </div>
       </div>
-      
-<!-- Package Results -->
+
+      <!-- Package Results -->
       <%= if Enum.empty?(@packages) do %>
         <div class="text-center py-16">
           <div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-4">
@@ -164,8 +164,8 @@
             </a>
           <% end %>
         </div>
-        
-<!-- Pagination -->
+
+        <!-- Pagination -->
         <%= if @total_pages > 1 do %>
           <div class="flex justify-center mt-10">
             <.dm_pagination
@@ -212,8 +212,8 @@
             </div>
           </section>
         <% end %>
-        
-<!-- Recently Updated -->
+
+        <!-- Recently Updated -->
         <%= if @recently_updated != [] do %>
           <section>
             <div class="flex items-center gap-2 mb-4">
@@ -240,8 +240,8 @@
             </div>
           </section>
         <% end %>
-        
-<!-- New Packages -->
+
+        <!-- New Packages -->
         <%= if @new_packages != [] do %>
           <section>
             <div class="flex items-center gap-2 mb-4">
@@ -268,8 +268,8 @@
             </div>
           </section>
         <% end %>
-        
-<!-- Browse by Letter -->
+
+        <!-- Browse by Letter -->
         <section>
           <div class="flex items-center gap-2 mb-4">
             <.dm_mdi
