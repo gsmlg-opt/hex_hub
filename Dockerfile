@@ -9,9 +9,9 @@
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
 #   - https://hub.docker.com/_/ubuntu/tags?name=noble - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: docker.io/hexpm/elixir:1.19.0-erlang-28.0.4-ubuntu-noble-20260509.1
+#   - Ex: docker.io/hexpm/elixir:1.19.0-erlang-28.5.0.2-ubuntu-noble-20260509.1
 #
-FROM hexpm/elixir:1.19.0-erlang-28.0.4-ubuntu-noble-20260509.1 AS builder
+FROM hexpm/elixir:1.19.0-erlang-28.5.0.2-ubuntu-noble-20260509.1 AS builder
 
 # install build dependencies
 RUN apt-get update \
