@@ -32,7 +32,7 @@ The application uses Mnesia for metadata, local filesystem or S3-compatible obje
 - Elixir 1.17 or newer
 - Erlang/OTP 26 or newer
 - Node package dependencies installed through the `npm` Mix package
-- `mise` and Zig 0.15.2 only when QuickBEAM must be compiled from source, such as Intel macOS
+- `mise` and Zig 0.16.0 only when QuickBEAM must be compiled from source, such as Intel macOS
 
 ## Quick Start
 

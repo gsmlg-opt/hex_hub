@@ -30,7 +30,7 @@ ARG MIX_ENV=prod
 ARG SECRET_KEY_BASE
 
 # copy npm package manifests
-COPY package.json npm.lock* ./
+COPY package.json package-lock.json ./
 
 # install mix dependencies
 COPY mix.exs mix.lock ./

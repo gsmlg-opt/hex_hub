@@ -42,7 +42,7 @@ defmodule HexHub.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.2"},
       {:lazy_html, ">= 0.1.0"},
-      {:phoenix_live_dashboard, "~> 0.8.3"},
+      {:phoenix_live_dashboard, "~> 0.9.1"},
       {:phoenix_duskmoon, "~> 9.1"},
       # TODO(upstream): duskmoon-dev/phoenix-duskmoon-ui#51
       {:duskmoon_bundler, "~> 9.5"},
@@ -53,7 +53,7 @@ defmodule HexHub.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
-      {:dns_cluster, "~> 0.2.0"},
+      {:dns_cluster, "~> 0.3.1"},
       {:bandit, "~> 1.5"},
       {:bcrypt_elixir, "~> 3.0"},
       {:uuid, "~> 1.1"},
@@ -101,7 +101,7 @@ defmodule HexHub.MixProject do
 
   defp quickbeam_source_deps do
     if quickbeam_source_build?() do
-      [{:zigler, "~> 0.15.2", runtime: false}]
+      [{:zigler, "~> 0.16.0", runtime: false}]
     else
       []
     end
@@ -110,9 +110,8 @@ defmodule HexHub.MixProject do
   defp quickbeam_compile_alias do
     if quickbeam_source_build?() do
       [
-        "cmd elixir scripts/patch_quickbeam_targets.exs",
-        "cmd mise exec zig@0.15.2 -- mix deps.compile protoss pegasus zig_get zig_parser zigler",
-        "cmd mise exec zig@0.15.2 -- env QUICKBEAM_BUILD=1 mix deps.compile quickbeam --force"
+        "cmd mise exec zig@0.16.0 -- mix deps.compile zigler --include-children",
+        "cmd mise exec zig@0.16.0 -- env QUICKBEAM_BUILD=1 mix deps.compile duskmoon_quickbeam --force"
       ]
     else
       []
