@@ -6,8 +6,22 @@ defmodule HexHub.CachedPackagesTest do
 
   @packages_table :packages
   @package_releases_table :package_releases
+  @moduletag :tmp_dir
 
-  setup do
+  setup %{tmp_dir: storage_path} do
+    original_storage =
+      for key <- [:storage_type, :storage_path], do: {key, Application.fetch_env(:hex_hub, key)}
+
+    Application.put_env(:hex_hub, :storage_type, :local)
+    Application.put_env(:hex_hub, :storage_path, storage_path)
+
+    on_exit(fn ->
+      Enum.each(original_storage, fn
+        {key, {:ok, value}} -> Application.put_env(:hex_hub, key, value)
+        {key, :error} -> Application.delete_env(:hex_hub, key)
+      end)
+    end)
+
     # Clean up packages table before each test
     :mnesia.clear_table(@packages_table)
     :mnesia.clear_table(@package_releases_table)
@@ -247,7 +261,7 @@ defmodule HexHub.CachedPackagesTest do
     test "includes versions and releases in response" do
       {:ok, _} = Packages.create_package("versioned_pkg", "hexpm", %{}, false, :local)
       # Add a release
-      Packages.create_release("versioned_pkg", "1.0.0", %{}, %{}, <<0>>)
+      assert {:ok, _} = Packages.create_release("versioned_pkg", "1.0.0", %{}, %{}, <<0>>)
 
       {:ok, package} = CachedPackages.get_package_by_source("versioned_pkg", :local)
 
@@ -259,7 +273,7 @@ defmodule HexHub.CachedPackagesTest do
   describe "delete_cached_package/1" do
     test "deletes cached package successfully" do
       {:ok, _} = Packages.create_package("to_delete", "hexpm", %{}, false, :cached)
-      Packages.create_release("to_delete", "1.0.0", %{}, %{}, <<0>>)
+      assert {:ok, _} = Packages.create_release("to_delete", "1.0.0", %{}, %{}, <<0>>)
 
       assert :ok = CachedPackages.delete_cached_package("to_delete")
 
@@ -282,8 +296,8 @@ defmodule HexHub.CachedPackagesTest do
 
     test "deletes all associated releases" do
       {:ok, _} = Packages.create_package("multi_version", "hexpm", %{}, false, :cached)
-      Packages.create_release("multi_version", "1.0.0", %{}, %{}, <<0>>)
-      Packages.create_release("multi_version", "2.0.0", %{}, %{}, <<0>>)
+      assert {:ok, _} = Packages.create_release("multi_version", "1.0.0", %{}, %{}, <<0>>)
+      assert {:ok, _} = Packages.create_release("multi_version", "2.0.0", %{}, %{}, <<0>>)
 
       assert :ok = CachedPackages.delete_cached_package("multi_version")
 
