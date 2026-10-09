@@ -122,6 +122,63 @@ defmodule HexHub.StorageTest do
   end
 
   describe "S3 storage configuration" do
+    test "download preserves encoded object bytes through the configured S3 client" do
+      parent = self()
+      body = :zlib.gzip(<<0, 255, 10, "stored archive">>)
+      key = "hosted/packages/sample/sample-1.0.0.tar.gz"
+
+      server =
+        start_supervised!(
+          {HexHub.TestHTTPServer,
+           fn conn ->
+             send(
+               parent,
+               {:download, conn.method, conn.request_path,
+                Plug.Conn.get_req_header(conn, "authorization")}
+             )
+
+             conn
+             |> Plug.Conn.put_resp_content_type("application/octet-stream")
+             |> Plug.Conn.put_resp_header("content-encoding", "gzip")
+             |> Plug.Conn.send_resp(200, body)
+           end}
+        )
+
+      %{port: port} = server |> HexHub.TestHTTPServer.url() |> URI.parse()
+
+      config_keys = [
+        {:hex_hub, :s3_bucket_path},
+        {:ex_aws, :access_key_id},
+        {:ex_aws, :secret_access_key},
+        {:ex_aws, :region},
+        {:ex_aws, :http_opts},
+        {:ex_aws, :s3}
+      ]
+
+      original_config =
+        for {app, key} <- config_keys, do: {app, key, Application.fetch_env(app, key)}
+
+      on_exit(fn ->
+        Enum.each(original_config, fn
+          {app, key, {:ok, value}} -> Application.put_env(app, key, value)
+          {app, key, :error} -> Application.delete_env(app, key)
+        end)
+      end)
+
+      Application.put_env(:hex_hub, :storage_type, :s3)
+      Application.put_env(:hex_hub, :s3_bucket, "raw-bucket")
+      Application.put_env(:hex_hub, :s3_bucket_path, "/prefix")
+      Application.put_env(:ex_aws, :access_key_id, "test-access-key")
+      Application.put_env(:ex_aws, :secret_access_key, "test-secret-key")
+      Application.put_env(:ex_aws, :region, "us-east-1")
+      Application.put_env(:ex_aws, :http_opts, decode_body: true, recv_timeout: 1000)
+      Application.put_env(:ex_aws, :s3, host: "127.0.0.1", scheme: "http://", port: port)
+
+      assert {:ok, ^body} = HexHub.Storage.download(key)
+      assert_receive {:download, "GET", "/raw-bucket/prefix/" <> ^key, [authorization]}
+      assert String.starts_with?(authorization, "AWS4-HMAC-SHA256 ")
+    end
+
     test "returns error when bucket not configured" do
       # Temporarily remove bucket configuration
       # on_exit callback will restore to original values

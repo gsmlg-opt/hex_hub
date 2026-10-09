@@ -95,15 +95,12 @@ defmodule HexHubWeb.API.RegistryController do
         {"accept", "application/octet-stream"}
       ]
 
-      req_opts = [
-        receive_timeout: config.timeout,
-        headers: headers,
-        # Disable automatic decompression - we want the raw gzipped data
-        decode_body: false,
-        compressed: false
+      request_opts = [
+        timeout: config.timeout,
+        headers: headers
       ]
 
-      case Req.get(url, req_opts) do
+      case HexHub.HTTPClient.get(url, request_opts) do
         {:ok, %{status: 200, body: body, headers: resp_headers}} ->
           # Extract relevant headers for proxying
           relevant_headers = extract_relevant_headers(resp_headers)
@@ -114,9 +111,6 @@ defmodule HexHubWeb.API.RegistryController do
 
         {:ok, %{status: status}} ->
           {:error, "Upstream returned status #{status}"}
-
-        {:error, %Req.TransportError{reason: reason}} ->
-          {:error, "Network error: #{inspect(reason)}"}
 
         {:error, reason} ->
           {:error, "Request failed: #{inspect(reason)}"}
@@ -146,7 +140,7 @@ defmodule HexHubWeb.API.RegistryController do
     # Apply proxied headers
     conn =
       Enum.reduce(headers, conn, fn {name, value}, acc ->
-        # Handle list values (Req returns headers as lists)
+        # Older cached responses may store header values as lists
         header_value =
           case value do
             [v | _] -> v

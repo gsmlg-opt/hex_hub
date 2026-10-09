@@ -553,16 +553,32 @@ config :hex_hub, :mcp,
 ### MCP Client Library
 
 ```elixir
-# Example MCP client in Elixir
+# Example MCP client using the :http_web_socket dependency.
+# Run connect, call_tool, and receive_response in the same owner process.
 defmodule HexHubMCPClient do
-  use WebSockex
-
-  def start_link(url, api_key \\ nil) do
+  def connect(url, api_key \\ nil) do
     headers = if api_key, do: [{"Authorization", "Bearer #{api_key}"}], else: []
-    WebSockex.start_link(url, __MODULE__, %{api_key: api_key}, extra_headers: headers)
+
+    case HTTP.WebSocket.new(url, [], owner: self(), headers: headers) do
+      %HTTP.WebSocket{ref: ref} = socket ->
+        receive do
+          {HTTP.WebSocket, %{ref: ^ref}, %HTTP.WebSocket.Event.Open{}} ->
+            {:ok, socket}
+
+          {HTTP.WebSocket, %{ref: ^ref}, %HTTP.WebSocket.Event.Error{reason: reason}} ->
+            {:error, reason}
+        after
+          30_000 ->
+            HTTP.WebSocket.close(socket)
+            {:error, :timeout}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
-  def call_tool(pid, tool_name, arguments) do
+  def call_tool(socket, tool_name, arguments) do
     request = %{
       jsonrpc: "2.0",
       method: "tools/call/#{tool_name}",
@@ -570,15 +586,31 @@ defmodule HexHubMCPClient do
       id: 1
     }
 
-    WebSockex.send_frame(pid, {:text, Jason.encode!(request)})
+    HTTP.WebSocket.send(socket, JSON.encode!(request))
   end
 
-  def handle_frame({:text, msg}, state) do
-    response = Jason.decode!(msg)
-    IO.inspect(response, label: "MCP Response")
-    {:ok, state}
+  def receive_response(%HTTP.WebSocket{ref: ref}, timeout \\ 30_000) do
+    receive do
+      {HTTP.WebSocket, %{ref: ^ref}, %HTTP.WebSocket.Event.Message{data: data}}
+      when is_binary(data) ->
+        JSON.decode(data)
+
+      {HTTP.WebSocket, %{ref: ^ref}, %HTTP.WebSocket.Event.Error{reason: reason}} ->
+        {:error, reason}
+
+      {HTTP.WebSocket, %{ref: ^ref}, %HTTP.WebSocket.Event.Close{code: code, reason: reason}} ->
+        {:error, {:closed, code, reason}}
+    after
+      timeout -> {:error, :timeout}
+    end
   end
 end
+
+{:ok, socket} = HexHubMCPClient.connect("ws://localhost:4000/mcp/ws")
+:ok = HexHubMCPClient.call_tool(socket, "list_packages", %{})
+{:ok, response} = HexHubMCPClient.receive_response(socket)
+IO.inspect(response, label: "MCP Response")
+HTTP.WebSocket.close(socket)
 ```
 
 This comprehensive deployment guide provides everything needed to successfully deploy and operate the HexHub MCP server in various environments.

@@ -309,7 +309,7 @@ defmodule E2E.PublishHelper do
   def download_docs_tarball(base_url, package_name, version) do
     url = "#{base_url}/api/packages/#{package_name}/releases/#{version}/docs/download"
 
-    case Req.get(url, decode_body: false) do
+    case HexHub.HTTPClient.get(url) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, body}
 
@@ -338,7 +338,7 @@ defmodule E2E.PublishHelper do
   def verify_package_exists(base_url, package_name) do
     url = "#{base_url}/api/packages/#{package_name}"
 
-    case Req.get(url) do
+    case HexHub.HTTPClient.get(url, json: true) do
       {:ok, %{status: 200, body: body}} when is_map(body) ->
         {:ok, body}
 
@@ -368,7 +368,7 @@ defmodule E2E.PublishHelper do
   def download_package_tarball(base_url, package_name, version) do
     url = "#{base_url}/api/packages/#{package_name}/releases/#{version}/download"
 
-    case Req.get(url, decode_body: false) do
+    case HexHub.HTTPClient.get(url) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, body}
 

@@ -184,11 +184,12 @@ defmodule HexHub.Storage do
       start_time = System.monotonic_time()
 
       full_key = s3_key(key)
+      http_opts = Application.get_env(:ex_aws, :http_opts, []) |> Keyword.put(:decode_body, false)
 
       result =
         bucket
         |> S3.get_object(full_key)
-        |> ExAws.request()
+        |> ExAws.request(http_opts: http_opts)
         |> handle_s3_download_response(key)
 
       duration_ms =

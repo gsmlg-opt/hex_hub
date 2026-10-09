@@ -137,12 +137,12 @@ defmodule HexHubAdminWeb.UpstreamController do
         api_key -> [{"authorization", "Bearer #{api_key}"} | headers]
       end
 
-    req_opts = [
-      receive_timeout: 5000,
+    request_opts = [
+      timeout: 5000,
       headers: headers
     ]
 
-    case Req.get(url, req_opts) do
+    case HexHub.HTTPClient.get(url, request_opts) do
       {:ok, %{status: 200}} ->
         :ok
 
@@ -155,9 +155,6 @@ defmodule HexHubAdminWeb.UpstreamController do
 
       {:ok, %{status: status}} ->
         {:error, "HTTP #{status}"}
-
-      {:error, %Req.TransportError{reason: reason}} ->
-        {:error, "Network error: #{reason}"}
 
       {:error, reason} ->
         {:error, inspect(reason)}

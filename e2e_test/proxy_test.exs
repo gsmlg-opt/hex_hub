@@ -109,7 +109,7 @@ defmodule E2E.ProxyTest do
     @tag timeout: @test_timeout
     test "server responds to health check", %{base_url: base_url} do
       # Verify the server is running and healthy
-      case Req.get("#{base_url}/health") do
+      case HexHub.HTTPClient.get("#{base_url}/health") do
         {:ok, %{status: status}} when status in [200, 204] ->
           assert true
 
@@ -137,7 +137,7 @@ defmodule E2E.ProxyTest do
     @tag timeout: @test_timeout
     test "proxy returns package metadata", %{base_url: base_url} do
       # Fetch package metadata through the proxy
-      case Req.get("#{base_url}/api/packages/jason") do
+      case HexHub.HTTPClient.get("#{base_url}/api/packages/jason", json: true) do
         {:ok, %{status: 200, body: body}} ->
           assert is_map(body) or is_binary(body),
                  "Package metadata should be returned"
@@ -167,7 +167,9 @@ defmodule E2E.ProxyTest do
     @tag timeout: @test_timeout
     test "returns 404 for non-existent package", %{base_url: base_url} do
       # Request a package that doesn't exist
-      case Req.get("#{base_url}/api/packages/this_package_definitely_does_not_exist_12345") do
+      case HexHub.HTTPClient.get(
+             "#{base_url}/api/packages/this_package_definitely_does_not_exist_12345"
+           ) do
         {:ok, %{status: 404}} ->
           assert true
 

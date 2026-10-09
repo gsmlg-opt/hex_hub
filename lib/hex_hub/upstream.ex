@@ -363,20 +363,13 @@ defmodule HexHub.Upstream do
       end
 
     # Disable all automatic response processing to get raw bytes
-    req_opts = [
-      receive_timeout: config.timeout,
+    request_opts = [
+      timeout: config.timeout,
       headers: headers,
-      # Disable automatic decompression
-      decode_body: false,
-      # Disable gzip/deflate handling
-      compressed: false,
-      # Don't follow redirects automatically for binary data
-      redirect: true,
-      # Disable retry at Req level (we handle retries ourselves)
-      retry: false
+      redirect: :follow
     ]
 
-    case Req.get(url, req_opts) do
+    case HexHub.HTTPClient.get(url, request_opts) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         Telemetry.log(:debug, :upstream, "Raw binary response", %{size: byte_size(body)})
         {:ok, body}
@@ -396,9 +389,6 @@ defmodule HexHub.Upstream do
         })
 
         {:error, "Unexpected response status: #{response.status}"}
-
-      {:error, %Req.TransportError{reason: reason}} ->
-        {:error, "Network error: #{inspect(reason)}"}
 
       {:error, reason} ->
         {:error, "Request failed: #{inspect(reason)}"}
@@ -442,12 +432,13 @@ defmodule HexHub.Upstream do
         api_key -> [{"authorization", "Bearer #{api_key}"} | base_headers]
       end
 
-    req_opts = [
-      receive_timeout: config.timeout,
-      headers: headers
+    request_opts = [
+      timeout: config.timeout,
+      headers: headers,
+      json: true
     ]
 
-    case Req.get(url, req_opts) do
+    case HexHub.HTTPClient.get(url, request_opts) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         Telemetry.log(:debug, :upstream, "Upstream response: binary body", %{
           size: byte_size(body)
@@ -520,11 +511,8 @@ defmodule HexHub.Upstream do
 
         {:error, "Unexpected response: #{inspect(response)}"}
 
-      {:error, %Req.TransportError{reason: reason}} ->
-        {:error, "Network error: #{reason}"}
-
       {:error, reason} ->
-        {:error, "Request failed: #{reason}"}
+        {:error, "Request failed: #{inspect(reason)}"}
     end
   end
 end

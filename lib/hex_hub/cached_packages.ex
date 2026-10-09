@@ -869,14 +869,12 @@ defmodule HexHub.CachedPackages do
       {"accept", "application/octet-stream"}
     ]
 
-    req_opts = [
-      receive_timeout: config.timeout,
-      headers: headers,
-      decode_body: false,
-      compressed: false
+    request_opts = [
+      timeout: config.timeout,
+      headers: headers
     ]
 
-    case Req.get(url, req_opts) do
+    case HexHub.HTTPClient.get(url, request_opts) do
       {:ok, %{status: 200, body: body, headers: resp_headers}} ->
         relevant_headers =
           resp_headers
