@@ -4,6 +4,8 @@ defmodule HexHubAdminWeb.Layouts do
   """
   use HexHubAdminWeb, :html
 
+  import HexHubWeb.VersionBadge, only: [version_badge: 1]
+
   embed_templates "layouts/*"
 
   @app_version Mix.Project.config()[:version]

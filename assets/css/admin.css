@@ -3,9 +3,11 @@
 @import "@duskmoon-dev/core/themes/sunshine";
 @import "@duskmoon-dev/core/themes/moonlight";
 @import "@duskmoon-dev/core/components";
+@import "./version_badge.css";
 
 @source "../js";
 @source "../../lib/hex_hub_admin_web";
+@source "../../lib/hex_hub_web/components/version_badge.ex";
 @source "../../deps/phoenix_duskmoon/lib/phoenix_duskmoon/";
 
 /* Workaround: @duskmoon-dev/core defines these in index.css but not in plugin/components exports */

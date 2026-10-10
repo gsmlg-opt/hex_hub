@@ -5,6 +5,8 @@ defmodule HexHubWeb.Layouts do
   """
   use HexHubWeb, :html
 
+  import HexHubWeb.VersionBadge, only: [version_badge: 1]
+
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
   # skeleton of your application, namely HTML headers
@@ -43,12 +45,16 @@ defmodule HexHubWeb.Layouts do
       <nav class="navbar navbar-surface-container-high border-b border-outline-variant">
         <div class="max-w-7xl mx-auto w-full flex items-center justify-between px-4 sm:px-6">
           <div class="flex items-center gap-8">
-            <a
-              href="/"
-              class="flex items-center gap-2 text-xl font-bold text-primary hover:opacity-80 transition-opacity"
-            >
-              <.dm_mdi name="hexagon-multiple" class="w-7 h-7" color="var(--color-primary)" /> HexHub
-            </a>
+            <div class="flex items-center gap-2">
+              <a
+                href="/"
+                class="flex items-center gap-2 text-xl font-bold text-primary hover:opacity-80 transition-opacity"
+              >
+                <.dm_mdi name="hexagon-multiple" class="w-7 h-7" color="var(--color-primary)" />
+                HexHub
+              </a>
+              <.version_badge id="app-version" />
+            </div>
             <div class="hidden sm:flex items-center gap-1">
               <a
                 href="/packages"

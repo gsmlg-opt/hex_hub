@@ -1,11 +1,15 @@
-<.dm_simple_appbar
-  title="HexHub Admin"
-  class={[
-    "z-50 appbar-primary",
-    "shadow shadow-primary/20"
-  ]}
->
-  <:logo></:logo>
+<.dm_simple_appbar class={[
+  "z-50 appbar-primary",
+  "shadow shadow-primary/20"
+]}>
+  <:logo>
+    <div class="flex items-center gap-2">
+      <span class="appbar-title font-bold">
+        HexHub<span class="hidden sm:inline"> Admin</span>
+      </span>
+      <.version_badge id="admin-app-version" />
+    </div>
+  </:logo>
   <:user_profile>
     <div class="flex items-center">
       <.dm_theme_switcher />

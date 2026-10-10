@@ -3,6 +3,7 @@
 @import "@duskmoon-dev/core/themes/sunshine";
 @import "@duskmoon-dev/core/themes/moonlight";
 @import "@duskmoon-dev/core/components";
+@import "./version_badge.css";
 
 @source "../js";
 @source "../../lib/hex_hub_web";

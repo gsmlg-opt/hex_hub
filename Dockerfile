@@ -50,6 +50,10 @@ COPY priv priv
 COPY lib lib
 
 # Compile the release
+ARG HEX_HUB_GIT_REF
+ARG HEX_HUB_GIT_SHA
+ARG HEX_HUB_BUILD_TIME
+ARG HEX_HUB_RELEASE_TIME
 RUN mix compile
 
 # Build assets
