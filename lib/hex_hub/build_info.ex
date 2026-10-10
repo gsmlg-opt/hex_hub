@@ -33,7 +33,7 @@ defmodule HexHub.BuildInfo do
 
   default_built_at = DateTime.utc_now() |> DateTime.truncate(:second) |> DateTime.to_iso8601()
 
-  @info %{
+  @info [
     version: Mix.Project.config()[:version],
     environment: Mix.env(),
     development: Mix.env() == :dev,
@@ -41,8 +41,8 @@ defmodule HexHub.BuildInfo do
     git_sha: git_sha,
     built_at: env.("HEX_HUB_BUILD_TIME") || default_built_at,
     released_at: env.("HEX_HUB_RELEASE_TIME")
-  }
+  ]
 
   @spec info() :: map()
-  def info, do: @info
+  def info, do: Map.new(@info)
 end
