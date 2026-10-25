@@ -219,8 +219,21 @@ defmodule HexHub.HTTPClientTest do
         send_resp(conn, 200, "too late")
       end)
 
+    opts = [
+      http_version: :http1,
+      http1_reuse: true,
+      http1_scope: "timeout-#{System.unique_integer([:positive])}",
+      redirect: :manual
+    ]
+
+    # Keep connection establishment outside the response timeout assertion.
+    promise = HTTP.fetch(url, opts)
+    assert %HTTP.Response{status: 200} = response = HTTP.Promise.await(promise)
+    assert HTTP.Response.read_all(response) == "too late"
+    assert :ok = HTTP.RequestCompletion.await(HTTP.Promise.completion(promise))
+
     assert {:error, %{reason: :request_timeout}} =
-             HTTPClient.ExAws.request(:get, url, "", [], recv_timeout: 20)
+             HTTPClient.ExAws.request(:get, url, "", [], Keyword.put(opts, :recv_timeout, 20))
   end
 
   test "ExAws adapter preserves manual redirects unless following is requested" do
