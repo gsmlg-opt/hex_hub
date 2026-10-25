@@ -3,14 +3,25 @@
 
 # Configure endpoint BEFORE starting the application
 # This enables the HTTP server with a dynamic port for E2E testing
-Application.put_env(:hex_hub, HexHubWeb.Endpoint,
-  adapter: Bandit.PhoenixAdapter,
-  http: [ip: {127, 0, 0, 1}, port: 0],
-  server: true,
-  secret_key_base: :crypto.strong_rand_bytes(64) |> Base.encode64() |> binary_part(0, 64),
-  url: [host: "localhost"],
-  pubsub_server: HexHub.PubSub,
-  live_view: [signing_salt: "e2e_test_salt"]
+endpoint_config = Application.get_env(:hex_hub, HexHubWeb.Endpoint, [])
+
+http_config =
+  endpoint_config
+  |> Keyword.get(:http, [])
+  |> Keyword.merge(ip: {127, 0, 0, 1}, port: 0)
+
+Application.put_env(
+  :hex_hub,
+  HexHubWeb.Endpoint,
+  Keyword.merge(endpoint_config,
+    adapter: Gaoxy.PhoenixAdapter,
+    http: http_config,
+    server: true,
+    secret_key_base: :crypto.strong_rand_bytes(64) |> Base.encode64() |> binary_part(0, 64),
+    url: [host: "localhost"],
+    pubsub_server: HexHub.PubSub,
+    live_view: [signing_salt: "e2e_test_salt"]
+  )
 )
 
 # Start ExUnit

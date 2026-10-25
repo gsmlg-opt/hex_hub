@@ -10,9 +10,18 @@ config :hex_hub,
   backup_path: "priv/backups",
   backup_retention_days: 30
 
+# Match the package parser's 100 MB body and 120-second read limits.
+http_limits = %{
+  max_body_bytes: 100_000_000,
+  request_timeout: 300_000,
+  read_timeout: 120_000,
+  write_timeout: 120_000
+}
+
 config :hex_hub, HexHubWeb.Endpoint,
   url: [host: "localhost"],
-  adapter: Bandit.PhoenixAdapter,
+  adapter: Gaoxy.PhoenixAdapter,
+  http: [http_limits: http_limits, limits: %{max_bytes: 268_435_456}],
   render_errors: [
     formats: [html: HexHubWeb.ErrorHTML, json: HexHubWeb.ErrorJSON],
     layout: false
@@ -22,7 +31,8 @@ config :hex_hub, HexHubWeb.Endpoint,
 
 config :hex_hub, HexHubAdminWeb.Endpoint,
   url: [host: "localhost"],
-  adapter: Bandit.PhoenixAdapter,
+  adapter: Gaoxy.PhoenixAdapter,
+  http: [http_limits: http_limits, limits: %{max_bytes: 268_435_456}],
   render_errors: [
     formats: [html: HexHubAdminWeb.ErrorHTML, json: HexHubAdminWeb.ErrorJSON],
     layout: false

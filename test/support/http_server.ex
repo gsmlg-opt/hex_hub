@@ -9,16 +9,17 @@ defmodule HexHub.TestHTTPServer do
   end
 
   def start_link(handler) do
-    Bandit.start_link(
+    Gaoxy.HTTP.start_link(
+      id: :http,
       plug: {__MODULE__, handler},
       ip: {127, 0, 0, 1},
       port: 0,
-      startup_log: false
+      limits: %{max_bytes: 268_435_456}
     )
   end
 
   def url(pid) do
-    {:ok, {_address, port}} = ThousandIsland.listener_info(pid)
+    %{local: {:ok, {_address, port}}} = Gaoxy.info(pid, :http)
     "http://127.0.0.1:#{port}"
   end
 

@@ -122,7 +122,7 @@ defmodule E2E.ServerHelper do
     if now >= deadline do
       nil
     else
-      case get_bandit_port() do
+      case get_endpoint_port() do
         nil ->
           Process.sleep(100)
           poll_for_port(deadline)
@@ -133,142 +133,16 @@ defmodule E2E.ServerHelper do
     end
   end
 
-  defp get_bandit_port do
-    # Get port from Bandit server by querying the listener directly
+  defp get_endpoint_port do
     try do
-      # Look for the Bandit listener process
-      case find_bandit_listener() do
-        {:ok, port} -> port
-        :error -> nil
+      case HexHubWeb.Endpoint.server_info(:http) do
+        {:ok, {_ip, port}} when is_integer(port) and port > 0 -> port
+        {:error, _reason} -> nil
       end
     rescue
       _ -> nil
     catch
-      _, _ -> nil
-    end
-  end
-
-  defp find_bandit_listener do
-    # Bandit registers its listener process, we can query it for the actual port
-    # The listener name follows the pattern: HexHubWeb.Endpoint.HTTP
-    case Process.whereis(HexHubWeb.Endpoint.HTTP) do
-      nil ->
-        # Try looking for the listener in the supervision tree
-        find_port_from_supervisor()
-
-      _pid ->
-        # Get port from ThousandIsland (Bandit's underlying server)
-        get_thousand_island_port()
-    end
-  end
-
-  defp find_port_from_supervisor do
-    # Walk the supervision tree to find the listener
-    try do
-      children = Supervisor.which_children(HexHubWeb.Endpoint)
-
-      Enum.find_value(children, :error, fn {id, pid, _type, modules} ->
-        case id do
-          # Pattern: {HexHubWeb.Endpoint, :http} for Bandit server
-          {HexHubWeb.Endpoint, :http} when is_pid(pid) ->
-            get_bandit_listener_port(pid, modules)
-
-          {:server, _} when is_pid(pid) ->
-            # This is likely the HTTP server (alternative pattern)
-            get_port_from_pid(pid)
-
-          _ ->
-            nil
-        end
-      end)
-    rescue
-      _ -> :error
-    end
-  end
-
-  defp get_bandit_listener_port(supervisor_pid, _modules) do
-    # The pid is a supervisor, we need to find the listener within it
-    try do
-      children = Supervisor.which_children(supervisor_pid)
-
-      Enum.find_value(children, fn {id, pid, _type, _mods} ->
-        case id do
-          :listener when is_pid(pid) ->
-            # Get port from the listener process
-            case :sys.get_state(pid) do
-              %{listener_socket: socket} when not is_nil(socket) ->
-                case :inet.port(socket) do
-                  {:ok, port} -> {:ok, port}
-                  _ -> nil
-                end
-
-              state when is_map(state) ->
-                # Try local_info
-                case Map.get(state, :local_info) do
-                  {_ip, port} when is_integer(port) -> {:ok, port}
-                  _ -> nil
-                end
-
-              _ ->
-                nil
-            end
-
-          _ ->
-            nil
-        end
-      end)
-    rescue
-      _ -> nil
-    catch
-      _, _ -> nil
-    end
-  end
-
-  defp get_thousand_island_port do
-    # ThousandIsland stores the port info in its state
-    try do
-      # Look for ThousandIsland server and get its listening port
-      case :sys.get_state(HexHubWeb.Endpoint.HTTP) do
-        state when is_map(state) ->
-          case Map.get(state, :local_info) do
-            {_ip, port} when is_integer(port) -> {:ok, port}
-            _ -> get_port_from_socket(state)
-          end
-
-        _ ->
-          :error
-      end
-    rescue
-      _ -> :error
-    catch
-      _, _ -> :error
-    end
-  end
-
-  defp get_port_from_socket(state) do
-    # Alternative: get port from socket options
-    case Map.get(state, :listener_socket) do
-      socket when not is_nil(socket) ->
-        case :inet.port(socket) do
-          {:ok, port} -> {:ok, port}
-          _ -> :error
-        end
-
-      _ ->
-        :error
-    end
-  end
-
-  defp get_port_from_pid(pid) do
-    try do
-      case :sys.get_state(pid) do
-        %{local_info: {_ip, port}} -> {:ok, port}
-        _ -> nil
-      end
-    rescue
-      _ -> nil
-    catch
-      _, _ -> nil
+      :exit, _ -> nil
     end
   end
 end
