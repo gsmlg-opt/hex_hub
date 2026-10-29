@@ -7,7 +7,7 @@ defmodule HexHubWeb.HealthController do
 
   def index(conn, _params) do
     checks = [
-      mnesia_health(),
+      database_health(),
       storage_health(),
       memory_health(),
       disk_health()
@@ -16,9 +16,11 @@ defmodule HexHubWeb.HealthController do
     overall_status =
       if Enum.all?(checks, &(&1.status == :ok)), do: :ok, else: :error
 
-    _status_code = if overall_status == :ok, do: 200, else: 503
+    status_code = if overall_status == :ok, do: 200, else: 503
 
-    json(conn, %{
+    conn
+    |> put_status(status_code)
+    |> json(%{
       status: overall_status,
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
       version: Application.spec(:hex_hub, :vsn) |> to_string(),
@@ -29,14 +31,16 @@ defmodule HexHubWeb.HealthController do
 
   def readiness(conn, _params) do
     checks = [
-      mnesia_health(),
+      database_health(),
       storage_health()
     ]
 
     ready? = Enum.all?(checks, &(&1.status == :ok))
-    _status_code = if ready?, do: 200, else: 503
+    status_code = if ready?, do: 200, else: 503
 
-    json(conn, %{
+    conn
+    |> put_status(status_code)
+    |> json(%{
       ready: ready?,
       checks: checks
     })
@@ -46,14 +50,14 @@ defmodule HexHubWeb.HealthController do
     json(conn, %{alive: true})
   end
 
-  defp mnesia_health do
-    case :mnesia.system_info(:is_running) do
+  defp database_health do
+    case HexHub.Database.system_info(:is_running) do
       :yes ->
         tables = [:users, :packages, :package_releases, :api_keys]
 
         table_health =
           Enum.reduce(tables, {:ok, []}, fn table, acc ->
-            case :mnesia.table_info(table, :size) do
+            case HexHub.Database.table_info(table, :size) do
               size when is_integer(size) ->
                 {status, tables} = acc
                 {status, [{table, size} | tables]}
@@ -66,7 +70,7 @@ defmodule HexHubWeb.HealthController do
         case table_health do
           {:ok, table_sizes} ->
             %{
-              name: "mnesia",
+              name: to_string(HexHub.Database.backend()),
               status: :ok,
               details: %{
                 tables: Map.new(table_sizes),
@@ -76,7 +80,7 @@ defmodule HexHubWeb.HealthController do
 
           {:error, failed_tables} ->
             %{
-              name: "mnesia",
+              name: to_string(HexHub.Database.backend()),
               status: :error,
               message: "Some tables failed health check",
               details: %{failed_tables: Map.new(failed_tables)}
@@ -85,12 +89,19 @@ defmodule HexHubWeb.HealthController do
 
       status ->
         %{
-          name: "mnesia",
+          name: to_string(HexHub.Database.backend()),
           status: :error,
-          message: "Mnesia is not running",
+          message: "Metadata database is not running",
           details: %{status: status}
         }
     end
+  rescue
+    _error ->
+      %{
+        name: to_string(HexHub.Database.backend()),
+        status: :error,
+        message: "Metadata database is unavailable"
+      }
   end
 
   defp storage_health do

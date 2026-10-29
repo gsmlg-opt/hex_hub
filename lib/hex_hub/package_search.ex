@@ -1,6 +1,6 @@
 defmodule HexHub.PackageSearch do
   @moduledoc """
-  Full-text search implementation for packages using Mnesia.
+  Full-text search implementation for packages using the configured metadata database.
 
   Features:
   - Inverted index for fast text search
@@ -26,7 +26,7 @@ defmodule HexHub.PackageSearch do
   """
   def init_tables() do
     # Create search index table
-    :mnesia.create_table(@search_index_table,
+    HexHub.Database.create_table(@search_index_table,
       attributes: [:term, :field, :package_name, :position, :score],
       type: :bag,
       ram_copies: [node()],
@@ -34,7 +34,7 @@ defmodule HexHub.PackageSearch do
     )
 
     # Create search cache table
-    :mnesia.create_table(@search_cache_table,
+    HexHub.Database.create_table(@search_cache_table,
       attributes: [:query, :results, :timestamp],
       type: :set,
       ram_copies: [node()]
@@ -85,7 +85,7 @@ defmodule HexHub.PackageSearch do
   """
   @spec index_package(map()) :: :ok | {:error, String.t()}
   def index_package(package) do
-    :mnesia.transaction(fn ->
+    HexHub.Database.transaction(fn ->
       # Remove old index entries for this package
       remove_package_index(package.name)
 
@@ -114,7 +114,7 @@ defmodule HexHub.PackageSearch do
   """
   @spec remove_package(String.t()) :: :ok | {:error, String.t()}
   def remove_package(package_name) do
-    :mnesia.transaction(fn ->
+    HexHub.Database.transaction(fn ->
       remove_package_index(package_name)
     end)
     |> handle_transaction_result()
@@ -125,12 +125,13 @@ defmodule HexHub.PackageSearch do
   """
   @spec rebuild_index() :: {:ok, integer()} | {:error, String.t()}
   def rebuild_index() do
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            # Clear existing index
-           :mnesia.clear_table(@search_index_table)
+           HexHub.Database.clear_table(@search_index_table)
 
            # Get all packages
-           packages = :mnesia.match_object({:packages, :_, :_, :_, :_, :_, :_, :_, :_, :_})
+           packages =
+             HexHub.Database.match_object({:packages, :_, :_, :_, :_, :_, :_, :_, :_, :_})
 
            # Reindex each package
            count =
@@ -160,9 +161,9 @@ defmodule HexHub.PackageSearch do
 
     normalized_prefix = normalize_query(prefix)
 
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            # Find packages with names starting with prefix
-           :mnesia.foldl(
+           HexHub.Database.foldl(
              fn {:packages, name, _repo, _meta, _private, _downloads, _inserted, _updated,
                  _html_url, _docs_url},
                 acc ->
@@ -198,8 +199,8 @@ defmodule HexHub.PackageSearch do
 
     normalized_query = normalize_query(query)
 
-    case :mnesia.transaction(fn ->
-           matches = :mnesia.match_object({@search_index_table, :_, field, :_, :_, :_})
+    case HexHub.Database.transaction(fn ->
+           matches = HexHub.Database.match_object({@search_index_table, :_, field, :_, :_, :_})
 
            matches
            |> Enum.filter(fn {_, term, _, _, _, _} ->
@@ -244,7 +245,7 @@ defmodule HexHub.PackageSearch do
     tokens = tokenize(normalized_text)
 
     # Index full text
-    :mnesia.write({
+    HexHub.Database.write({
       @search_index_table,
       normalized_text,
       field,
@@ -256,7 +257,7 @@ defmodule HexHub.PackageSearch do
     # Index individual tokens
     Enum.with_index(tokens)
     |> Enum.each(fn {token, position} ->
-      :mnesia.write({
+      HexHub.Database.write({
         @search_index_table,
         token,
         field,
@@ -268,12 +269,12 @@ defmodule HexHub.PackageSearch do
   end
 
   defp remove_package_index(package_name) do
-    matches = :mnesia.match_object({@search_index_table, :_, :_, package_name, :_, :_})
-    Enum.each(matches, &:mnesia.delete_object/1)
+    matches = HexHub.Database.match_object({@search_index_table, :_, :_, package_name, :_, :_})
+    Enum.each(matches, &HexHub.Database.delete_object/1)
   end
 
   defp perform_search(tokens, full_query) do
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            # Search for exact matches
            exact_matches = search_exact(full_query)
 
@@ -300,14 +301,14 @@ defmodule HexHub.PackageSearch do
   end
 
   defp search_exact(query) do
-    :mnesia.match_object({@search_index_table, query, :name, :_, 0, :_})
+    HexHub.Database.match_object({@search_index_table, query, :name, :_, 0, :_})
     |> Enum.map(fn {_, _, _, package_name, _, score} ->
       {package_name, score * @weights.name_exact}
     end)
   end
 
   defp search_prefix(query) do
-    :mnesia.foldl(
+    HexHub.Database.foldl(
       fn {_, term, :name, package_name, 0, score}, acc ->
         if String.starts_with?(term, query) do
           [{package_name, score * @weights.name_prefix} | acc]
@@ -322,7 +323,7 @@ defmodule HexHub.PackageSearch do
 
   defp search_tokens(tokens) do
     Enum.flat_map(tokens, fn token ->
-      :mnesia.match_object({@search_index_table, token, :_, :_, :_, :_})
+      HexHub.Database.match_object({@search_index_table, token, :_, :_, :_, :_})
       |> Enum.map(fn {_, _, field, package_name, _, score} ->
         weight = Map.get(@weights, field, 1.0)
         {package_name, score * weight}
@@ -360,7 +361,7 @@ defmodule HexHub.PackageSearch do
   end
 
   defp load_package_with_score(package_name, score) do
-    case :mnesia.read({:packages, package_name}) do
+    case HexHub.Database.read({:packages, package_name}) do
       [
         {:packages, name, repo, meta, _private, downloads, inserted_at, updated_at, html_url,
          docs_url}
@@ -408,8 +409,8 @@ defmodule HexHub.PackageSearch do
   defp filter_deprecated(results, false) do
     # Filter out deprecated packages if not including them
     Enum.reject(results, fn package ->
-      case :mnesia.transaction(fn ->
-             :mnesia.match_object({:retired_releases, package.name, :_, :_, :_, :_, :_})
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.match_object({:retired_releases, package.name, :_, :_, :_, :_, :_})
            end) do
         # Has retired releases
         {:atomic, [_ | _]} -> true
@@ -424,8 +425,8 @@ defmodule HexHub.PackageSearch do
     # 5 minutes
     cache_ttl = 300
 
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({@search_cache_table, query}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({@search_cache_table, query}) do
              [{_, _, results, timestamp}] ->
                age = DateTime.diff(DateTime.utc_now(), timestamp, :second)
 
@@ -445,8 +446,8 @@ defmodule HexHub.PackageSearch do
   end
 
   defp cache_results(query, results) do
-    :mnesia.transaction(fn ->
-      :mnesia.write({
+    HexHub.Database.transaction(fn ->
+      HexHub.Database.write({
         @search_cache_table,
         query,
         results,
@@ -456,7 +457,7 @@ defmodule HexHub.PackageSearch do
   end
 
   defp clear_cache() do
-    :mnesia.clear_table(@search_cache_table)
+    HexHub.Database.clear_table(@search_cache_table)
   end
 
   defp handle_transaction_result({:atomic, :ok}), do: :ok

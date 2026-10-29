@@ -12,6 +12,10 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - PHX_HOST=localhost
       - MIX_ENV=prod
+      - DATABASE_BACKEND=${DATABASE_BACKEND:-mnesia}
+      - DATABASE_URL=${DATABASE_URL:-}
+      - DATABASE_POOL_SIZE=${DATABASE_POOL_SIZE:-10}
+      - DATABASE_SSL=${DATABASE_SSL:-false}
       - CLUSTERING_ENABLED=false
       - STORAGE_TYPE=local
       - MNESIA_DIR=/app/priv/storage/mnesia
@@ -48,6 +52,10 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - PHX_HOST=localhost
       - MIX_ENV=prod
+      - DATABASE_BACKEND=${DATABASE_BACKEND:-mnesia}
+      - DATABASE_URL=${DATABASE_URL:-}
+      - DATABASE_POOL_SIZE=${DATABASE_POOL_SIZE:-10}
+      - DATABASE_SSL=${DATABASE_SSL:-false}
       - CLUSTERING_ENABLED=true
       - STORAGE_TYPE=local
       - MNESIA_DIR=/app/priv/storage/mnesia

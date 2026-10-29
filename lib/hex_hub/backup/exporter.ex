@@ -85,8 +85,8 @@ defmodule HexHub.Backup.Exporter do
     emit_progress(:exporting_users, 10)
 
     users =
-      case :mnesia.transaction(fn ->
-             :mnesia.foldl(
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.foldl(
                fn user, acc ->
                  [user_to_map(user) | acc]
                end,
@@ -113,8 +113,8 @@ defmodule HexHub.Backup.Exporter do
     emit_progress(:exporting_packages, 25)
 
     packages =
-      case :mnesia.transaction(fn ->
-             :mnesia.foldl(
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.foldl(
                fn pkg, acc ->
                  # Only include locally published packages (source: :local)
                  source = elem(pkg, 10)
@@ -153,8 +153,8 @@ defmodule HexHub.Backup.Exporter do
 
     # First get the list of local package names
     local_package_names =
-      case :mnesia.transaction(fn ->
-             :mnesia.foldl(
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.foldl(
                fn pkg, acc ->
                  source = elem(pkg, 10)
 
@@ -173,8 +173,8 @@ defmodule HexHub.Backup.Exporter do
       end
 
     releases =
-      case :mnesia.transaction(fn ->
-             :mnesia.foldl(
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.foldl(
                fn release, acc ->
                  package_name = elem(release, 1)
 
@@ -208,8 +208,8 @@ defmodule HexHub.Backup.Exporter do
 
     # First get the list of local package names
     local_package_names =
-      case :mnesia.transaction(fn ->
-             :mnesia.foldl(
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.foldl(
                fn pkg, acc ->
                  source = elem(pkg, 10)
 
@@ -228,8 +228,8 @@ defmodule HexHub.Backup.Exporter do
       end
 
     owners =
-      case :mnesia.transaction(fn ->
-             :mnesia.foldl(
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.foldl(
                fn owner, acc ->
                  package_name = elem(owner, 1)
 
@@ -358,8 +358,8 @@ defmodule HexHub.Backup.Exporter do
   end
 
   defp get_package_releases(package_name) do
-    case :mnesia.transaction(fn ->
-           :mnesia.match_object(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.match_object(
              {:package_releases, package_name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_}
            )
          end) do

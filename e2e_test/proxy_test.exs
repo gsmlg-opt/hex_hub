@@ -32,6 +32,21 @@ defmodule E2E.ProxyTest do
   end
 
   describe "package proxy functionality" do
+    test "readiness uses the metadata backend selected by the environment", %{base_url: base_url} do
+      expected_backend =
+        case System.get_env("DATABASE_BACKEND", "mnesia") do
+          "mnesia" -> "mnesia"
+          backend when backend in ["postgres", "postgresql"] -> "postgresql"
+        end
+
+      assert {:ok, %{status: 200, body: body}} =
+               HexHub.HTTPClient.get("#{base_url}/health/ready")
+
+      assert %{"ready" => true, "checks" => checks} = Jason.decode!(body)
+      assert %{"name" => ^expected_backend, "status" => "ok"} =
+               Enum.find(checks, &(&1["name"] == expected_backend))
+    end
+
     @tag timeout: @test_timeout
     test "fetches jason package through HexHub proxy", %{port: port, base_url: _base_url} do
       # Ensure fixture project is clean

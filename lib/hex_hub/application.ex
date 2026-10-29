@@ -11,37 +11,8 @@ defmodule HexHub.Application do
     # Attach telemetry log handlers
     attach_telemetry_handlers()
 
-    # Initialize clustering if enabled
-    HexHub.Clustering.init_clustering()
-
-    # Configure Mnesia directory before starting
-    configure_mnesia_dir()
-
-    # Start Mnesia only if not already started and clustering is not handling it
-    unless Process.whereis(:mnesia_sup) do
-      :mnesia.start()
-    end
-
-    # Create Mnesia tables if they don't exist
-    HexHub.Mnesia.init()
-    HexHub.Audit.init()
-
-    # Migrate existing packages to include source field (if needed)
-    HexHub.Mnesia.migrate_package_source_field()
-
-    # Initialize default upstream configuration if needed
-    HexHub.UpstreamConfig.init_default_config()
-
-    # Initialize default publish configuration if needed
-    HexHub.PublishConfig.init_default_config()
-
-    # Initialize storage configuration from Mnesia (or seed from env)
-    HexHub.StorageConfig.init_default_config()
-
-    # Ensure anonymous user exists for anonymous publishing feature
-    HexHub.Users.ensure_anonymous_user()
-
     children = [
+      HexHub.Database,
       # Start the Telemetry supervisor
       HexHubWeb.Telemetry,
       # Start the admin telemetry supervisor
@@ -155,20 +126,5 @@ defmodule HexHub.Application do
       &handler_module.handle_event/4,
       config
     )
-  end
-
-  # Configures the Mnesia directory based on application configuration.
-  # Must be called before Mnesia is started.
-  defp configure_mnesia_dir do
-    case Application.get_env(:hex_hub, :mnesia_dir) do
-      nil ->
-        :ok
-
-      dir when is_binary(dir) ->
-        # Ensure the directory exists
-        File.mkdir_p!(dir)
-        # Set the Mnesia directory
-        Application.put_env(:mnesia, :dir, String.to_charlist(dir))
-    end
   end
 end

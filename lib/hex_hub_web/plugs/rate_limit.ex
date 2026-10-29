@@ -138,8 +138,8 @@ defmodule HexHubWeb.Plugs.RateLimit do
     now = System.system_time(:second)
     window_start = now - window
 
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:rate_limit, key}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:rate_limit, key}) do
              [{:rate_limit, ^key, _type, _id, count, start, _updated}]
              when start > window_start ->
                if count >= limit do
@@ -164,11 +164,11 @@ defmodule HexHubWeb.Plugs.RateLimit do
   defp increment_counter(key) do
     now = System.system_time(:second)
 
-    :mnesia.transaction(fn ->
-      case :mnesia.read({:rate_limit, key}) do
+    HexHub.Database.transaction(fn ->
+      case HexHub.Database.read({:rate_limit, key}) do
         [{:rate_limit, ^key, type, id, count, start, _updated}] ->
           # Update existing counter
-          :mnesia.write({
+          HexHub.Database.write({
             :rate_limit,
             key,
             type,
@@ -182,7 +182,7 @@ defmodule HexHubWeb.Plugs.RateLimit do
           # Create new counter
           {type, id} = parse_key(key)
 
-          :mnesia.write({
+          HexHub.Database.write({
             :rate_limit,
             key,
             type,
@@ -260,8 +260,8 @@ defmodule HexHub.BlockedAddresses do
   def check_ip(ip_address) do
     now = DateTime.utc_now()
 
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:blocked_addresses, ip_address}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:blocked_addresses, ip_address}) do
              [
                {:blocked_addresses, ^ip_address, type, _reason, _blocked_at, blocked_until,
                 _created_by}
@@ -281,7 +281,7 @@ defmodule HexHub.BlockedAddresses do
 
                  true ->
                    # Block has expired, remove it
-                   :mnesia.delete({:blocked_addresses, ip_address})
+                   HexHub.Database.delete({:blocked_addresses, ip_address})
                    :ok
                end
 
@@ -300,8 +300,8 @@ defmodule HexHub.BlockedAddresses do
   Block an IP address.
   """
   def block_ip(ip_address, reason, blocked_until \\ nil, created_by \\ "system") do
-    :mnesia.transaction(fn ->
-      :mnesia.write({
+    HexHub.Database.transaction(fn ->
+      HexHub.Database.write({
         :blocked_addresses,
         ip_address,
         :blocklist,
@@ -317,8 +317,8 @@ defmodule HexHub.BlockedAddresses do
   Allowlist an IP address (bypass rate limiting).
   """
   def allowlist_ip(ip_address, reason, created_by \\ "system") do
-    :mnesia.transaction(fn ->
-      :mnesia.write({
+    HexHub.Database.transaction(fn ->
+      HexHub.Database.write({
         :blocked_addresses,
         ip_address,
         :allowlist,
@@ -335,8 +335,8 @@ defmodule HexHub.BlockedAddresses do
   Unblock an IP address.
   """
   def unblock_ip(ip_address) do
-    :mnesia.transaction(fn ->
-      :mnesia.delete({:blocked_addresses, ip_address})
+    HexHub.Database.transaction(fn ->
+      HexHub.Database.delete({:blocked_addresses, ip_address})
     end)
   end
 
@@ -344,8 +344,8 @@ defmodule HexHub.BlockedAddresses do
   List all blocked addresses.
   """
   def list_blocked() do
-    case :mnesia.transaction(fn ->
-           :mnesia.select(:blocked_addresses, [
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.select(:blocked_addresses, [
              {
                {:"$1", :"$2", :"$3", :"$4", :"$5", :"$6", :"$7"},
                [{:==, :"$3", :blocklist}],

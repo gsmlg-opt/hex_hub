@@ -27,7 +27,7 @@ defmodule HexHub.UpstreamConfig do
   """
   @spec get_config() :: t()
   def get_config do
-    case :mnesia.dirty_read(:upstream_configs, "default") do
+    case HexHub.Database.dirty_read(:upstream_configs, "default") do
       [] ->
         # Return default configuration if none exists
         get_default_config()
@@ -98,8 +98,8 @@ defmodule HexHub.UpstreamConfig do
     }
 
     # Use sync_transaction to ensure config is persisted to disc immediately
-    case :mnesia.sync_transaction(fn ->
-           :mnesia.write(record)
+    case HexHub.Database.sync_transaction(fn ->
+           HexHub.Database.write(record)
          end) do
       {:atomic, :ok} ->
         Telemetry.log(:info, :upstream, "Upstream configuration updated", %{
@@ -139,7 +139,7 @@ defmodule HexHub.UpstreamConfig do
   """
   @spec init_default_config() :: :ok | {:error, term()}
   def init_default_config do
-    case :mnesia.dirty_read(:upstream_configs, "default") do
+    case HexHub.Database.dirty_read(:upstream_configs, "default") do
       [] ->
         update_config(%{})
 
@@ -155,8 +155,8 @@ defmodule HexHub.UpstreamConfig do
   @spec reset_to_defaults() :: :ok | {:error, term()}
   def reset_to_defaults do
     # Use sync_transaction to ensure the reset is persisted to disc immediately
-    case :mnesia.sync_transaction(fn ->
-           :mnesia.delete({:upstream_configs, "default"})
+    case HexHub.Database.sync_transaction(fn ->
+           HexHub.Database.delete({:upstream_configs, "default"})
          end) do
       {:atomic, :ok} ->
         Telemetry.log(:info, :upstream, "Upstream configuration reset to defaults")

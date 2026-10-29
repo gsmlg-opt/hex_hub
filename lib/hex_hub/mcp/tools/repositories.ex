@@ -163,7 +163,7 @@ defmodule HexHub.MCP.Tools.Repositories do
     # Count packages in the specified repository
     # This would require a database query
     # Simplified
-    :mnesia.table_info(:packages, :size)
+    HexHub.Database.table_info(:packages, :size)
   end
 
   defp get_recent_packages_for_repository(_repository_name, _limit \\ 5) do
@@ -190,8 +190,8 @@ defmodule HexHub.MCP.Tools.Repositories do
 
   defp update_package_visibility(package) do
     # Update package visibility in Mnesia
-    :mnesia.transaction(fn ->
-      :mnesia.write(
+    HexHub.Database.transaction(fn ->
+      HexHub.Database.write(
         {:packages, package.name, package.repository, package.meta, package.private,
          package.downloads, package.url, package.inserted_at, DateTime.utc_now()}
       )
@@ -300,7 +300,7 @@ defmodule HexHub.MCP.Tools.Repositories do
   end
 
   defp get_total_packages_count do
-    :mnesia.table_info(:packages, :size)
+    HexHub.Database.table_info(:packages, :size)
   end
 
   defp calculate_avg_packages_per_repo do

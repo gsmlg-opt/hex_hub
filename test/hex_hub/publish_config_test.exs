@@ -5,7 +5,7 @@ defmodule HexHub.PublishConfigTest do
 
   setup do
     # Clear the publish_configs table before each test
-    :mnesia.clear_table(:publish_configs)
+    HexHub.Database.clear_table(:publish_configs)
     :ok
   end
 

@@ -156,8 +156,8 @@ defmodule HexHub.MCP.Transport do
     now = System.system_time(:second)
     window_start = now - window
 
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:rate_limit, key}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:rate_limit, key}) do
              [{:rate_limit, ^key, _type, _id, count, start, _updated}]
              when start > window_start ->
                if count >= limit do
@@ -182,10 +182,10 @@ defmodule HexHub.MCP.Transport do
   defp increment_rate_limit_counter(key) do
     now = System.system_time(:second)
 
-    :mnesia.transaction(fn ->
-      case :mnesia.read({:rate_limit, key}) do
+    HexHub.Database.transaction(fn ->
+      case HexHub.Database.read({:rate_limit, key}) do
         [{:rate_limit, ^key, type, id, count, start, _updated}] ->
-          :mnesia.write({
+          HexHub.Database.write({
             :rate_limit,
             key,
             type,
@@ -197,7 +197,7 @@ defmodule HexHub.MCP.Transport do
 
         [] ->
           # Create new counter with MCP type
-          :mnesia.write({
+          HexHub.Database.write({
             :rate_limit,
             key,
             :mcp,

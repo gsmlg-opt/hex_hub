@@ -35,10 +35,10 @@ defmodule HexHub.PackageRetirement do
   """
   @spec unretire_release(String.t(), String.t(), String.t()) :: :ok | {:error, String.t()}
   def unretire_release(package_name, version, unretired_by) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:retired_releases, {package_name, version}}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:retired_releases, {package_name, version}}) do
              [{:retired_releases, key, _, _, _, _, _, _}] ->
-               :mnesia.delete({:retired_releases, key})
+               HexHub.Database.delete({:retired_releases, key})
                :ok
 
              [] ->
@@ -73,8 +73,8 @@ defmodule HexHub.PackageRetirement do
   @spec get_retirement_info(String.t(), String.t()) ::
           {:ok, map()} | {:error, :not_retired}
   def get_retirement_info(package_name, version) do
-    case :mnesia.transaction(fn ->
-           :mnesia.read({:retired_releases, {package_name, version}})
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.read({:retired_releases, {package_name, version}})
          end) do
       {:atomic, [{:retired_releases, _key, _pkg, _ver, reason, message, retired_at, retired_by}]} ->
         {:ok,
@@ -109,8 +109,8 @@ defmodule HexHub.PackageRetirement do
   """
   @spec list_retired_releases(String.t()) :: list(map())
   def list_retired_releases(package_name) do
-    case :mnesia.transaction(fn ->
-           :mnesia.index_read(:retired_releases, package_name, :package_name)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.index_read(:retired_releases, package_name, :package_name)
          end) do
       {:atomic, releases} ->
         Enum.map(releases, fn {:retired_releases, _key, _pkg, version, reason, message,
@@ -134,8 +134,8 @@ defmodule HexHub.PackageRetirement do
   """
   @spec list_all_retired_releases() :: list(map())
   def list_all_retired_releases() do
-    case :mnesia.transaction(fn ->
-           :mnesia.select(:retired_releases, [{:"$1", [], [:"$1"]}])
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.select(:retired_releases, [{:"$1", [], [:"$1"]}])
          end) do
       {:atomic, releases} ->
         Enum.map(releases, fn {:retired_releases, {pkg, ver}, _pkg2, _ver2, reason, message,
@@ -183,10 +183,10 @@ defmodule HexHub.PackageRetirement do
   end
 
   defp create_retirement_record(package_name, version, reason, message, retired_by) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:retired_releases, {package_name, version}}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:retired_releases, {package_name, version}}) do
              [] ->
-               :mnesia.write({
+               HexHub.Database.write({
                  :retired_releases,
                  {package_name, version},
                  package_name,
@@ -222,8 +222,8 @@ defmodule HexHub.PackageRetirement do
   end
 
   defp get_release(package_name, version) do
-    case :mnesia.transaction(fn ->
-           :mnesia.match_object(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.match_object(
              {:package_releases, package_name, version, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_,
               :_}
            )

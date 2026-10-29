@@ -8,9 +8,31 @@ on:
 
 jobs:
   e2e:
-    name: E2E Tests
+    name: E2E Tests (${{ matrix.database }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
+    strategy:
+      matrix:
+        database: [mnesia, postgresql]
+
+    env:
+      DATABASE_BACKEND: ${{ matrix.database }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hex_hub_e2e
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hex_hub_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Checkout code

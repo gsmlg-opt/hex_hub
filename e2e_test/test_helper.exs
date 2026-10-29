@@ -1,5 +1,5 @@
 # E2E Test Helper
-# This file initializes the E2E test environment with isolated Mnesia and storage
+# This file initializes the E2E test environment with isolated metadata and storage
 
 # Configure endpoint BEFORE starting the application
 # This enables the HTTP server with a dynamic port for E2E testing
@@ -27,19 +27,11 @@ Application.put_env(
 # Start ExUnit
 ExUnit.start(exclude: [:skip])
 
-# Initialize Mnesia for E2E testing with a unique directory
-:ok = Application.ensure_started(:mnesia)
-
-# Stop Mnesia if running, create fresh schema
-:mnesia.stop()
+# Configure Mnesia before the application starts. PostgreSQL uses DATABASE_URL.
 mnesia_dir = "Mnesia.e2e_test_#{System.unique_integer([:positive])}"
-File.rm_rf!(mnesia_dir)
-Application.put_env(:mnesia, :dir, String.to_charlist(mnesia_dir))
-:mnesia.create_schema([node()])
-:mnesia.start()
-
-# Initialize Mnesia tables
-HexHub.Mnesia.init()
+if HexHub.Database.backend() == :mnesia do
+  Application.put_env(:hex_hub, :mnesia_dir, mnesia_dir)
+end
 
 # Setup isolated test storage directory
 e2e_storage_path = "priv/e2e_test_storage_#{System.unique_integer([:positive])}"

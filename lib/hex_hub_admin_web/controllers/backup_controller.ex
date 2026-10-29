@@ -168,7 +168,7 @@ defmodule HexHubAdminWeb.BackupController do
   end
 
   defp count_table(table) do
-    case :mnesia.table_info(table, :size) do
+    case HexHub.Database.table_info(table, :size) do
       count when is_integer(count) -> count
       _ -> 0
     end
@@ -177,8 +177,8 @@ defmodule HexHubAdminWeb.BackupController do
   end
 
   defp count_local_packages do
-    case :mnesia.transaction(fn ->
-           :mnesia.foldl(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.foldl(
              fn pkg, acc ->
                # source is at index 10 in the packages tuple
                source = elem(pkg, 10)

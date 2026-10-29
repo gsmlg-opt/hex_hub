@@ -322,22 +322,22 @@ defmodule HexHub.Backup.Importer do
   end
 
   defp check_user_exists(username) do
-    case :mnesia.transaction(fn -> :mnesia.read(:users, username) end) do
+    case HexHub.Database.transaction(fn -> HexHub.Database.read(:users, username) end) do
       {:atomic, [_]} -> true
       _ -> false
     end
   end
 
   defp check_package_exists(name) do
-    case :mnesia.transaction(fn -> :mnesia.read(:packages, name) end) do
+    case HexHub.Database.transaction(fn -> HexHub.Database.read(:packages, name) end) do
       {:atomic, [_]} -> true
       _ -> false
     end
   end
 
   defp check_release_exists(package_name, version) do
-    case :mnesia.transaction(fn ->
-           :mnesia.match_object(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.match_object(
              {:package_releases, package_name, version, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_,
               :_}
            )
@@ -348,8 +348,8 @@ defmodule HexHub.Backup.Importer do
   end
 
   defp check_owner_exists(package_name, username) do
-    case :mnesia.transaction(fn ->
-           :mnesia.match_object({:package_owners, package_name, username, :_, :_})
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.match_object({:package_owners, package_name, username, :_, :_})
          end) do
       {:atomic, [_ | _]} -> true
       _ -> false
@@ -366,7 +366,7 @@ defmodule HexHub.Backup.Importer do
        parse_datetime(Map.get(data, "inserted_at")) || now,
        parse_datetime(Map.get(data, "updated_at")) || now}
 
-    case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+    case HexHub.Database.transaction(fn -> HexHub.Database.write(record) end) do
       {:atomic, :ok} -> 1
       _ -> 0
     end
@@ -382,7 +382,7 @@ defmodule HexHub.Backup.Importer do
        parse_datetime(Map.get(data, "updated_at")) || now, Map.get(data, "html_url"),
        Map.get(data, "docs_html_url"), :local}
 
-    case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+    case HexHub.Database.transaction(fn -> HexHub.Database.write(record) end) do
       {:atomic, :ok} -> 1
       _ -> 0
     end
@@ -399,7 +399,7 @@ defmodule HexHub.Backup.Importer do
        parse_datetime(Map.get(data, "updated_at")) || now, Map.get(data, "url"),
        Map.get(data, "package_url"), Map.get(data, "html_url"), Map.get(data, "docs_html_url")}
 
-    case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+    case HexHub.Database.transaction(fn -> HexHub.Database.write(record) end) do
       {:atomic, :ok} -> 1
       _ -> 0
     end
@@ -412,7 +412,7 @@ defmodule HexHub.Backup.Importer do
       {:package_owners, Map.get(data, "package_name"), Map.get(data, "username"),
        Map.get(data, "level", "maintainer"), parse_datetime(Map.get(data, "inserted_at")) || now}
 
-    case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+    case HexHub.Database.transaction(fn -> HexHub.Database.write(record) end) do
       {:atomic, :ok} -> 1
       _ -> 0
     end

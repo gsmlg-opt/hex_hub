@@ -8,10 +8,30 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Test (${{ matrix.database }})
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        database: [mnesia, postgresql]
+
+    env:
+      DATABASE_BACKEND: ${{ matrix.database }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hex_hub_test
+
     services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hex_hub_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
       mailhog:
         image: mailhog/mailhog:latest
         ports:

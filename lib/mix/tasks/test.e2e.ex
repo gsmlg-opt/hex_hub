@@ -59,6 +59,8 @@ defmodule Mix.Tasks.Test.E2e do
 
   use Mix.Task
 
+  @requirements ["app.config"]
+
   @impl Mix.Task
   def run(args) do
     # Parse arguments to separate test files from ExUnit options

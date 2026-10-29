@@ -375,7 +375,7 @@ defmodule HexHub.MCP.Tools.Documentation do
   end
 
   defp calculate_avg_docs_per_package do
-    total_packages = :mnesia.table_info(:packages, :size)
+    total_packages = HexHub.Database.table_info(:packages, :size)
     doc_releases = get_documentation_releases_count()
 
     if total_packages > 0 do

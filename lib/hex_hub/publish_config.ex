@@ -3,7 +3,7 @@ defmodule HexHub.PublishConfig do
   Publish configuration management module.
 
   Handles storage and retrieval of anonymous publish configuration settings
-  in the Mnesia database.
+  in the configured metadata database.
   """
 
   alias HexHub.Telemetry
@@ -27,7 +27,7 @@ defmodule HexHub.PublishConfig do
         get_default_config()
 
       true ->
-        case :mnesia.dirty_read(:publish_configs, "default") do
+        case HexHub.Database.dirty_read(:publish_configs, "default") do
           [] ->
             # Return default configuration if none exists
             get_default_config()
@@ -83,8 +83,8 @@ defmodule HexHub.PublishConfig do
 
     # Use sync_transaction to ensure config is persisted to disc immediately
     # This is important for disc_copies tables to survive process restarts
-    case :mnesia.sync_transaction(fn ->
-           :mnesia.write(record)
+    case HexHub.Database.sync_transaction(fn ->
+           HexHub.Database.write(record)
          end) do
       {:atomic, :ok} ->
         # Emit telemetry event for config change
@@ -130,11 +130,11 @@ defmodule HexHub.PublishConfig do
     case table_exists?(:publish_configs) do
       false ->
         # Table doesn't exist yet, skip initialization
-        # (will be created by Mnesia.init and config will use defaults)
+        # (will be created during database initialization and config will use defaults)
         :ok
 
       true ->
-        case :mnesia.dirty_read(:publish_configs, "default") do
+        case HexHub.Database.dirty_read(:publish_configs, "default") do
           [] ->
             # Create default config (disabled by default per FR-003)
             update_config(%{"enabled" => false})
@@ -148,7 +148,7 @@ defmodule HexHub.PublishConfig do
   # Private functions
 
   defp table_exists?(table) do
-    :mnesia.system_info(:tables) |> Enum.member?(table)
+    HexHub.Database.system_info(:tables) |> Enum.member?(table)
   end
 
   defp get_param_bool(params, key, default) do

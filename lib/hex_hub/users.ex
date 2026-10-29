@@ -23,7 +23,7 @@ defmodule HexHub.Users do
   """
   def reset_test_store do
     # For testing, we'll clear the Mnesia table
-    :mnesia.clear_table(@table)
+    HexHub.Database.clear_table(@table)
     :ok
   end
 
@@ -43,8 +43,8 @@ defmodule HexHub.Users do
       service_account = Keyword.get(opts, :service_account, false)
 
       # Store user in Mnesia with new schema
-      case :mnesia.transaction(fn ->
-             :mnesia.write(
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.write(
                {@table, username, email, password_hash, nil, false, [], service_account, nil, now,
                 now}
              )
@@ -103,8 +103,8 @@ defmodule HexHub.Users do
   @spec get_user(String.t()) :: {:ok, user()} | {:error, :not_found}
   def get_user(username_or_email) do
     # Query Mnesia by username first, then by email if not found
-    case :mnesia.transaction(fn ->
-           case :mnesia.read(@table, username_or_email) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read(@table, username_or_email) do
              [
                {@table, username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
                 service_account, deactivated_at, inserted_at, updated_at}
@@ -115,7 +115,7 @@ defmodule HexHub.Users do
 
              [] ->
                # If not found by username, try email
-               :mnesia.index_read(@table, username_or_email, :email)
+               HexHub.Database.index_read(@table, username_or_email, :email)
            end
          end) do
       {:atomic, {:ok, user_tuple}} ->
@@ -165,8 +165,8 @@ defmodule HexHub.Users do
   def update_email(username, new_email) do
     with :ok <- validate_email(new_email),
          :ok <- check_email_availability(new_email) do
-      case :mnesia.transaction(fn ->
-             case :mnesia.read(@table, username) do
+      case HexHub.Database.transaction(fn ->
+             case HexHub.Database.read(@table, username) do
                [
                  {@table, old_username, _old_email, password_hash, totp_secret, totp_enabled,
                   recovery_codes, service_account, deactivated_at, inserted_at, _updated_at}
@@ -176,7 +176,7 @@ defmodule HexHub.Users do
                     recovery_codes, service_account, deactivated_at, inserted_at,
                     DateTime.utc_now()}
 
-                 :mnesia.write(updated_user)
+                 HexHub.Database.write(updated_user)
 
                  {:ok,
                   {old_username, new_email, password_hash, totp_secret, totp_enabled,
@@ -207,8 +207,8 @@ defmodule HexHub.Users do
   @spec update_password(String.t(), String.t()) :: {:ok, user()} | {:error, String.t()}
   def update_password(username, new_password) do
     with :ok <- validate_password(new_password) do
-      case :mnesia.transaction(fn ->
-             case :mnesia.read(@table, username) do
+      case HexHub.Database.transaction(fn ->
+             case HexHub.Database.read(@table, username) do
                [
                  {@table, username, email, _old_hash, totp_secret, totp_enabled, recovery_codes,
                   service_account, deactivated_at, inserted_at, _updated_at}
@@ -220,7 +220,7 @@ defmodule HexHub.Users do
                     recovery_codes, service_account, deactivated_at, inserted_at,
                     DateTime.utc_now()}
 
-                 :mnesia.write(updated_user)
+                 HexHub.Database.write(updated_user)
 
                  {:ok,
                   {username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
@@ -249,8 +249,8 @@ defmodule HexHub.Users do
   """
   @spec list_users() :: {:ok, [user()]}
   def list_users() do
-    case :mnesia.transaction(fn ->
-           :mnesia.foldl(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.foldl(
              fn {_, username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
                  service_account, deactivated_at, inserted_at, updated_at},
                 acc ->
@@ -290,8 +290,8 @@ defmodule HexHub.Users do
   """
   @spec is_service_account?(String.t()) :: boolean()
   def is_service_account?(username) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read(@table, username) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read(@table, username) do
              [
                {@table, _username, _email, _password_hash, _totp_secret, _totp_enabled,
                 _recovery_codes, service_account, _deactivated_at, _inserted_at, _updated_at}
@@ -312,13 +312,13 @@ defmodule HexHub.Users do
   """
   @spec deactivate_user(String.t()) :: :ok | {:error, String.t()}
   def deactivate_user(username) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read(@table, username) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read(@table, username) do
              [
                {@table, username, email, password_hash, totp_secret, totp_enabled, recovery_codes,
                 service_account, _deactivated_at, inserted_at, _updated_at}
              ] ->
-               :mnesia.write({
+               HexHub.Database.write({
                  @table,
                  username,
                  email,
@@ -347,8 +347,8 @@ defmodule HexHub.Users do
   """
   @spec list_service_accounts() :: list(user())
   def list_service_accounts() do
-    case :mnesia.transaction(fn ->
-           :mnesia.index_read(@table, true, :service_account)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.index_read(@table, true, :service_account)
          end) do
       {:atomic, users} ->
         Enum.map(users, &user_to_map/1)
@@ -375,10 +375,10 @@ defmodule HexHub.Users do
     if is_system_user?(username) do
       {:error, "Cannot delete system user"}
     else
-      case :mnesia.transaction(fn ->
-             case :mnesia.read(@table, username) do
+      case HexHub.Database.transaction(fn ->
+             case HexHub.Database.read(@table, username) do
                [_user] ->
-                 :mnesia.delete({@table, username})
+                 HexHub.Database.delete({@table, username})
 
                [] ->
                  {:error, "User not found"}
@@ -422,8 +422,8 @@ defmodule HexHub.Users do
         password = :crypto.strong_rand_bytes(32) |> Base.encode64()
         now = DateTime.utc_now()
 
-        case :mnesia.transaction(fn ->
-               :mnesia.write(
+        case HexHub.Database.transaction(fn ->
+               HexHub.Database.write(
                  {@table, "anonymous", email, Bcrypt.hash_pwd_salt(password), nil, false, [],
                   true, nil, now, now}
                )
@@ -522,8 +522,8 @@ defmodule HexHub.Users do
   end
 
   defp check_username_availability(username) do
-    case :mnesia.transaction(fn ->
-           :mnesia.read(@table, username)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.read(@table, username)
          end) do
       {:atomic, []} -> :ok
       {:atomic, [_]} -> {:error, "Username already taken"}
@@ -532,8 +532,8 @@ defmodule HexHub.Users do
   end
 
   defp check_email_availability(email) do
-    case :mnesia.transaction(fn ->
-           :mnesia.index_read(@table, email, :email)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.index_read(@table, email, :email)
          end) do
       {:atomic, []} -> :ok
       {:atomic, [_]} -> {:error, "Email already taken"}

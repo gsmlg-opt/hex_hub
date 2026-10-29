@@ -104,12 +104,12 @@ defmodule HexHub.AuditLogs do
     limit = filters[:limit] || 100
     offset = filters[:offset] || 0
 
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            # Build match specification for filtering
            match_spec = build_match_spec(user_id, action, resource_type, resource_id, from, to)
 
            # Query with filters
-           results = :mnesia.select(:audit_logs, match_spec)
+           results = HexHub.Database.select(:audit_logs, match_spec)
 
            # Filter by category if specified
            results =
@@ -232,13 +232,13 @@ defmodule HexHub.AuditLogs do
         :ok
 
       key_name ->
-        :mnesia.transaction(fn ->
-          case :mnesia.read({:api_keys, key_name}) do
+        HexHub.Database.transaction(fn ->
+          case HexHub.Database.read({:api_keys, key_name}) do
             [
               {:api_keys, name, username, secret_hash, permissions, revoked_at, inserted_at,
                _updated_at}
             ] ->
-              :mnesia.write({
+              HexHub.Database.write({
                 :api_keys,
                 name,
                 username,
@@ -259,12 +259,12 @@ defmodule HexHub.AuditLogs do
   defp update_download_stats(resource_id, _details) do
     {package_name, version} = parse_resource_id(resource_id)
 
-    :mnesia.transaction(fn ->
+    HexHub.Database.transaction(fn ->
       key = {package_name, version}
 
-      case :mnesia.read({:package_downloads, key}) do
+      case HexHub.Database.read({:package_downloads, key}) do
         [{:package_downloads, ^key, _pkg, _ver, day, week, all}] ->
-          :mnesia.write({
+          HexHub.Database.write({
             :package_downloads,
             key,
             package_name,
@@ -275,7 +275,7 @@ defmodule HexHub.AuditLogs do
           })
 
         [] ->
-          :mnesia.write({
+          HexHub.Database.write({
             :package_downloads,
             key,
             package_name,
@@ -451,8 +451,8 @@ defmodule HexHub.AuditLogs do
   defp escape_csv(value), do: to_string(value)
 
   defp get_single_version_stats(package_name, version) do
-    :mnesia.transaction(fn ->
-      case :mnesia.read({:package_downloads, {package_name, version}}) do
+    HexHub.Database.transaction(fn ->
+      case HexHub.Database.read({:package_downloads, {package_name, version}}) do
         [{:package_downloads, _key, _pkg, _ver, day_count, week_count, all_count}] ->
           %{day: day_count, week: week_count, all: all_count}
 
@@ -463,8 +463,8 @@ defmodule HexHub.AuditLogs do
   end
 
   defp get_aggregate_stats(package_name) do
-    :mnesia.transaction(fn ->
-      :mnesia.foldl(
+    HexHub.Database.transaction(fn ->
+      HexHub.Database.foldl(
         fn {:package_downloads, {pkg, _ver}, _pkg2, _ver2, day, week, all}, acc ->
           if pkg == package_name do
             %{

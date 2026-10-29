@@ -32,8 +32,10 @@ defmodule HexHubWeb.Integration.PackageFlowTest do
         })
 
       # Add authenticated user as owner
-      :mnesia.transaction(fn ->
-        :mnesia.write({:package_owners, package_name, user.username, "owner", DateTime.utc_now()})
+      HexHub.Database.transaction(fn ->
+        HexHub.Database.write(
+          {:package_owners, package_name, user.username, "owner", DateTime.utc_now()}
+        )
       end)
 
       assert package.name == package_name
@@ -127,8 +129,10 @@ defmodule HexHubWeb.Integration.PackageFlowTest do
       {:ok, _} = Packages.create_package(package_name, "hexpm", package_params["meta"])
 
       # Add authenticated user as owner
-      :mnesia.transaction(fn ->
-        :mnesia.write({:package_owners, package_name, user.username, "owner", DateTime.utc_now()})
+      HexHub.Database.transaction(fn ->
+        HexHub.Database.write(
+          {:package_owners, package_name, user.username, "owner", DateTime.utc_now()}
+        )
       end)
 
       # 2. Publish release via API

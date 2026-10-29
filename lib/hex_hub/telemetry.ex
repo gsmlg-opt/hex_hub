@@ -120,16 +120,16 @@ defmodule HexHub.Telemetry do
       # Mnesia Metrics
       summary("hex_hub.mnesia.table_size",
         tags: [:table],
-        description: "Number of records in Mnesia tables"
+        description: "Number of records in metadata tables"
       ),
       summary("hex_hub.mnesia.transaction_count",
         tags: [:operation],
-        description: "Mnesia transaction counts"
+        description: "Metadata transaction counts"
       ),
       summary("hex_hub.mnesia.transaction_duration",
         tags: [:operation],
         unit: :millisecond,
-        description: "Mnesia transaction duration"
+        description: "Metadata transaction duration"
       ),
 
       # Storage Metrics
@@ -228,9 +228,12 @@ defmodule HexHub.Telemetry do
     tables = [:users, :packages, :package_releases, :api_keys]
 
     Enum.each(tables, fn table ->
-      case :mnesia.table_info(table, :size) do
+      case HexHub.Database.table_info(table, :size) do
         size when is_integer(size) ->
-          :telemetry.execute([:hex_hub, :mnesia, :table_size], %{count: size}, %{table: table})
+          :telemetry.execute([:hex_hub, :mnesia, :table_size], %{count: size}, %{
+            table: table,
+            backend: HexHub.Database.backend()
+          })
 
         _ ->
           :ok
@@ -312,11 +315,13 @@ defmodule HexHub.Telemetry do
 
   def track_mnesia_operation(operation, duration_ms) do
     :telemetry.execute([:hex_hub, :mnesia, :transaction_duration], %{duration: duration_ms}, %{
-      operation: operation
+      operation: operation,
+      backend: HexHub.Database.backend()
     })
 
     :telemetry.execute([:hex_hub, :mnesia, :transaction_count], %{count: 1}, %{
-      operation: operation
+      operation: operation,
+      backend: HexHub.Database.backend()
     })
   end
 

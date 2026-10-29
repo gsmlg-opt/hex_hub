@@ -68,10 +68,10 @@ defmodule HexHub.CachedPackages do
     sort = Keyword.get(opts, :sort, :updated_at)
     sort_dir = Keyword.get(opts, :sort_dir, :desc)
 
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            # Query packages by source
            packages =
-             :mnesia.select(@packages_table, [
+             HexHub.Database.select(@packages_table, [
                {
                  {@packages_table, :"$1", :"$2", :"$3", :"$4", :"$5", :"$6", :"$7", :"$8", :"$9",
                   source},
@@ -189,9 +189,9 @@ defmodule HexHub.CachedPackages do
     sort = Keyword.get(opts, :sort, :updated_at)
     sort_dir = Keyword.get(opts, :sort_dir, :desc)
 
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            # Get all packages
-           :mnesia.foldl(
+           HexHub.Database.foldl(
              fn {@packages_table, name, repo, meta, private, downloads, inserted, updated, html,
                  docs, source},
                 acc ->
@@ -295,9 +295,9 @@ defmodule HexHub.CachedPackages do
   @spec get_package_by_source(String.t(), source()) ::
           {:ok, annotated_package()} | {:error, :not_found | term()}
   def get_package_by_source(name, source) when source in [:local, :cached] do
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            # Match package by name
-           case :mnesia.read(@packages_table, name) do
+           case HexHub.Database.read(@packages_table, name) do
              [] ->
                nil
 
@@ -319,7 +319,7 @@ defmodule HexHub.CachedPackages do
         # Check if shadowed (for cached packages)
         status =
           if src == :cached do
-            case :mnesia.dirty_read(@packages_table, name) do
+            case HexHub.Database.dirty_read(@packages_table, name) do
               [{@packages_table, ^name, _, _, _, _, _, _, _, _, :local}] -> :shadowed
               _ -> :active
             end
@@ -378,25 +378,25 @@ defmodule HexHub.CachedPackages do
     start_time = System.monotonic_time()
 
     result =
-      :mnesia.transaction(fn ->
+      HexHub.Database.transaction(fn ->
         # Find the cached package
-        case :mnesia.read(@packages_table, name) do
+        case HexHub.Database.read(@packages_table, name) do
           [] ->
             {:error, :not_found}
 
           [{@packages_table, ^name, _, _, _, _, _, _, _, _, :cached} = record] ->
             # Delete all releases
             releases =
-              :mnesia.match_object(
+              HexHub.Database.match_object(
                 {@package_releases_table, name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_}
               )
 
             Enum.each(releases, fn release ->
-              :mnesia.delete_object(release)
+              HexHub.Database.delete_object(release)
             end)
 
             # Delete the package
-            :mnesia.delete_object(record)
+            HexHub.Database.delete_object(record)
 
             {:ok, length(releases)}
 
@@ -442,10 +442,10 @@ defmodule HexHub.CachedPackages do
     start_time = System.monotonic_time()
 
     result =
-      :mnesia.transaction(fn ->
+      HexHub.Database.transaction(fn ->
         # Find all cached packages
         cached_packages =
-          :mnesia.select(@packages_table, [
+          HexHub.Database.select(@packages_table, [
             {
               {@packages_table, :"$1", :_, :_, :_, :_, :_, :_, :_, :_, :cached},
               [],
@@ -457,16 +457,16 @@ defmodule HexHub.CachedPackages do
         Enum.each(cached_packages, fn name ->
           # Delete releases
           releases =
-            :mnesia.match_object(
+            HexHub.Database.match_object(
               {@package_releases_table, name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_}
             )
 
           Enum.each(releases, fn release ->
-            :mnesia.delete_object(release)
+            HexHub.Database.delete_object(release)
           end)
 
           # Delete package
-          :mnesia.delete({@packages_table, name})
+          HexHub.Database.delete({@packages_table, name})
         end)
 
         length(cached_packages)
@@ -505,7 +505,7 @@ defmodule HexHub.CachedPackages do
   """
   @spec has_local_counterpart?(String.t()) :: boolean()
   def has_local_counterpart?(name) do
-    case :mnesia.dirty_read(@packages_table, name) do
+    case HexHub.Database.dirty_read(@packages_table, name) do
       [{@packages_table, ^name, _, _, _, _, _, _, _, _, :local}] -> true
       _ -> false
     end
@@ -523,7 +523,7 @@ defmodule HexHub.CachedPackages do
   """
   @spec has_cached_counterpart?(String.t()) :: boolean()
   def has_cached_counterpart?(name) do
-    case :mnesia.dirty_read(@packages_table, name) do
+    case HexHub.Database.dirty_read(@packages_table, name) do
       [{@packages_table, ^name, _, _, _, _, _, _, _, _, :cached}] -> true
       _ -> false
     end
@@ -541,9 +541,9 @@ defmodule HexHub.CachedPackages do
           shadowed_count: non_neg_integer()
         }
   def get_package_stats do
-    case :mnesia.transaction(fn ->
+    case HexHub.Database.transaction(fn ->
            packages =
-             :mnesia.foldl(
+             HexHub.Database.foldl(
                fn {@packages_table, name, _, _, _, _, _, _, _, _, source}, acc ->
                  [{name, source} | acc]
                end,
@@ -586,8 +586,8 @@ defmodule HexHub.CachedPackages do
   # Private functions
 
   defp get_local_package_names do
-    case :mnesia.transaction(fn ->
-           :mnesia.select(@packages_table, [
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.select(@packages_table, [
              {
                {@packages_table, :"$1", :_, :_, :_, :_, :_, :_, :_, :_, :local},
                [],
@@ -614,7 +614,7 @@ defmodule HexHub.CachedPackages do
 
   defp get_package_versions(name) do
     @package_releases_table
-    |> :mnesia.dirty_match_object(
+    |> HexHub.Database.dirty_match_object(
       {@package_releases_table, name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_}
     )
     |> Enum.map(fn {_, _, version, _, _, _, _, _, _, _, _, _, _, _} -> version end)
@@ -623,7 +623,7 @@ defmodule HexHub.CachedPackages do
 
   defp get_package_releases(name) do
     @package_releases_table
-    |> :mnesia.dirty_match_object(
+    |> HexHub.Database.dirty_match_object(
       {@package_releases_table, name, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_}
     )
     |> Enum.map(fn {_, pkg_name, version, has_docs, meta, requirements, retired, downloads,
@@ -686,8 +686,8 @@ defmodule HexHub.CachedPackages do
 
   defp delete_all_cached_storage do
     # Get all cached package names and delete their storage
-    case :mnesia.transaction(fn ->
-           :mnesia.select(@packages_table, [
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.select(@packages_table, [
              {
                {@packages_table, :"$1", :_, :_, :_, :_, :_, :_, :_, :_, :cached},
                [],
@@ -892,7 +892,7 @@ defmodule HexHub.CachedPackages do
         record =
           {:registry_cache, path, body, relevant_headers, System.system_time(:second)}
 
-        case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+        case HexHub.Database.transaction(fn -> HexHub.Database.write(record) end) do
           {:atomic, :ok} -> :ok
           {:aborted, reason} -> {:error, "Cache write failed: #{inspect(reason)}"}
         end
@@ -906,8 +906,8 @@ defmodule HexHub.CachedPackages do
   end
 
   defp list_cached_package_names do
-    case :mnesia.transaction(fn ->
-           :mnesia.select(@packages_table, [
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.select(@packages_table, [
              {
                {@packages_table, :"$1", :_, :_, :_, :_, :_, :_, :_, :_, :cached},
                [],
@@ -932,7 +932,7 @@ defmodule HexHub.CachedPackages do
     repository_name = upstream_pkg["repository"] || "hexpm"
     now = DateTime.utc_now()
 
-    case :mnesia.dirty_read(@packages_table, name) do
+    case HexHub.Database.dirty_read(@packages_table, name) do
       [
         {@packages_table, ^name, _repo, _meta, private, downloads, inserted_at, _updated_at,
          html_url, docs_html_url, :cached}
@@ -941,7 +941,7 @@ defmodule HexHub.CachedPackages do
           {@packages_table, name, repository_name, meta, private, downloads, inserted_at, now,
            html_url, docs_html_url, :cached}
 
-        case :mnesia.transaction(fn -> :mnesia.write(updated) end) do
+        case HexHub.Database.transaction(fn -> HexHub.Database.write(updated) end) do
           {:atomic, :ok} -> :ok
           {:aborted, reason} -> {:error, inspect(reason)}
         end
@@ -973,7 +973,7 @@ defmodule HexHub.CachedPackages do
        "/packages/#{name}/releases/#{version}", "/packages/#{name}/releases/#{version}/package",
        "/packages/#{name}/releases/#{version}", "/packages/#{name}/releases/#{version}/docs"}
 
-    case :mnesia.transaction(fn -> :mnesia.write(release) end) do
+    case HexHub.Database.transaction(fn -> HexHub.Database.write(release) end) do
       {:atomic, :ok} -> :ok
       {:aborted, _reason} -> :error
     end

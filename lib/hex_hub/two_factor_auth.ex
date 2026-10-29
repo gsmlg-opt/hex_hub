@@ -226,8 +226,8 @@ defmodule HexHub.TwoFactorAuth do
   end
 
   defp get_user_with_2fa(username) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:users, username}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:users, username}) do
              [
                {:users, _username, email, password_hash, totp_secret, totp_enabled,
                 recovery_codes, inserted_at, updated_at}
@@ -259,13 +259,13 @@ defmodule HexHub.TwoFactorAuth do
   end
 
   defp update_user_2fa(username, secret, enabled, recovery_codes) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:users, username}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:users, username}) do
              [
                {:users, username, email, password_hash, _old_secret, _old_enabled, _old_codes,
                 inserted_at, _updated_at}
              ] ->
-               :mnesia.write({
+               HexHub.Database.write({
                  :users,
                  username,
                  email,
@@ -288,13 +288,13 @@ defmodule HexHub.TwoFactorAuth do
   end
 
   defp update_user_recovery_codes(username, recovery_codes) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:users, username}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:users, username}) do
              [
                {:users, username, email, password_hash, secret, enabled, _old_codes, inserted_at,
                 _updated_at}
              ] ->
-               :mnesia.write({
+               HexHub.Database.write({
                  :users,
                  username,
                  email,

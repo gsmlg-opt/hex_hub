@@ -21,7 +21,7 @@ defmodule HexHub.ApiKeys do
   Reset test data - mainly for testing purposes.
   """
   def reset_test_store do
-    :mnesia.clear_table(@table)
+    HexHub.Database.clear_table(@table)
     :ok
   end
 
@@ -51,8 +51,8 @@ defmodule HexHub.ApiKeys do
         now
       }
 
-      case :mnesia.transaction(fn ->
-             :mnesia.write(api_key)
+      case HexHub.Database.transaction(fn ->
+             HexHub.Database.write(api_key)
            end) do
         {:atomic, :ok} -> {:ok, key}
         {:aborted, reason} -> {:error, "Failed to generate key: #{inspect(reason)}"}
@@ -84,8 +84,8 @@ defmodule HexHub.ApiKeys do
 
   # Full validation without cache
   defp validate_key_uncached(key) do
-    case :mnesia.transaction(fn ->
-           :mnesia.foldl(&check_key_match(key, &1, &2), nil, @table)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.foldl(&check_key_match(key, &1, &2), nil, @table)
          end) do
       {:atomic,
        {:ok, %{name: name, username: username, permissions: permissions, revoked_at: nil}}} ->
@@ -127,8 +127,8 @@ defmodule HexHub.ApiKeys do
   """
   @spec revoke_key(String.t(), String.t()) :: :ok | {:error, String.t()}
   def revoke_key(name, username) do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read(@table, name) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read(@table, name) do
              [
                {@table, name, ^username, secret, secret_hash, permissions, nil, last_accessed_at,
                 inserted_at, _updated_at}
@@ -146,7 +146,7 @@ defmodule HexHub.ApiKeys do
                  DateTime.utc_now()
                }
 
-               :mnesia.write(updated_key)
+               HexHub.Database.write(updated_key)
                :ok
 
              [
@@ -184,8 +184,8 @@ defmodule HexHub.ApiKeys do
   """
   @spec list_keys(String.t()) :: {:ok, [api_key()]} | {:error, String.t()}
   def list_keys(username) do
-    case :mnesia.transaction(fn ->
-           :mnesia.match_object({@table, :_, username, :_, :_, :_, :_, :_, :_, :_})
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.match_object({@table, :_, username, :_, :_, :_, :_, :_, :_, :_})
          end) do
       {:atomic, keys} ->
         {:ok, Enum.map(keys, &api_key_to_map/1)}
@@ -200,8 +200,8 @@ defmodule HexHub.ApiKeys do
   """
   @spec list_all_keys() :: {:ok, [api_key()]} | {:error, String.t()}
   def list_all_keys do
-    case :mnesia.transaction(fn ->
-           :mnesia.match_object({@table, :_, :_, :_, :_, :_, :_, :_, :_, :_})
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.match_object({@table, :_, :_, :_, :_, :_, :_, :_, :_, :_})
          end) do
       {:atomic, keys} ->
         {:ok, Enum.map(keys, &api_key_to_map/1)}
@@ -234,8 +234,8 @@ defmodule HexHub.ApiKeys do
   end
 
   defp touch_last_accessed(name) do
-    :mnesia.transaction(fn ->
-      case :mnesia.read(@table, name) do
+    HexHub.Database.transaction(fn ->
+      case HexHub.Database.read(@table, name) do
         [
           {@table, name, username, secret, secret_hash, permissions, revoked_at,
            _last_accessed_at, inserted_at, updated_at}
@@ -253,7 +253,7 @@ defmodule HexHub.ApiKeys do
             updated_at
           }
 
-          :mnesia.write(updated)
+          HexHub.Database.write(updated)
 
         _ ->
           :ok

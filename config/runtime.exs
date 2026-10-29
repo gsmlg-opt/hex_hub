@@ -1,5 +1,31 @@
 import Config
 
+# Metadata database selection applies to development, test, and releases.
+database_backend =
+  case System.get_env("DATABASE_BACKEND", "mnesia") do
+    "mnesia" -> :mnesia
+    backend when backend in ["postgres", "postgresql"] -> :postgresql
+    _ -> raise "DATABASE_BACKEND must be mnesia or postgresql"
+  end
+
+config :hex_hub, :database_backend, database_backend
+
+if database_backend == :postgresql do
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      raise "DATABASE_URL is required when DATABASE_BACKEND=postgresql"
+
+  pool_size = String.to_integer(System.get_env("DATABASE_POOL_SIZE", "10"))
+  if pool_size < 1, do: raise("DATABASE_POOL_SIZE must be positive")
+
+  config :hex_hub, HexHub.Database.Repo,
+    url: database_url,
+    pool_size: pool_size,
+    ssl: System.get_env("DATABASE_SSL", "false") == "true",
+    log: false,
+    show_sensitive_data_on_connection_error: false
+end
+
 # Telemetry logging runtime configuration (applies to all environments)
 telemetry_console_enabled = System.get_env("LOG_CONSOLE_ENABLED", "true") == "true"
 telemetry_console_level = String.to_existing_atom(System.get_env("LOG_CONSOLE_LEVEL", "info"))

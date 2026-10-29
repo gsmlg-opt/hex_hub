@@ -28,7 +28,8 @@ defmodule HexHub.MixProject do
   def application do
     [
       mod: {HexHub.Application, []},
-      extra_applications: [:logger, :runtime_tools, :mnesia]
+      extra_applications: [:logger, :runtime_tools],
+      included_applications: [:mnesia]
     ]
   end
 
@@ -58,6 +59,8 @@ defmodule HexHub.MixProject do
       {:gaoxy_http, "~> 0.12.1"},
       {:websock_adapter, "~> 0.12.1", hex: :gaoxy_websock_adapter, override: true},
       {:bcrypt_elixir, "~> 3.0"},
+      {:ecto_sql, "~> 3.13"},
+      {:postgrex, "~> 0.22"},
       {:uuid, "~> 1.1"},
       {:libcluster, "~> 3.3"},
       {:ex_aws, "~> 2.5"},
@@ -77,6 +80,7 @@ defmodule HexHub.MixProject do
   defp dialyzer do
     [
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
+      plt_add_apps: [:mnesia],
       flags: [:error_handling, :underspecs],
       ignore_warnings: ".dialyzer_ignore.exs"
     ]

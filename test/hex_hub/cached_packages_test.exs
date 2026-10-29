@@ -23,8 +23,8 @@ defmodule HexHub.CachedPackagesTest do
     end)
 
     # Clean up packages table before each test
-    :mnesia.clear_table(@packages_table)
-    :mnesia.clear_table(@package_releases_table)
+    HexHub.Database.clear_table(@packages_table)
+    HexHub.Database.clear_table(@package_releases_table)
     :ok
   end
 
@@ -86,12 +86,12 @@ defmodule HexHub.CachedPackagesTest do
       # (Normally not allowed, but for testing shadow logic)
       now = System.system_time(:second)
 
-      :mnesia.dirty_write(
+      HexHub.Database.dirty_write(
         {@packages_table, "shadowed_pkg", "hexpm", %{description: "Shadowed"}, false, 0, now, now,
          nil, nil, :cached}
       )
 
-      :mnesia.dirty_write(
+      HexHub.Database.dirty_write(
         {@packages_table, "shadowed_pkg_local", "hexpm", %{description: "Local version"}, false,
          0, now, now, nil, nil, :local}
       )
@@ -193,11 +193,11 @@ defmodule HexHub.CachedPackagesTest do
       now = System.system_time(:second)
 
       # Create local and cached packages with overlapping names
-      :mnesia.dirty_write(
+      HexHub.Database.dirty_write(
         {@packages_table, "shared_name", "hexpm", %{}, false, 0, now, now, nil, nil, :local}
       )
 
-      :mnesia.dirty_write(
+      HexHub.Database.dirty_write(
         {@packages_table, "shared_name_cached", "hexpm", %{}, false, 0, now, now, nil, nil,
          :cached}
       )
@@ -303,7 +303,7 @@ defmodule HexHub.CachedPackagesTest do
 
       # Verify releases are gone
       releases =
-        :mnesia.dirty_match_object(
+        HexHub.Database.dirty_match_object(
           {@package_releases_table, "multi_version", :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_,
            :_}
         )

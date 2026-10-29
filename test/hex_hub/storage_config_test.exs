@@ -6,8 +6,8 @@ defmodule HexHub.StorageConfigTest do
 
   setup do
     # Reset Mnesia storage_configs table to a known default state before each test
-    :mnesia.sync_transaction(fn ->
-      :mnesia.delete({:storage_configs, "default"})
+    HexHub.Database.sync_transaction(fn ->
+      HexHub.Database.delete({:storage_configs, "default"})
     end)
 
     # Seed a clean local config as baseline
@@ -66,8 +66,8 @@ defmodule HexHub.StorageConfigTest do
       })
 
       # Now force the Mnesia record to have s3 type with nil bucket
-      :mnesia.sync_transaction(fn ->
-        :mnesia.write(
+      HexHub.Database.sync_transaction(fn ->
+        HexHub.Database.write(
           {:storage_configs, "default", :s3, "priv/test_storage", nil, "/", "us-east-1", nil, 443,
            "https://", false, nil, nil, DateTime.to_unix(DateTime.utc_now()),
            DateTime.to_unix(DateTime.utc_now())}
@@ -144,7 +144,7 @@ defmodule HexHub.StorageConfigTest do
       [
         {:storage_configs, "default", storage_type, _path, bucket, bucket_path, region, _, _, _,
          _, _, _, _, _}
-      ] = :mnesia.dirty_read(:storage_configs, "default")
+      ] = HexHub.Database.dirty_read(:storage_configs, "default")
 
       assert storage_type == :s3
       assert bucket == "persist-test"

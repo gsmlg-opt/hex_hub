@@ -373,12 +373,12 @@ defmodule HexHub.MCP.Tools.Packages do
 
   defp get_total_packages_count do
     # Query database for total package count
-    :mnesia.table_info(:packages, :size)
+    HexHub.Database.table_info(:packages, :size)
   end
 
   defp get_total_releases_count do
     # Query database for total release count
-    :mnesia.table_info(:package_releases, :size)
+    HexHub.Database.table_info(:package_releases, :size)
   end
 
   defp get_total_downloads do

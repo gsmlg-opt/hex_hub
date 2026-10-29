@@ -15,8 +15,8 @@ defmodule HexHub.Clustering do
   Initialize Mnesia clustering based on configuration.
   """
   def init_clustering do
-    case Application.get_env(:hex_hub, :clustering, %{}) do
-      %{enabled: true} = config ->
+    case {HexHub.Database.backend(), Application.get_env(:hex_hub, :clustering, %{})} do
+      {:mnesia, %{enabled: true} = config} ->
         configure_clustering(config)
 
       _ ->
@@ -232,6 +232,14 @@ defmodule HexHub.Clustering do
   def join_cluster(node) when is_binary(node), do: join_cluster(String.to_atom(node))
 
   def join_cluster(node) do
+    if HexHub.Database.backend() == :postgresql do
+      {:error, :requires_mnesia}
+    else
+      do_join_cluster(node)
+    end
+  end
+
+  defp do_join_cluster(node) do
     Telemetry.log(:info, :cluster, "Attempting to join cluster node", %{node: node})
 
     case :net_adm.ping(node) do
@@ -263,6 +271,14 @@ defmodule HexHub.Clustering do
   Leave the cluster.
   """
   def leave_cluster do
+    if HexHub.Database.backend() == :postgresql do
+      {:error, :requires_mnesia}
+    else
+      do_leave_cluster()
+    end
+  end
+
+  defp do_leave_cluster do
     Telemetry.log(:info, :cluster, "Leaving cluster")
 
     # Stop Mnesia
@@ -306,6 +322,23 @@ defmodule HexHub.Clustering do
   Get cluster status information.
   """
   def get_cluster_status do
+    if HexHub.Database.backend() == :postgresql do
+      %{
+        node: node(),
+        backend: :postgresql,
+        running: HexHub.Database.system_info(:is_running),
+        tables:
+          Enum.map(HexHub.Database.tables(), fn table ->
+            %{name: table, size: HexHub.Database.table_info(table, :size)}
+          end),
+        connected_nodes: Node.list()
+      }
+    else
+      mnesia_cluster_status()
+    end
+  end
+
+  defp mnesia_cluster_status do
     %{
       node: node(),
       running: :mnesia.system_info(:is_running),

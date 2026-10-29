@@ -23,7 +23,7 @@ defmodule HexHub.Audit do
   Initialize audit logging system.
   """
   def init() do
-    case :mnesia.create_table(@audit_table,
+    case HexHub.Database.create_table(@audit_table,
            attributes: [
              :id,
              :timestamp,
@@ -67,8 +67,8 @@ defmodule HexHub.Audit do
       user_agent
     }
 
-    case :mnesia.transaction(fn ->
-           :mnesia.write(event)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.write(event)
          end) do
       {:atomic, :ok} -> :ok
       {:aborted, reason} -> {:error, "Failed to log audit event: #{inspect(reason)}"}
@@ -81,8 +81,8 @@ defmodule HexHub.Audit do
   @spec get_audit_logs(String.t(), String.t(), integer()) ::
           {:ok, [audit_event()]} | {:error, String.t()}
   def get_audit_logs(resource_type, resource_id, limit \\ 100) do
-    case :mnesia.transaction(fn ->
-           :mnesia.foldl(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.foldl(
              fn {:audit_logs, id, timestamp, user_id, action, rt, rid, details, ip, ua}, acc ->
                if rt == resource_type and rid == resource_id do
                  [
@@ -119,8 +119,8 @@ defmodule HexHub.Audit do
   """
   @spec get_all_audit_logs(integer(), integer()) :: {:ok, [audit_event()]} | {:error, String.t()}
   def get_all_audit_logs(limit \\ 100, offset \\ 0) do
-    case :mnesia.transaction(fn ->
-           :mnesia.foldl(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.foldl(
              fn {:audit_logs, id, timestamp, user_id, action, rt, rid, details, ip, ua}, acc ->
                [
                  %{

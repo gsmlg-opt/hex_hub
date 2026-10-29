@@ -89,8 +89,10 @@ defmodule HexHubWeb.API.ReleaseControllerTest do
         HexHub.Packages.create_package(package_name, "hexpm", %{description: "Test package"})
 
       # Add authenticated user as owner
-      :mnesia.transaction(fn ->
-        :mnesia.write({:package_owners, package_name, user.username, "owner", DateTime.utc_now()})
+      HexHub.Database.transaction(fn ->
+        HexHub.Database.write(
+          {:package_owners, package_name, user.username, "owner", DateTime.utc_now()}
+        )
       end)
 
       {:ok, _release} =
@@ -105,8 +107,10 @@ defmodule HexHubWeb.API.ReleaseControllerTest do
       {:ok, _package} =
         HexHub.Packages.create_package("phoenix", "hexpm", %{description: "Test"})
 
-      :mnesia.transaction(fn ->
-        :mnesia.write({:package_owners, "phoenix", user.username, "owner", DateTime.utc_now()})
+      HexHub.Database.transaction(fn ->
+        HexHub.Database.write(
+          {:package_owners, "phoenix", user.username, "owner", DateTime.utc_now()}
+        )
       end)
 
       conn = post(conn, ~p"/api/packages/phoenix/releases/99.99.99/retire", %{})
@@ -125,8 +129,10 @@ defmodule HexHubWeb.API.ReleaseControllerTest do
         HexHub.Packages.create_package(package_name, "hexpm", %{description: "Test package"})
 
       # Add authenticated user as owner
-      :mnesia.transaction(fn ->
-        :mnesia.write({:package_owners, package_name, user.username, "owner", DateTime.utc_now()})
+      HexHub.Database.transaction(fn ->
+        HexHub.Database.write(
+          {:package_owners, package_name, user.username, "owner", DateTime.utc_now()}
+        )
       end)
 
       {:ok, _release} =
@@ -151,8 +157,10 @@ defmodule HexHubWeb.API.ReleaseControllerTest do
       {:ok, _package} =
         HexHub.Packages.create_package("phoenix", "hexpm", %{description: "Test"})
 
-      :mnesia.transaction(fn ->
-        :mnesia.write({:package_owners, "phoenix", user.username, "owner", DateTime.utc_now()})
+      HexHub.Database.transaction(fn ->
+        HexHub.Database.write(
+          {:package_owners, "phoenix", user.username, "owner", DateTime.utc_now()}
+        )
       end)
 
       conn = delete(conn, ~p"/api/packages/phoenix/releases/99.99.99/retire")

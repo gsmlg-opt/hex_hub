@@ -115,8 +115,8 @@ defmodule HexHub.Backup do
   Lists all backup records, sorted by creation date (newest first).
   """
   def list_backups do
-    case :mnesia.transaction(fn ->
-           :mnesia.foldl(
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.foldl(
              fn record, acc ->
                [record_to_map(record) | acc]
              end,
@@ -140,8 +140,8 @@ defmodule HexHub.Backup do
   Gets a single backup by ID.
   """
   def get_backup(id) do
-    case :mnesia.transaction(fn ->
-           :mnesia.read(:backups, id)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.read(:backups, id)
          end) do
       {:atomic, [record]} ->
         {:ok, record_to_map(record)}
@@ -166,8 +166,8 @@ defmodule HexHub.Backup do
         end
 
         # Delete the record
-        case :mnesia.transaction(fn ->
-               :mnesia.delete({:backups, id})
+        case HexHub.Database.transaction(fn ->
+               HexHub.Database.delete({:backups, id})
              end) do
           {:atomic, :ok} ->
             emit_backup_deleted(backup, :manual)
@@ -302,8 +302,8 @@ defmodule HexHub.Backup do
        backup.status, backup.error_message, backup.created_at, backup.completed_at,
        backup.expires_at}
 
-    case :mnesia.transaction(fn ->
-           :mnesia.write(record)
+    case HexHub.Database.transaction(fn ->
+           HexHub.Database.write(record)
          end) do
       {:atomic, :ok} -> :ok
       {:aborted, reason} -> {:error, reason}

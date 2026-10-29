@@ -378,7 +378,7 @@ defmodule HexHub.MCP.Tools.Releases do
   end
 
   defp get_total_releases_count do
-    :mnesia.table_info(:package_releases, :size)
+    HexHub.Database.table_info(:package_releases, :size)
   end
 
   defp get_releases_with_docs_count do
@@ -394,8 +394,8 @@ defmodule HexHub.MCP.Tools.Releases do
   end
 
   defp calculate_avg_releases_per_package do
-    total_packages = :mnesia.table_info(:packages, :size)
-    total_releases = :mnesia.table_info(:package_releases, :size)
+    total_packages = HexHub.Database.table_info(:packages, :size)
+    total_releases = HexHub.Database.table_info(:package_releases, :size)
 
     if total_packages > 0 do
       total_releases / total_packages

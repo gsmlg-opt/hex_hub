@@ -22,8 +22,8 @@ defmodule HexHubAdminWeb.ConnCase do
   end
 
   setup _tags do
-    # Clear Mnesia tables before each test
-    HexHub.Mnesia.reset_tables()
+    # Clear metadata tables before each test
+    HexHub.Database.reset_tables()
 
     # Clear Users test store
     HexHub.Users.reset_test_store()

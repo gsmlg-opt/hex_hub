@@ -39,6 +39,10 @@ docker run -p 4000:4000 \
 
 ### Optional
 - `MIX_ENV`: Set to `prod` for production (default: prod)
+- `DATABASE_BACKEND`: Metadata database, `mnesia` (default) or `postgresql`
+- `DATABASE_URL`: PostgreSQL connection URL, required for the PostgreSQL backend
+- `DATABASE_POOL_SIZE`: PostgreSQL pool size (default: 10)
+- `DATABASE_SSL`: Enable PostgreSQL TLS with certificate verification (default: false)
 - `CLUSTERING_ENABLED`: Enable clustering (default: false)
 - `STORAGE_TYPE`: `local` or `s3` (default: local)
 - `S3_BUCKET`: S3 bucket name (if using S3)
@@ -54,6 +58,27 @@ docker run -p 4000:4000 \
 - `PORT`: Port to run on (default: 4000)
 
 ## Docker Compose Examples
+
+### PostgreSQL Metadata
+
+Create the PostgreSQL database before starting HexHub, then pass its connection
+settings into the container. The database user must be able to create tables.
+
+```bash
+export DATABASE_BACKEND=postgresql
+export DATABASE_URL=postgresql://hex_hub:password@database.example.com/hex_hub
+export DATABASE_SSL=true
+
+docker run --env SECRET_KEY_BASE --env PHX_HOST \
+  --env DATABASE_BACKEND --env DATABASE_URL --env DATABASE_SSL \
+  -p 4360:4360 -p 4361:4361 \
+  -v "$(pwd)/storage:/app/priv/storage" \
+  hex_hub:latest
+```
+
+Mnesia directories and Mnesia replication are unused with this backend. Retain
+the artifact storage volume or S3 configuration. See the README's metadata
+database section for the backup format's migration limits.
 
 ### Basic Single Node
 

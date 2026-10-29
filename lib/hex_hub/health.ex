@@ -39,29 +39,29 @@ defmodule HexHub.HealthCheck do
   """
   @spec basic() :: health_result()
   def basic do
-    mnesia_check = check_mnesia()
+    database_check = check_database()
 
-    status = if mnesia_check.healthy, do: :healthy, else: :unhealthy
+    status = if database_check.healthy, do: :healthy, else: :unhealthy
 
     %{
       status: status,
-      checks: %{mnesia: mnesia_check},
+      checks: %{HexHub.Database.backend() => database_check},
       timestamp: DateTime.utc_now()
     }
   end
 
   @doc """
   Readiness check - can the application serve traffic?
-  Checks Mnesia tables are loaded and ready.
+  Checks metadata tables are loaded and ready.
   """
   @spec ready() :: health_result()
   def ready do
-    mnesia_check = check_mnesia()
-    tables_check = check_mnesia_tables()
+    database_check = check_database()
+    tables_check = check_database_tables()
 
     status =
       cond do
-        not mnesia_check.healthy -> :unhealthy
+        not database_check.healthy -> :unhealthy
         not tables_check.healthy -> :unhealthy
         true -> :healthy
       end
@@ -69,7 +69,7 @@ defmodule HexHub.HealthCheck do
     %{
       status: status,
       checks: %{
-        mnesia: mnesia_check,
+        HexHub.Database.backend() => database_check,
         tables: tables_check
       },
       timestamp: DateTime.utc_now()
@@ -82,20 +82,20 @@ defmodule HexHub.HealthCheck do
   """
   @spec deep() :: health_result()
   def deep do
-    mnesia_check = check_mnesia()
-    tables_check = check_mnesia_tables()
+    database_check = check_database()
+    tables_check = check_database_tables()
     storage_check = check_storage()
     upstream_check = check_upstream()
 
     all_checks = %{
-      mnesia: mnesia_check,
+      HexHub.Database.backend() => database_check,
       tables: tables_check,
       storage: storage_check,
       upstream: upstream_check
     }
 
     # Determine overall status
-    critical_healthy = mnesia_check.healthy and tables_check.healthy
+    critical_healthy = database_check.healthy and tables_check.healthy
     all_healthy = critical_healthy and storage_check.healthy and upstream_check.healthy
 
     status =
@@ -114,23 +114,23 @@ defmodule HexHub.HealthCheck do
 
   ## Private check functions
 
-  defp check_mnesia do
-    case :mnesia.system_info(:is_running) do
+  defp check_database do
+    case HexHub.Database.system_info(:is_running) do
       :yes ->
-        %{healthy: true, message: "Mnesia is running"}
+        %{healthy: true, message: "#{HexHub.Database.backend()} is running"}
 
       status ->
-        %{healthy: false, message: "Mnesia status: #{status}"}
+        %{healthy: false, message: "#{HexHub.Database.backend()} status: #{status}"}
     end
   rescue
     e ->
-      %{healthy: false, message: "Mnesia check failed: #{inspect(e)}"}
+      %{healthy: false, message: "#{HexHub.Database.backend()} check failed: #{inspect(e)}"}
   end
 
-  defp check_mnesia_tables do
-    tables = HexHub.Mnesia.tables()
+  defp check_database_tables do
+    tables = HexHub.Database.tables()
 
-    case :mnesia.wait_for_tables(tables, 1000) do
+    case HexHub.Database.wait_for_tables(tables, 1000) do
       :ok ->
         %{healthy: true, message: "All #{length(tables)} tables ready"}
 

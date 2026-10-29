@@ -173,8 +173,8 @@ defmodule HexHubWeb.Plugs.RegistryCache do
   Get current registry version.
   """
   def get_registry_version() do
-    case :mnesia.transaction(fn ->
-           case :mnesia.read({:system_metadata, @registry_version_key}) do
+    case HexHub.Database.transaction(fn ->
+           case HexHub.Database.read({:system_metadata, @registry_version_key}) do
              [{:system_metadata, @registry_version_key, version}] -> version
              [] -> 1
            end
@@ -188,9 +188,9 @@ defmodule HexHubWeb.Plugs.RegistryCache do
   Increment registry version (invalidates all caches).
   """
   def increment_registry_version() do
-    :mnesia.transaction(fn ->
+    HexHub.Database.transaction(fn ->
       new_version = get_registry_version() + 1
-      :mnesia.write({:system_metadata, @registry_version_key, new_version})
+      HexHub.Database.write({:system_metadata, @registry_version_key, new_version})
       new_version
     end)
   end

@@ -1,19 +1,19 @@
 defmodule HexHub.StorageConfig do
   @moduledoc """
   Storage configuration management for HexHub.
-  Persists configuration to Mnesia so it survives application restarts.
+  Persists configuration to the metadata database so it survives application restarts.
   Also applies config to Application env so ExAws and the rest of the app work.
   """
 
   alias HexHub.Telemetry
 
   @doc """
-  Get the current storage configuration from Mnesia.
-  Falls back to Application env defaults if no Mnesia record exists.
+  Get the current storage configuration from the metadata database.
+  Falls back to Application env defaults if no database record exists.
   """
   @spec config() :: map()
   def config do
-    case :mnesia.dirty_read(:storage_configs, "default") do
+    case HexHub.Database.dirty_read(:storage_configs, "default") do
       [] ->
         get_default_config()
 
@@ -40,7 +40,7 @@ defmodule HexHub.StorageConfig do
         }
     end
   rescue
-    # Mnesia may not be ready during early startup
+    # The database may not be ready during early startup
     _ -> get_default_config()
   end
 
@@ -64,7 +64,7 @@ defmodule HexHub.StorageConfig do
   end
 
   @doc """
-  Update storage configuration. Persists to Mnesia and applies to Application env.
+  Update storage configuration. Persists to the metadata database and applies to Application env.
   """
   @spec update_config(map()) :: :ok | {:error, String.t()}
   def update_config(params) do
@@ -111,7 +111,7 @@ defmodule HexHub.StorageConfig do
          s3_region, s3_host, s3_port, s3_scheme, s3_path_style, s3_access_key_id,
          s3_secret_access_key, DateTime.to_unix(inserted_at), DateTime.to_unix(current_time)}
 
-      case :mnesia.sync_transaction(fn -> :mnesia.write(record) end) do
+      case HexHub.Database.sync_transaction(fn -> HexHub.Database.write(record) end) do
         {:atomic, :ok} ->
           # Apply to Application env so ExAws and the rest of the app pick it up
           apply_to_app_env()
@@ -133,25 +133,25 @@ defmodule HexHub.StorageConfig do
   end
 
   @doc """
-  Initialize default storage configuration from Application env if no Mnesia record exists.
+  Initialize default storage configuration from Application env if no database record exists.
   Called on application startup.
   """
   @spec init_default_config() :: :ok | {:error, binary()}
   def init_default_config do
-    case :mnesia.dirty_read(:storage_configs, "default") do
+    case HexHub.Database.dirty_read(:storage_configs, "default") do
       [] ->
-        # Seed Mnesia from current Application env (set by config/runtime.exs)
+        # Seed the database from current Application env (set by config/runtime.exs)
         seed_from_app_env()
 
       [_] ->
-        # Mnesia already has config — apply it to Application env
+        # The database already has config — apply it to Application env
         apply_to_app_env()
         :ok
     end
   end
 
   @doc """
-  Apply Mnesia-stored config to Application env so ExAws and HexHub modules work.
+  Apply Database-stored config to Application env so ExAws and HexHub modules work.
   """
   @spec apply_to_app_env() :: :ok
   def apply_to_app_env do

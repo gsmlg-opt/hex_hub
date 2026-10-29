@@ -8,15 +8,15 @@ defmodule HexHub.UpstreamHTTPClientTest do
   alias HexHubWeb.API.RegistryController
 
   setup do
-    original_config = :mnesia.dirty_read(:upstream_configs, "default")
-    original_cache = :mnesia.dirty_match_object({:registry_cache, :_, :_, :_, :_})
-    {:atomic, :ok} = :mnesia.clear_table(:registry_cache)
+    original_config = HexHub.Database.dirty_read(:upstream_configs, "default")
+    original_cache = HexHub.Database.dirty_match_object({:registry_cache, :_, :_, :_, :_})
+    {:atomic, :ok} = HexHub.Database.clear_table(:registry_cache)
 
     on_exit(fn ->
-      :mnesia.dirty_delete(:upstream_configs, "default")
-      Enum.each(original_config, &:mnesia.dirty_write/1)
-      {:atomic, :ok} = :mnesia.clear_table(:registry_cache)
-      Enum.each(original_cache, &:mnesia.dirty_write/1)
+      HexHub.Database.dirty_delete(:upstream_configs, "default")
+      Enum.each(original_config, &HexHub.Database.dirty_write/1)
+      {:atomic, :ok} = HexHub.Database.clear_table(:registry_cache)
+      Enum.each(original_cache, &HexHub.Database.dirty_write/1)
     end)
 
     :ok =
@@ -208,7 +208,11 @@ defmodule HexHub.UpstreamHTTPClientTest do
     body = :zlib.gzip("cached protobuf")
     path = "/packages/http-client-test"
     headers = [{"content-encoding", ["gzip"]}, {"etag", ["cached-etag"]}]
-    :mnesia.dirty_write({:registry_cache, path, body, headers, System.system_time(:second)})
+
+    HexHub.Database.dirty_write(
+      {:registry_cache, path, body, headers, System.system_time(:second)}
+    )
+
     start_upstream(&send_resp(&1, 503, "unavailable"))
 
     conn =
@@ -221,7 +225,7 @@ defmodule HexHub.UpstreamHTTPClientTest do
   end
 
   test "registry proxy returns bad gateway when upstream fails without a cached response" do
-    :mnesia.dirty_delete(:registry_cache, "/packages/http-client-test")
+    HexHub.Database.dirty_delete(:registry_cache, "/packages/http-client-test")
     start_upstream(&send_resp(&1, 503, "unavailable"))
 
     conn =
@@ -250,7 +254,7 @@ defmodule HexHub.UpstreamHTTPClientTest do
 
     for path <- ["/names", "/versions"] do
       assert [{:registry_cache, ^path, ^body, headers, _cached_at}] =
-               :mnesia.dirty_read(:registry_cache, path)
+               HexHub.Database.dirty_read(:registry_cache, path)
 
       assert {"content-encoding", "gzip"} in headers
       assert {"etag", "refresh-etag"} in headers
@@ -349,10 +353,10 @@ defmodule HexHub.UpstreamHTTPClientTest do
 
   defp wait_for_cache(path, remaining \\ 100)
 
-  defp wait_for_cache(path, 0), do: :mnesia.dirty_read(:registry_cache, path)
+  defp wait_for_cache(path, 0), do: HexHub.Database.dirty_read(:registry_cache, path)
 
   defp wait_for_cache(path, remaining) do
-    case :mnesia.dirty_read(:registry_cache, path) do
+    case HexHub.Database.dirty_read(:registry_cache, path) do
       [] ->
         Process.sleep(5)
         wait_for_cache(path, remaining - 1)

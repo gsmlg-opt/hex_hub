@@ -7,7 +7,7 @@
 
 HexHub is a private Hex package manager and HexDocs server built with Phoenix. It is intended to run as a drop-in Hex registry for private Elixir packages, with optional upstream proxying and caching for public packages from hex.pm.
 
-The application uses Mnesia for metadata, local filesystem or S3-compatible object storage for package artifacts, and two Phoenix endpoints:
+The application uses Mnesia or PostgreSQL for metadata, local filesystem or S3-compatible object storage for package artifacts, and two Phoenix endpoints:
 
 - Main package/API endpoint: `http://localhost:4360`
 - Admin dashboard endpoint: `http://localhost:4361`
@@ -23,6 +23,7 @@ The application uses Mnesia for metadata, local filesystem or S3-compatible obje
 - Upstream proxy and cache for hex.pm-compatible repositories
 - Local filesystem or S3-compatible storage
 - Mnesia persistence without PostgreSQL or another external database
+- Optional PostgreSQL metadata backend
 - Optional Mnesia/libcluster clustering
 - Optional MCP JSON-RPC and WebSocket server for AI client integration
 - Backup export/import support
@@ -129,6 +130,10 @@ Production configuration is environment-driven.
 | `PORT` | Public package/API port | `4360` |
 | `ADMIN_PHX_HOST` | Admin dashboard hostname | `admin.hex-hub.dev` |
 | `ADMIN_PORT` | Admin dashboard port | `4361` |
+| `DATABASE_BACKEND` | Metadata backend: `mnesia` or `postgresql` | `mnesia` |
+| `DATABASE_URL` | PostgreSQL connection URL | required for PostgreSQL |
+| `DATABASE_POOL_SIZE` | PostgreSQL connection pool size | `10` |
+| `DATABASE_SSL` | Enable PostgreSQL TLS with certificate verification | `false` |
 | `MNESIA_DIR` | Mnesia data directory | `mnesia` |
 | `STORAGE_TYPE` | Storage backend: `local` or `s3` | `local` |
 | `STORAGE_PATH` | Local package/docs storage path | `priv/storage` |
@@ -152,6 +157,48 @@ Production configuration is environment-driven.
 | `LOG_CONSOLE_LEVEL` | Console log level | `info` |
 | `LOG_FILE_ENABLED` | Enable telemetry file logs | `false` |
 | `LOG_FILE_PATH` | Telemetry log file path | unset |
+
+## Metadata Database
+
+Mnesia remains the default and requires no external database. To use PostgreSQL,
+create a database and configure HexHub before starting it:
+
+```bash
+createdb hex_hub
+export DATABASE_BACKEND=postgresql
+export DATABASE_URL=postgresql://localhost/hex_hub
+mix phx.server
+```
+
+The same environment variables work with production releases and containers.
+HexHub creates its metadata tables at startup; the database role needs permission
+to create tables. Set `DATABASE_SSL=true` for a remote database that requires TLS
+and configure the trusted CA certificates on the host.
+
+PostgreSQL stores the existing records in binary columns with indexed keys,
+preserving maps, timestamps, and cached registry bytes. Pattern searches run in
+the application after loading candidate records. Transactions provide atomic
+writes and retry serialization conflicts. Mnesia is not started in this mode,
+and Mnesia cluster join/leave operations are unavailable. Multiple HexHub nodes
+can connect to the same PostgreSQL database; artifact storage must also be shared.
+
+Changing the backend does not automatically migrate existing data. The admin
+backup export/import flow transfers users, locally published packages, releases,
+and owners between backends. API keys, server settings, cached upstream data,
+and other metadata are outside that backup format and must be handled separately.
+Package and docs artifact storage continues to use the configured local or S3 backend.
+Keep the existing artifact directory or S3 bucket when switching metadata backends.
+The legacy backup importer currently restores artifact files into a flat directory
+instead of their package subdirectories; archive import alone does not relocate
+those files into the paths used for downloads.
+
+Run tests against a **dedicated, disposable database**; the test suite clears metadata:
+
+```bash
+createdb hex_hub_test
+DATABASE_BACKEND=postgresql DATABASE_URL=postgresql://localhost/hex_hub_test mix test
+DATABASE_BACKEND=postgresql DATABASE_URL=postgresql://localhost/hex_hub_test MIX_ENV=test mix test.e2e
+```
 
 ## Storage
 

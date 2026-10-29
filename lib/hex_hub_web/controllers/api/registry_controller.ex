@@ -7,7 +7,7 @@ defmodule HexHubWeb.API.RegistryController do
   - /versions - All package versions (gzipped protobuf)
   - /packages/:name - Package registry data (gzipped protobuf)
 
-  Responses are proxied from upstream hex.pm and cached locally in Mnesia.
+  Responses are proxied from upstream hex.pm and cached locally in the metadata database.
   When upstream is unavailable, cached responses are served as fallback.
   """
 
@@ -162,14 +162,14 @@ defmodule HexHubWeb.API.RegistryController do
     send_resp(conn, 200, data)
   end
 
-  # Cache a registry response in Mnesia for offline fallback
+  # Cache a registry response in the database for offline fallback
   defp cache_registry_response(path, data, headers) do
     record =
       {@registry_cache_table, path, data, headers, System.system_time(:second)}
 
     # Fire-and-forget write - don't block the response
     spawn(fn ->
-      case :mnesia.transaction(fn -> :mnesia.write(record) end) do
+      case HexHub.Database.transaction(fn -> HexHub.Database.write(record) end) do
         {:atomic, :ok} ->
           :ok
 
@@ -182,9 +182,9 @@ defmodule HexHubWeb.API.RegistryController do
     end)
   end
 
-  # Retrieve a cached registry response from Mnesia
+  # Retrieve a cached registry response from the metadata database
   defp get_cached_registry(path) do
-    case :mnesia.dirty_read(@registry_cache_table, path) do
+    case HexHub.Database.dirty_read(@registry_cache_table, path) do
       [{@registry_cache_table, ^path, data, headers, _cached_at}] ->
         {:ok, data, headers}
 
