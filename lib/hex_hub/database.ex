@@ -30,8 +30,6 @@ defmodule HexHub.Database do
   defp initialize do
     case backend() do
       :mnesia ->
-        configure_mnesia_dir()
-        :ok = HexHub.Clustering.init_clustering()
         :ok = HexHub.Mnesia.init()
         :ok = HexHub.Mnesia.migrate_package_source_field()
 
@@ -84,17 +82,6 @@ defmodule HexHub.Database do
     def unquote(operation)(unquote_splicing(args)) do
       adapter = if backend() == :postgresql, do: Postgres, else: :mnesia
       apply(adapter, unquote(operation), [unquote_splicing(args)])
-    end
-  end
-
-  defp configure_mnesia_dir do
-    case Application.get_env(:hex_hub, :mnesia_dir) do
-      nil ->
-        :ok
-
-      dir ->
-        File.mkdir_p!(dir)
-        Application.put_env(:mnesia, :dir, String.to_charlist(dir))
     end
   end
 end

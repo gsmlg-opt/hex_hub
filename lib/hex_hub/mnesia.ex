@@ -9,13 +9,49 @@ defmodule HexHub.Mnesia do
   Initialize Mnesia tables on application start.
   """
   def init() do
-    ensure_mnesia_running()
+    prepare_directory()
+    :ok = HexHub.Clustering.init_clustering()
+    :ok = ensure_mnesia_running()
     create_tables()
     wait_for_tables()
     create_indices()
     migrate_to_disc_copies()
-    migrate_api_keys_add_secret_and_last_accessed()
+    :ok = migrate_api_keys_add_secret_and_last_accessed()
     wait_for_tables()
+  end
+
+  defp prepare_directory do
+    directory =
+      (Application.get_env(:hex_hub, :mnesia_dir) || :mnesia.system_info(:directory))
+      |> IO.chardata_to_string()
+      |> Path.expand()
+
+    if :mnesia.system_info(:is_running) != :no do
+      running_directory = :mnesia.system_info(:directory) |> to_string() |> Path.expand()
+
+      if directory != running_directory do
+        raise "Mnesia is already running in #{inspect(running_directory)}, but MNESIA_DIR is " <>
+                "#{inspect(directory)}. Refusing to switch directories; verify the existing " <>
+                "data and restart with the intended directory."
+      end
+    end
+
+    probe =
+      Path.join(
+        directory,
+        ".hex_hub_write_check_#{System.system_time(:nanosecond)}_#{System.unique_integer([:positive])}"
+      )
+
+    with :ok <- File.mkdir_p(directory),
+         :ok <- File.write(probe, "", [:exclusive]),
+         :ok <- File.rm(probe) do
+      Application.put_env(:mnesia, :dir, String.to_charlist(directory))
+    else
+      {:error, reason} ->
+        raise "Mnesia directory #{inspect(directory)} is not writable: " <>
+                "#{:file.format_error(reason)}. Ensure MNESIA_DIR and its files are writable " <>
+                "by the application user; check bind-mount ownership and permissions."
+    end
   end
 
   # Wait for all tables to be fully loaded from disc
@@ -26,12 +62,10 @@ defmodule HexHub.Mnesia do
         :ok
 
       {:timeout, remaining} ->
-        IO.warn("Timeout waiting for Mnesia tables: #{inspect(remaining)}")
-        :ok
+        raise "Timeout waiting for Mnesia tables: #{inspect(remaining)}"
 
       {:error, reason} ->
-        IO.warn("Error waiting for Mnesia tables: #{inspect(reason)}")
-        :ok
+        raise "Error waiting for Mnesia tables: #{inspect(reason)}"
     end
   end
 
@@ -40,11 +74,18 @@ defmodule HexHub.Mnesia do
       :no ->
         # Ensure schema exists for current node
         ensure_schema()
-        :mnesia.start()
 
-      _ ->
+        case :mnesia.start() do
+          :ok -> :ok
+          {:error, reason} -> raise "Failed to start Mnesia: #{inspect(reason)}"
+        end
+
+      :yes ->
         # Already running, ensure current node is in schema
         ensure_node_in_schema()
+
+      status ->
+        raise "Cannot initialize Mnesia while it is #{inspect(status)}"
     end
   end
 
@@ -58,8 +99,7 @@ defmodule HexHub.Mnesia do
         :ok
 
       {:error, reason} ->
-        IO.warn("Failed to create Mnesia schema: #{inspect(reason)}")
-        :ok
+        raise "Failed to create Mnesia schema: #{inspect(reason)}"
     end
   end
 
@@ -74,12 +114,7 @@ defmodule HexHub.Mnesia do
           # Node not in schema, try to add it
           add_node_to_schema()
         end
-
-      _ ->
-        :ok
     end
-  rescue
-    _ -> :ok
   end
 
   defp add_node_to_schema do
@@ -93,29 +128,22 @@ defmodule HexHub.Mnesia do
         :ok
 
       {:aborted, reason} ->
-        IO.warn("Could not add node to schema: #{inspect(reason)}")
-        :ok
+        raise "Could not persist the Mnesia schema: #{inspect(reason)}"
     end
   end
 
   defp create_tables() do
-    # Determine storage type based on node configuration
-    # disc_copies requires a proper node name (not nonode@nohost)
-    # Fall back to ram_copies for development without node name
-    storage_type = get_storage_type()
-
     Enum.each(HexHub.Database.Schema.definitions(), fn {table_name, opts} ->
       opts =
         if Keyword.has_key?(opts, :ram_copies),
           do: opts,
-          else: opts ++ storage_opt(storage_type)
+          else: opts ++ [disc_copies: [node()]]
 
-      create_table_with_fallback(table_name, opts, storage_type)
+      create_table(table_name, opts)
     end)
   end
 
-  # Try to create table, falling back to ram_copies if disc_copies fails
-  defp create_table_with_fallback(table_name, opts, :disc_copies) do
+  defp create_table(table_name, opts) do
     case :mnesia.create_table(table_name, opts) do
       {:atomic, :ok} ->
         :ok
@@ -123,34 +151,10 @@ defmodule HexHub.Mnesia do
       {:aborted, {:already_exists, ^table_name}} ->
         :ok
 
-      {:aborted, {:bad_type, ^table_name, :disc_copies, _node}} ->
-        # disc_copies failed (schema issue), fall back to ram_copies
-        IO.puts("Falling back to ram_copies for table #{table_name}")
-        fallback_opts = Keyword.delete(opts, :disc_copies) ++ [ram_copies: [node()]]
-        create_table_with_fallback(table_name, fallback_opts, :ram_copies)
-
       {:aborted, reason} ->
-        IO.warn("Failed to create table #{table_name}: #{inspect(reason)}")
+        raise "Failed to create Mnesia table #{table_name}: #{inspect(reason)}"
     end
   end
-
-  defp create_table_with_fallback(table_name, opts, :ram_copies) do
-    case :mnesia.create_table(table_name, opts) do
-      {:atomic, :ok} -> :ok
-      {:aborted, {:already_exists, ^table_name}} -> :ok
-      {:aborted, reason} -> IO.warn("Failed to create table #{table_name}: #{inspect(reason)}")
-    end
-  end
-
-  # Determine storage type for Mnesia tables.
-  # Always use disc_copies for data persistence across restarts.
-  # Mnesia supports disc_copies on nonode@nohost as long as the schema is on disc.
-  defp get_storage_type do
-    :disc_copies
-  end
-
-  # Generate storage option keyword list based on storage type
-  defp storage_opt(:disc_copies), do: [disc_copies: [node()]]
 
   defp create_indices() do
     # Additional indices for common queries
@@ -311,34 +315,10 @@ defmodule HexHub.Mnesia do
   @doc """
   Migrate existing ram_copies tables to disc_copies for data persistence.
   This is needed for deployments that were created before disc_copies was enabled.
-  Only runs when the node has a proper distributed name (not nonode@nohost).
+  Fails startup if a persistent table cannot be stored on disk.
   """
   def migrate_to_disc_copies do
-    do_migrate_to_disc_copies()
-  end
-
-  defp do_migrate_to_disc_copies do
-    # Tables that should use disc_copies for persistence
-    persistent_tables = [
-      :users,
-      :repositories,
-      :packages,
-      :package_releases,
-      :package_owners,
-      :api_keys,
-      :package_downloads,
-      :audit_logs,
-      :upstream_configs,
-      :publish_configs,
-      :storage_configs,
-      :blocked_addresses,
-      :retired_releases,
-      :system_metadata,
-      :backups,
-      :registry_cache
-    ]
-
-    Enum.each(persistent_tables, fn table ->
+    Enum.each(@tables -- [:rate_limit], fn table ->
       migrate_table_to_disc_copies(table)
     end)
   end
@@ -346,40 +326,31 @@ defmodule HexHub.Mnesia do
   defp migrate_table_to_disc_copies(table) do
     node = node()
 
-    try do
-      # Check current storage type for this table
-      case :mnesia.table_info(table, :storage_type) do
-        :ram_copies ->
-          # Table exists as ram_copies, convert to disc_copies
-          case :mnesia.change_table_copy_type(table, node, :disc_copies) do
-            {:atomic, :ok} ->
-              IO.puts("Migrated table #{table} from ram_copies to disc_copies")
-              :ok
+    case :mnesia.table_info(table, :storage_type) do
+      :ram_copies ->
+        # Table exists as ram_copies, convert to disc_copies
+        case :mnesia.change_table_copy_type(table, node, :disc_copies) do
+          {:atomic, :ok} ->
+            IO.puts("Migrated table #{table} from ram_copies to disc_copies")
+            :ok
 
-            {:aborted, {:already_exists, ^table, ^node, :disc_copies}} ->
-              :ok
+          {:aborted, {:already_exists, ^table, ^node, :disc_copies}} ->
+            :ok
 
-            {:aborted, reason} ->
-              IO.warn("Failed to migrate table #{table} to disc_copies: #{inspect(reason)}")
-              {:error, reason}
-          end
+          {:aborted, reason} ->
+            raise "Failed to persist Mnesia table #{table}: #{inspect(reason)}"
+        end
 
-        :disc_copies ->
-          # Already disc_copies, nothing to do
-          :ok
-
-        :disc_only_copies ->
-          # Already on disc, nothing to do
-          :ok
-
-        other ->
-          IO.warn("Table #{table} has unexpected storage type: #{inspect(other)}")
-          :ok
-      end
-    rescue
-      e ->
-        IO.warn("Error checking table #{table}: #{inspect(e)}")
+      :disc_copies ->
+        # Already disc_copies, nothing to do
         :ok
+
+      :disc_only_copies ->
+        # Already on disc, nothing to do
+        :ok
+
+      other ->
+        raise "Mnesia table #{table} has unexpected storage type: #{inspect(other)}"
     end
   end
 

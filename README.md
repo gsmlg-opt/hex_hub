@@ -170,6 +170,14 @@ export DATABASE_URL=postgresql://localhost/hex_hub
 mix phx.server
 ```
 
+For Mnesia, `MNESIA_DIR` must be writable by the application user. The container
+runs as `nobody` (UID 65534); bind-mounted directories retain their host ownership
+and must grant that user write access. Startup refuses an unwritable directory,
+an already running Mnesia instance using a different directory, or a persistence
+failure. Persistent metadata tables are never silently replaced with memory-only
+tables. Check the actual directory used by older deployments before changing
+`MNESIA_DIR`; changing the setting does not move existing data.
+
 The same environment variables work with production releases and containers.
 HexHub creates its metadata tables at startup; the database role needs permission
 to create tables. Set `DATABASE_SSL=true` for a remote database that requires TLS
