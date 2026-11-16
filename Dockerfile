@@ -7,11 +7,11 @@
 # This file is based on these images:
 #
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
-#   - https://hub.docker.com/_/ubuntu/tags?name=noble - for the release image
+#   - https://hub.docker.com/_/ubuntu/tags?name=26.04 - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: docker.io/hexpm/elixir:1.19.0-erlang-28.5.0.2-ubuntu-noble-20260509.1
+# DuskMoon's published GNU native artifacts require Ubuntu 26.04 / glibc 2.43.
 #
-FROM hexpm/elixir:1.19.0-erlang-28.5.0.2-ubuntu-noble-20260509.1 AS builder
+FROM hexpm/elixir:1.19.0-erlang-28.5.0.2-ubuntu-resolute-20260421 AS builder
 
 # install build dependencies
 RUN apt-get update \
@@ -68,7 +68,7 @@ RUN mix release
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
-FROM ubuntu:noble AS final
+FROM ubuntu:26.04 AS final
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \

@@ -2,6 +2,9 @@
 
 This guide covers how to use Docker to deploy HexHub.
 
+The builder and runtime images use Ubuntu 26.04. This provides glibc 2.43,
+the supported baseline for DuskMoon Bundler's published Linux GNU native artifacts.
+
 ## Quick Start
 
 ### Using Docker Compose
