@@ -82,7 +82,8 @@ if config_env() == :prod do
     storage_path: System.get_env("STORAGE_PATH", "priv/storage"),
     mnesia_dir: System.get_env("MNESIA_DIR", "mnesia"),
     s3_bucket: System.get_env("S3_BUCKET"),
-    s3_bucket_path: System.get_env("S3_BUCKET_PATH", "/")
+    s3_bucket_path: System.get_env("S3_BUCKET_PATH", "/"),
+    s3_region: System.get_env("AWS_REGION", "us-east-1")
 
   # S3 configuration (when STORAGE_TYPE=s3)
   if storage_type == :s3 do
