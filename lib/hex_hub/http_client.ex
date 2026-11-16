@@ -4,6 +4,7 @@ defmodule HexHub.HTTPClient do
 
   Responses preserve encoded bytes unless `json: true` or `decode_body: true`
   enables content decoding. JSON parsing is opt-in with `json: true`.
+  Request and response stream failures return `{:error, reason}`.
   Retries are owned by the caller.
   """
 
@@ -49,6 +50,6 @@ defmodule HexHub.HTTPClient do
       {:ok, body}
     end
   rescue
-    error in RuntimeError -> {:error, error}
+    error in HTTP.ResponseError -> {:error, error.reason}
   end
 end

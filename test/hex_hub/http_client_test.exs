@@ -96,7 +96,7 @@ defmodule HexHub.HTTPClientTest do
         send_resp(conn, 200, "too late")
       end)
 
-    assert {:error, :request_timeout} = HTTPClient.get(url, timeout: 20)
+    assert {:error, :timeout} = HTTPClient.get(url, timeout: 20)
   end
 
   test "a stalled response stream returns an error instead of partial data" do
@@ -108,8 +108,13 @@ defmodule HexHub.HTTPClientTest do
         conn
       end)
 
-    assert {:error, %RuntimeError{message: message}} = HTTPClient.get(url, timeout: 20)
-    assert message =~ "request_timeout"
+    assert {:error, :timeout} = HTTPClient.get(url, timeout: 20)
+  end
+
+  test "unknown request options are rejected instead of silently ignored" do
+    assert_raise ArgumentError, ~r/unknown.*option/i, fn ->
+      HTTPClient.get("http://127.0.0.1", timeuot: 20)
+    end
   end
 
   test "ExAws adapter forwards signed upload bytes and returns the required response shape" do
@@ -232,7 +237,7 @@ defmodule HexHub.HTTPClientTest do
     assert HTTP.Response.read_all(response) == "too late"
     assert :ok = HTTP.RequestCompletion.await(HTTP.Promise.completion(promise))
 
-    assert {:error, %{reason: :request_timeout}} =
+    assert {:error, %{reason: :timeout}} =
              HTTPClient.ExAws.request(:get, url, "", [], Keyword.put(opts, :recv_timeout, 20))
   end
 
@@ -297,7 +302,23 @@ defmodule HexHub.HTTPClientTest do
 
     email = %Swoosh.Email{private: %{client_options: [receive_timeout: 20]}}
 
-    assert {:error, :request_timeout} = HTTPClient.Swoosh.post(url, [], "email", email)
+    assert {:error, :timeout} = HTTPClient.Swoosh.post(url, [], "email", email)
+  end
+
+  test "adapters return stream failures without leaking exceptions or partial data" do
+    url =
+      start_server(fn conn ->
+        conn = send_chunked(conn, 200)
+        {:ok, conn} = chunk(conn, "partial")
+        Process.sleep(100)
+        conn
+      end)
+
+    assert {:error, %{reason: :timeout}} =
+             HTTPClient.ExAws.request(:get, url, "", [], recv_timeout: 20)
+
+    email = %Swoosh.Email{private: %{client_options: [receive_timeout: 20]}}
+    assert {:error, :timeout} = HTTPClient.Swoosh.post(url, [], "email", email)
   end
 
   test "Swoosh adapter preserves boolean redirect client options" do

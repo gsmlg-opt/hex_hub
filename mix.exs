@@ -45,19 +45,20 @@ defmodule HexHub.MixProject do
       {:lazy_html, ">= 0.1.0"},
       {:phoenix_live_dashboard, "~> 0.9.1"},
       {:phoenix_duskmoon, "~> 10.0"},
-      {:duskmoon_bundler, "~> 10.0"},
+      # TODO(upstream): duskmoon-dev/duskmoon-bundler#40 - HTTP RC14 bridge compatibility.
+      {:duskmoon_bundler, "~> 10.1.8"},
       {:plug, "~> 1.20", override: true},
       {:swoosh, "~> 1.16"},
-      {:http_fetch, "~> 0.21.16"},
-      {:http_event_source, "~> 0.21.16"},
-      {:http_web_socket, "~> 0.21.16"},
+      {:http_fetch, "~> 1.0.0-rc.14"},
+      {:http_event_source, "~> 1.0.0-rc.14"},
+      {:http_web_socket, "~> 1.0.0-rc.14"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.3.1"},
-      {:gaoxy_http, "~> 0.12.1"},
-      {:websock_adapter, "~> 0.12.1", hex: :gaoxy_websock_adapter, override: true},
+      {:gaoxy_http, "~> 0.16.5"},
+      {:websock_adapter, "~> 0.16.5", hex: :gaoxy_websock_adapter, override: true},
       {:bcrypt_elixir, "~> 3.0"},
       {:ecto_sql, "~> 3.13"},
       {:postgrex, "~> 0.22"},
@@ -107,7 +108,7 @@ defmodule HexHub.MixProject do
 
   defp quickbeam_source_deps do
     if quickbeam_source_build?() do
-      [{:zigler, "~> 0.16.0", runtime: false}]
+      [{:zigler, "~> 0.17.0", runtime: false}]
     else
       []
     end
@@ -116,8 +117,8 @@ defmodule HexHub.MixProject do
   defp quickbeam_compile_alias do
     if quickbeam_source_build?() do
       [
-        "cmd mise exec zig@0.16.0 -- mix deps.compile zigler --include-children",
-        "cmd mise exec zig@0.16.0 -- env QUICKBEAM_BUILD=1 mix deps.compile duskmoon_quickbeam --force"
+        "cmd mise exec zig@0.17.1 -- sh -c 'export ZIG_EXECUTABLE_PATH=\"$(command -v zig)\"; mix deps.compile zigler --include-children'",
+        "cmd mise exec zig@0.17.1 -- sh -c 'export ZIG_EXECUTABLE_PATH=\"$(command -v zig)\"; QUICKBEAM_BUILD=1 mix deps.compile duskmoon_quickbeam --force'"
       ]
     else
       []
